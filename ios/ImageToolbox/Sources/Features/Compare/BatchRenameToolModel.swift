@@ -51,9 +51,9 @@ final class BatchRenameToolModel {
     let data: Data
   }
 
-  /// One picture to re-encode, with the stem its file gets.
+  /// One picture to re-encode, with the file name shown on its row.
   private struct ExportItem: Sendable {
-    let stem: String
+    let fileName: String
     let picture: LoadedImage
   }
 
@@ -78,20 +78,29 @@ final class BatchRenameToolModel {
   @ObservationIgnored private var exportTask: Task<Void, Never>?
 
   /// One entry per loaded picture. Photos does not expose file names, so each picture is
-  /// named `IMG_<number>.jpg`, numbered from 1 in the order it was picked.
+  /// named `IMG_<number>`, numbered from 1 in the order it was picked. The name ends with the
+  /// export format's extension, because that is the file the batch writes.
   var entries: [Entry] {
     pictures.enumerated().map { index, picture -> Entry in
       let number = index + 1
       let context = RenameContext(
         originalName: "IMG_\(number)",
-        fileExtension: "jpg",
+        fileExtension: exportFormat.fileExtension,
         date: loadDate)
       let name = BatchRename.render(pattern: pattern, context: context, sequenceNumber: number)
       return Entry(
         id: number,
-        fileName: name.replacingOccurrences(of: "/", with: "-"),
+        fileName: Self.withExtension(name.replacingOccurrences(of: "/", with: "-"), exportFormat),
         data: picture.data)
     }
+  }
+
+  /// Adds the export extension when the pattern left it out. An empty name stays empty, so the
+  /// share button of that row stays disabled.
+  private static func withExtension(_ name: String, _ format: OutputFormat) -> String {
+    let suffix = "." + format.fileExtension
+    guard !name.isEmpty, !name.lowercased().hasSuffix(suffix) else { return name }
+    return name + suffix
   }
 
   func load(_ items: [PhotosPickerItem]) async {
@@ -111,7 +120,7 @@ final class BatchRenameToolModel {
   func startExport(encoder: any ImageEncoding) {
     guard !pictures.isEmpty, exportTask == nil else { return }
     let items = zip(entries, pictures).map { entry, picture in
-      ExportItem(stem: (entry.fileName as NSString).deletingPathExtension, picture: picture)
+      ExportItem(fileName: entry.fileName, picture: picture)
     }
     let format = exportFormat
     let quality = exportQuality
@@ -131,8 +140,8 @@ final class BatchRenameToolModel {
               as: format,
               quality: quality,
               metadataSource: keepMetadata ? item.picture.data : nil)
-            guard let data else { throw ExportError.encodingFailed(item.stem) }
-            return ExportFile(data: data, fileName: "\(item.stem).\(format.fileExtension)")
+            guard let data else { throw ExportError.encodingFailed(item.fileName) }
+            return ExportFile(data: data, fileName: item.fileName)
           },
           progress: { [weak self] report in
             Task { @MainActor in self?.progress = report }

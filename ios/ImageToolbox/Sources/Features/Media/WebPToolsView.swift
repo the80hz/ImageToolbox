@@ -1,8 +1,13 @@
+import ImageToolboxKit
+import PhotosUI
 import SwiftUI
 import UniformTypeIdentifiers
 
 struct WebPToolsView: View {
   @State private var model = WebPToolsModel()
+  @State private var batch = BatchExportModel()
+  @State private var batchItems: [PhotosPickerItem] = []
+  @Environment(\.services) private var services
   @State private var isImporting = false
 
   var body: some View {
@@ -20,6 +25,17 @@ struct WebPToolsView: View {
       }
 
       if let source = model.source {
+        BatchSection(identifier: "webp", model: batch, pickedItems: $batchItems) {
+          let format = model.format
+          let quality = model.quality
+          let keepMetadata = AppSettings.load(from: .standard).keepMetadata
+          let encoder = services.encoder
+          return { item in
+            WebPToolsModel.batchFile(
+              item, format: format, quality: quality, keepMetadata: keepMetadata, encoder: encoder)
+          }
+        }
+
         GlassSection("Output") {
           PictureView(image: source)
           HStack {

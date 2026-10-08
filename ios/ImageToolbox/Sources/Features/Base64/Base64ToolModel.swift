@@ -18,6 +18,12 @@ final class Base64ToolModel {
   private(set) var decodeFailed = false
 
   /// Encodes raw image bytes exactly as picked, like `AndroidBase64Converter.encode`.
+  /// Encodes one picture of a batch as Base64 text.
+  nonisolated static func batchFile(_ item: BatchExportModel.Item) -> BatchFile? {
+    let text = Base64Codec.encode(item.picture.data)
+    return BatchFile(fileName: "base64-\(item.index + 1).txt", data: Data(text.utf8))
+  }
+
   func encode(imageData: Data) async {
     let text = await Task.detached(priority: .userInitiated) {
       Base64Codec.encode(imageData)

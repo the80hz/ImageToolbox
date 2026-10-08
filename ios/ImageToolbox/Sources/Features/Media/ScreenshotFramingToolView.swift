@@ -1,7 +1,12 @@
+import ImageToolboxKit
+import PhotosUI
 import SwiftUI
 
 struct ScreenshotFramingToolView: View {
   @State private var model = ScreenshotFramingToolModel()
+  @State private var batch = BatchExportModel()
+  @State private var batchItems: [PhotosPickerItem] = []
+  @Environment(\.services) private var services
 
   var body: some View {
     ToolScaffold(identifier: "screenshotFraming") {
@@ -12,6 +17,23 @@ struct ScreenshotFramingToolView: View {
         if let message = model.errorMessage {
           ErrorText(message: message)
         }
+      }
+
+      BatchSection(identifier: "framing", model: batch, pickedItems: $batchItems) {
+
+        let frame = model.settings.frame
+
+        let keepMetadata = AppSettings.load(from: .standard).keepMetadata
+
+        let encoder = services.encoder
+
+        return { item in
+
+          ScreenshotFramingToolModel.batchFile(
+            item, frame: frame, keepMetadata: keepMetadata, encoder: encoder)
+
+        }
+
       }
 
       GlassSection("Frame") {

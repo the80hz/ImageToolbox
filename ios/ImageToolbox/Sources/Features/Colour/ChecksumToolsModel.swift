@@ -19,6 +19,14 @@ final class ChecksumToolsModel {
   var canUndo: Bool { history.canUndo }
   var canRedo: Bool { history.canRedo }
 
+  /// Computes the chosen digest of one picture's bytes in a batch.
+  nonisolated static func batchFile(
+    _ item: BatchExportModel.Item, algorithm: ChecksumAlgorithm
+  ) -> BatchFile? {
+    let digest = algorithm.hexDigest(of: item.picture.data)
+    return BatchFile(fileName: "checksum-\(item.index + 1).txt", data: Data("\(digest)\n".utf8))
+  }
+
   func commitParameters() {
     history.record(currentParameters)
   }

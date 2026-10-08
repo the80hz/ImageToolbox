@@ -31,6 +31,17 @@ final class EditExifToolModel {
   @ObservationIgnored private var loadTask: Task<Void, Never>?
 
   /// Changes one field. Any previous save result is stale after this, so it is dropped.
+  /// Writes the field values into one picture of a batch and keeps its container.
+  nonisolated static func batchFile(
+    _ item: BatchExportModel.Item, values: [EditableMetadataField: String]
+  ) -> BatchFile? {
+    guard let data = ImageMetadataTools.edit(item.picture.data, fields: values) else { return nil }
+    let fileExtension = BatchNaming.fileExtension(of: item.picture.data)
+    let fileName = ExportNaming.fileName(
+      stem: "edited-\(item.index + 1)", fileExtension: fileExtension, data: data)
+    return BatchFile(fileName: fileName, data: data)
+  }
+
   func update(_ field: EditableMetadataField, to value: String) {
     values[field] = value
     edited = nil

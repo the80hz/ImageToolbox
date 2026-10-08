@@ -48,6 +48,28 @@ final class ResizeConvertToolModel {
       format: format, quality: quality)
   }
 
+  /// Resizes and encodes one picture of a batch with the settings the tool has when the batch starts.
+  nonisolated static func batchFile(
+    _ item: BatchExportModel.Item,
+    width: Int,
+    height: Int,
+    mode: ResizeMode,
+    format: OutputFormat,
+    quality: Double,
+    keepMetadata: Bool,
+    encoder: any ImageEncoding
+  ) -> BatchFile? {
+    let target = CGSize(width: width, height: height)
+    guard let resized = ImageResize.resize(item.picture.image, to: target, mode: mode),
+      let data = encoder.encode(
+        resized, as: format, quality: quality,
+        metadataSource: keepMetadata ? item.picture.data : nil)
+    else { return nil }
+    let fileName = ExportNaming.fileName(
+      stem: "resized-\(item.index + 1)", fileExtension: format.fileExtension, data: data)
+    return BatchFile(fileName: fileName, data: data)
+  }
+
   private func restoreParameters(_ parameters: Parameters) {
     width = parameters.width
     height = parameters.height

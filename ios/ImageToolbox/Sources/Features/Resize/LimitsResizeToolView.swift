@@ -1,8 +1,12 @@
+import ImageToolboxKit
 import PhotosUI
 import SwiftUI
 
 struct LimitsResizeToolView: View {
   @State private var model = LimitsResizeToolModel()
+  @State private var batch = BatchExportModel()
+  @State private var batchItems: [PhotosPickerItem] = []
+  @Environment(\.services) private var services
   @State private var pickedItem: PhotosPickerItem?
 
   var body: some View {
@@ -50,6 +54,18 @@ struct LimitsResizeToolView: View {
       }
 
       if let result = model.result {
+        BatchSection(identifier: "limitsResize", model: batch, pickedItems: $batchItems) {
+          let maxWidth = model.maxWidth
+          let maxHeight = model.maxHeight
+          let keepMetadata = AppSettings.load(from: .standard).keepMetadata
+          let encoder = services.encoder
+          return { item in
+            LimitsResizeToolModel.batchFile(
+              item, maxWidth: maxWidth, maxHeight: maxHeight, keepMetadata: keepMetadata,
+              encoder: encoder)
+          }
+        }
+
         GlassSection("Result") {
           Text("\(result.image.width) × \(result.image.height) px")
             .monospacedDigit()

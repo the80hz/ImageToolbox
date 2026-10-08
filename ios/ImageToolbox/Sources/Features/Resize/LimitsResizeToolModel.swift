@@ -38,6 +38,30 @@ final class LimitsResizeToolModel {
     Parameters(maxWidth: maxWidth, maxHeight: maxHeight)
   }
 
+  /// Limits one picture of a batch to the maximum size with the settings the tool has when it starts.
+  nonisolated static func batchFile(
+    _ item: BatchExportModel.Item,
+    maxWidth: Double,
+    maxHeight: Double,
+    keepMetadata: Bool,
+    encoder: any ImageEncoding
+  ) -> BatchFile? {
+    let image = item.picture.image
+    let target = ImageGeometry.fitSize(
+      width: image.width, height: image.height,
+      within: CGSize(width: maxWidth, height: maxHeight), allowUpscale: false)
+    guard
+      let resized = ImageGeometry.resize(
+        image, width: Int(target.width), height: Int(target.height)),
+      let data = encoder.encode(
+        resized, as: .png, quality: 0.9,
+        metadataSource: keepMetadata ? item.picture.data : nil)
+    else { return nil }
+    let fileName = ExportNaming.fileName(
+      stem: "limited-\(item.index + 1)", fileExtension: "png", data: data)
+    return BatchFile(fileName: fileName, data: data)
+  }
+
   private func restoreParameters(_ parameters: Parameters) {
     maxWidth = parameters.maxWidth
     maxHeight = parameters.maxHeight

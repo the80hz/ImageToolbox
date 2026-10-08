@@ -7,6 +7,10 @@ struct DeleteExifToolView: View {
 
   @State private var model = DeleteExifToolModel()
 
+  @State private var batch = BatchExportModel()
+
+  @State private var batchItems: [PhotosPickerItem] = []
+
   var body: some View {
     ToolScaffold(identifier: "deleteExif") {
       GlassSection("Image") {
@@ -17,6 +21,10 @@ struct DeleteExifToolView: View {
       if model.source != nil {
         metadataSection
         removeSection
+      }
+
+      BatchSection(identifier: "deleteExif", model: batch, pickedItems: $batchItems) {
+        return { item in DeleteExifToolModel.batchFile(item) }
       }
 
       if let result = model.stripped {

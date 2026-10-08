@@ -83,7 +83,7 @@ LOC — число строк Kotlin в `src` модуля, посчитано �
 | Цветовые утилиты (палитры, гармонии, смешивание) | `color-tools` | 1443 | порт алгоритмов |
 | GIF-инструменты | `gif-tools` | 2766 | ImageIO, анимация |
 | APNG | `apng-tools` | 2391 | ImageIO не пишет APNG: свой энкодер (чанки acTL, fcTL, fdAT) |
-| WebP | `webp-tools` | 2379 | декод — ImageIO, энкод — libwebp (ImageIO на iOS 26 WebP не пишет, проверено) |
+| WebP | `webp-tools` | 2379 | декод — ImageIO, энкод — libwebp (ImageIO на iOS 26 WebP не пишет, проверено). EXIF пишется в чанк `EXIF` через libwebpmux; XMP и IPTC не пишутся |
 | Сканер документов | `document-scanner`, `lib/documentscanner` | 626 + 2674 | VisionKit `VNDocumentCameraViewController` |
 | Сканер QR и штрихкодов | `scan-qr-code`, `lib/qrose` | 4426 + 5924 | AVFoundation / Vision (barcode) |
 | Экспорт обоев | `wallpapers-export` | 1154 | Core Graphics |

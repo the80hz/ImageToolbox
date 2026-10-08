@@ -8,8 +8,10 @@ public enum WebPCodec {
   /// - Parameters:
   ///   - quality: 0...100 for lossy output. Ignored when `lossless` is true.
   ///   - lossless: when true, encodes losslessly and keeps every pixel.
-  public static func encode(_ image: CGImage, quality: Float = 80, lossless: Bool = false) -> Data?
-  {
+  ///   - exif: a raw TIFF block. When present it is stored in the file's `EXIF` chunk.
+  public static func encode(
+    _ image: CGImage, quality: Float = 80, lossless: Bool = false, exif: Data? = nil
+  ) -> Data? {
     guard let raster = RasterImage(image) else { return nil }
     let straight = raster.straightRGBA()
     let stride = Int32(raster.width * 4)
@@ -29,6 +31,31 @@ public enum WebPCodec {
     guard size > 0, let output else { return nil }
     let data = Data(bytes: output, count: size)
     WebPFree(output)
-    return data
+    guard let exif else { return data }
+    return attachEXIF(exif, to: data)
+  }
+
+  /// Adds an `EXIF` chunk with libwebp's mux. The mux rewrites the file in the extended layout
+  /// (VP8X), which is the layout that can carry metadata. The pixels are not re-encoded.
+  private static func attachEXIF(_ exif: Data, to bitstream: Data) -> Data? {
+    bitstream.withUnsafeBytes { raw -> Data? in
+      var input = WebPData(
+        bytes: raw.baseAddress?.assumingMemoryBound(to: UInt8.self), size: bitstream.count)
+      guard let mux = WebPMuxCreate(&input, 1) else { return nil }
+      defer { WebPMuxDelete(mux) }
+
+      let status = exif.withUnsafeBytes { exifRaw -> WebPMuxError in
+        var chunk = WebPData(
+          bytes: exifRaw.baseAddress?.assumingMemoryBound(to: UInt8.self), size: exif.count)
+        return WebPMuxSetChunk(mux, "EXIF", &chunk, 1)
+      }
+      guard status == WEBP_MUX_OK else { return nil }
+
+      var assembled = WebPData()
+      defer { WebPDataClear(&assembled) }
+      guard WebPMuxAssemble(mux, &assembled) == WEBP_MUX_OK, let bytes = assembled.bytes
+      else { return nil }
+      return Data(bytes: bytes, count: assembled.size)
+    }
   }
 }

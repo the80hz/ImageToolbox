@@ -19,6 +19,15 @@ final class AsciiArtToolModel {
   var canUndo: Bool { history.canUndo }
   var canRedo: Bool { history.canRedo }
 
+  /// Renders one picture of a batch as ASCII art text with the settings the tool has when it starts.
+  nonisolated static func batchFile(
+    _ item: BatchExportModel.Item, columns: Double, invert: Bool
+  ) -> BatchFile? {
+    guard let raster = RasterImage(item.picture.image) else { return nil }
+    let text = AsciiArt.render(raster, columns: Int(columns.rounded()), invert: invert)
+    return BatchFile(fileName: "ascii-\(item.index + 1).txt", data: Data(text.utf8))
+  }
+
   func commitParameters() {
     history.record(currentParameters)
   }

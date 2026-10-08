@@ -21,6 +21,22 @@ final class DocumentScannerToolModel {
   private(set) var errorMessage: LocalizedStringKey?
 
   /// Finds the document in the photo and flattens it. The work runs off the main actor.
+  /// Flattens the document in one picture of a batch. A picture without a detected page is kept as it is.
+  nonisolated static func batchFile(
+    _ item: BatchExportModel.Item, keepMetadata: Bool, encoder: any ImageEncoding
+  ) -> BatchFile? {
+    let image = item.picture.image
+    let corrected =
+      DocumentScanner.detectDocument(in: image).flatMap { DocumentScanner.correct(image, quad: $0) }
+      ?? image
+    guard
+      let data = encoder.encode(
+        corrected, as: .png, quality: 0.9,
+        metadataSource: keepMetadata ? item.picture.data : nil)
+    else { return nil }
+    return BatchFile(fileName: "scan-\(item.index + 1).png", data: data)
+  }
+
   func scan(_ item: PhotosPickerItem) async {
     corrected = nil
     errorMessage = nil

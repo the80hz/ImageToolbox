@@ -37,6 +37,20 @@ final class WeightResizeToolModel {
     Parameters(targetKilobytes: targetKilobytes, format: format)
   }
 
+  /// Fits one picture of a batch under the byte budget with the settings the tool has when it starts.
+  nonisolated static func batchFile(
+    _ item: BatchExportModel.Item, maxBytes: Int, format: OutputFormat, keepMetadata: Bool
+  ) -> BatchFile? {
+    guard
+      let fitted = SizeFitter.fit(
+        item.picture.image, format: format, maxBytes: maxBytes,
+        metadataSource: keepMetadata ? item.picture.data : nil)
+    else { return nil }
+    let fileName = ExportNaming.fileName(
+      stem: "fitted-\(item.index + 1)", fileExtension: format.fileExtension, data: fitted.data)
+    return BatchFile(fileName: fileName, data: fitted.data)
+  }
+
   private func restoreParameters(_ parameters: Parameters) {
     targetKilobytes = parameters.targetKilobytes
     format = parameters.format

@@ -22,6 +22,14 @@ final class ColorToolsModel {
   var canUndo: Bool { history.canUndo }
   var canRedo: Bool { history.canRedo }
 
+  /// Lists the dominant colours of one picture of a batch.
+  nonisolated static func batchFile(_ item: BatchExportModel.Item, count: Double) -> BatchFile? {
+    guard let raster = RasterImage(item.picture.image) else { return nil }
+    let colors = PaletteExtractor.dominantColors(raster, count: Int(count.rounded()))
+    let text = colors.map(\.hexString).joined(separator: "\n")
+    return BatchFile(fileName: "palette-\(item.index + 1).txt", data: Data(text.utf8))
+  }
+
   func commitParameters() {
     history.record(currentParameters)
   }

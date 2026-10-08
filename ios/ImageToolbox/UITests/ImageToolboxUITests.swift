@@ -73,4 +73,35 @@ extension ImageToolboxUITests {
       .firstMatch
     XCTAssertTrue(encoded.waitForExistence(timeout: 30))
   }
+
+  /// Picks one picture for batch rename and checks the name on its row. The default pattern ends
+  /// with `{ext}` and the default export format is PNG, so the row must show the PNG name that the
+  /// batch writes.
+  @MainActor
+  func testBatchRenameShowsExportFileName() throws {
+    let app = XCUIApplication()
+    app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+    app.launch()
+
+    let search = app.searchFields.firstMatch
+    XCTAssertTrue(search.waitForExistence(timeout: 10))
+    search.tap()
+    search.typeText("Batch rename")
+    app.buttons.matching(identifier: "tool.batchRename").firstMatch.tap()
+
+    let pick = app.buttons.matching(identifier: "batchRename.pick").firstMatch
+    XCTAssertTrue(pick.waitForExistence(timeout: 10))
+    pick.tap()
+
+    let photo = app.images.firstMatch
+    XCTAssertTrue(photo.waitForExistence(timeout: 20))
+    photo.tap()
+    // The multi-select picker confirms the selection with an Add button.
+    let add = app.buttons["Add"].firstMatch
+    if add.waitForExistence(timeout: 3) {
+      add.tap()
+    }
+
+    XCTAssertTrue(app.staticTexts["photo_001.png"].waitForExistence(timeout: 30))
+  }
 }

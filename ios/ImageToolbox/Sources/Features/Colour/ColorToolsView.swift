@@ -4,6 +4,8 @@ import SwiftUI
 
 struct ColorToolsView: View {
   @State private var model = ColorToolsModel()
+  @State private var batch = BatchExportModel()
+  @State private var batchItems: [PhotosPickerItem] = []
   @State private var pickedItem: PhotosPickerItem?
 
   var body: some View {
@@ -11,6 +13,11 @@ struct ColorToolsView: View {
       baseSection
       harmonySection
       mixSection
+      BatchSection(identifier: "colorTools", model: batch, pickedItems: $batchItems) {
+        let count = model.paletteCount
+        return { item in ColorToolsModel.batchFile(item, count: count) }
+      }
+
       paletteSection
     }
     .onChange(of: pickedItem) { _, item in

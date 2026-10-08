@@ -1,10 +1,23 @@
+import ImageToolboxKit
+import PhotosUI
 import SwiftUI
 
 struct DocumentScannerToolView: View {
   @State private var model = DocumentScannerToolModel()
+  @State private var batch = BatchExportModel()
+  @State private var batchItems: [PhotosPickerItem] = []
+  @Environment(\.services) private var services
 
   var body: some View {
     ToolScaffold(identifier: "documentScanner") {
+      BatchSection(identifier: "scanner", model: batch, pickedItems: $batchItems) {
+        let keepMetadata = AppSettings.load(from: .standard).keepMetadata
+        let encoder = services.encoder
+        return { item in
+          DocumentScannerToolModel.batchFile(item, keepMetadata: keepMetadata, encoder: encoder)
+        }
+      }
+
       GlassSection {
         SinglePhotoButton(title: "Choose document photo", selection: $model.pickedItem)
           .accessibilityIdentifier("documentScanner.choose")

@@ -40,6 +40,30 @@ final class ImageCuttingToolModel {
     Parameters(axis: axis, start: start, end: end, keepOnlyCut: keepOnlyCut)
   }
 
+  /// Cuts one picture of a batch with the slice the tool has when the batch starts.
+  nonisolated static func batchFile(
+    _ item: BatchExportModel.Item,
+    axis: SliceAxis,
+    start: Double,
+    end: Double,
+    keepOnlyCut: Bool,
+    keepMetadata: Bool,
+    encoder: any ImageEncoding
+  ) -> BatchFile? {
+    let image = item.picture.image
+    let length = Double(axis == .rows ? image.height : image.width)
+    let from = Int((start * length).rounded())
+    let to = Int((end * length).rounded())
+    guard
+      let cut = ImageSlicer.cut(image, axis: axis, from: from, to: to, keepOnlyCut: keepOnlyCut),
+      let data = encoder.encode(
+        cut, as: .png, quality: 0.9, metadataSource: keepMetadata ? item.picture.data : nil)
+    else { return nil }
+    let fileName = ExportNaming.fileName(
+      stem: "cut-\(item.index + 1)", fileExtension: "png", data: data)
+    return BatchFile(fileName: fileName, data: data)
+  }
+
   private func restoreParameters(_ parameters: Parameters) {
     axis = parameters.axis
     start = parameters.start

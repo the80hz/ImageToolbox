@@ -63,6 +63,28 @@ final class PhotomosaicToolModel {
 
   var canBuild: Bool { target != nil && !tiles.isEmpty && !isBuilding }
 
+  /// Builds the mosaic of one picture of a batch from the tile set the tool has when the batch
+  /// starts. A batch without tiles fails on every picture.
+  nonisolated static func batchFile(
+    _ item: BatchExportModel.Item,
+    tiles: [CGImage],
+    tileSize: Int,
+    columns: Int,
+    keepMetadata: Bool,
+    encoder: any ImageEncoding
+  ) -> BatchFile? {
+    guard
+      let mosaic = Photomosaic.build(
+        target: item.picture.image, tiles: tiles, tileSize: tileSize, columns: columns),
+      let data = encoder.encode(
+        mosaic, as: .png, quality: 0.9,
+        metadataSource: keepMetadata ? item.picture.data : nil)
+    else { return nil }
+    let fileName = ExportNaming.fileName(
+      stem: "mosaic-\(item.index + 1)", fileExtension: "png", data: data)
+    return BatchFile(fileName: fileName, data: data)
+  }
+
   func loadTarget(_ item: PhotosPickerItem) async {
     let loaded = await PhotoLoader.load(item)
     target = loaded

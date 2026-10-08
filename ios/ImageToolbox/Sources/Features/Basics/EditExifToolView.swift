@@ -4,6 +4,8 @@ import SwiftUI
 
 struct EditExifToolView: View {
   @State private var model = EditExifToolModel()
+  @State private var batch = BatchExportModel()
+  @State private var batchItems: [PhotosPickerItem] = []
 
   var body: some View {
     ToolScaffold(identifier: "editExif") {
@@ -23,6 +25,14 @@ struct EditExifToolView: View {
                 .textFieldStyle(.roundedBorder)
             }
           }
+        }
+
+        BatchSection(identifier: "editExif", model: batch, pickedItems: $batchItems) {
+
+          let values = model.values
+
+          return { item in EditExifToolModel.batchFile(item, values: values) }
+
         }
 
         GlassSection("Save") {

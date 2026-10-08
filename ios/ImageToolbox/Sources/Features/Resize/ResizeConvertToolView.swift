@@ -5,6 +5,8 @@ import SwiftUI
 struct ResizeConvertToolView: View {
   @State private var model = ResizeConvertToolModel()
   @State private var pickedItem: PhotosPickerItem?
+  @State private var batch = BatchExportModel()
+  @State private var batchItems: [PhotosPickerItem] = []
   @Environment(\.services) private var services
 
   var body: some View {
@@ -59,6 +61,21 @@ struct ResizeConvertToolView: View {
           }
           .buttonStyle(.glassProminent)
           .accessibilityIdentifier("resizeConvert.apply")
+        }
+      }
+
+      BatchSection(identifier: "resizeConvert", model: batch, pickedItems: $batchItems) {
+        let width = model.width
+        let height = model.height
+        let mode = model.mode
+        let format = model.format
+        let quality = model.quality
+        let keepMetadata = AppSettings.load(from: .standard).keepMetadata
+        let encoder = services.encoder
+        return { item in
+          ResizeConvertToolModel.batchFile(
+            item, width: width, height: height, mode: mode, format: format, quality: quality,
+            keepMetadata: keepMetadata, encoder: encoder)
         }
       }
 

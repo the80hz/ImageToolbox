@@ -50,6 +50,27 @@ final class WallpapersExportToolModel {
     Parameters(preset: preset, format: format, quality: quality)
   }
 
+  /// Renders one picture of a batch as a wallpaper with the settings the tool has when the batch starts.
+  nonisolated static func batchFile(
+    _ item: BatchExportModel.Item,
+    preset: WallpaperPreset,
+    format: OutputFormat,
+    quality: Double,
+    keepMetadata: Bool,
+    encoder: any ImageEncoding
+  ) -> BatchFile? {
+    let target = CGSize(width: preset.width, height: preset.height)
+    guard let resized = ImageResize.resize(item.picture.image, to: target, mode: .fill),
+      let data = encoder.encode(
+        resized, as: format, quality: quality,
+        metadataSource: keepMetadata ? item.picture.data : nil)
+    else { return nil }
+    let fileName = ExportNaming.fileName(
+      stem: "wallpaper-\(preset.width)x\(preset.height)-\(item.index + 1)",
+      fileExtension: format.fileExtension, data: data)
+    return BatchFile(fileName: fileName, data: data)
+  }
+
   private func restoreParameters(_ parameters: Parameters) {
     preset = parameters.preset
     format = parameters.format

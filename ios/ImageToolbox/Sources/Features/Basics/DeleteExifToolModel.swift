@@ -27,6 +27,15 @@ final class DeleteExifToolModel {
   @ObservationIgnored private var loadTask: Task<Void, Never>?
 
   /// Removes EXIF, GPS, TIFF, IPTC and XMP. The pixels are re-encoded in the source format.
+  /// Removes the metadata of one picture of a batch and keeps its container.
+  nonisolated static func batchFile(_ item: BatchExportModel.Item) -> BatchFile? {
+    guard let data = ImageMetadataTools.strip(item.picture.data) else { return nil }
+    let fileExtension = BatchNaming.fileExtension(of: item.picture.data)
+    let fileName = ExportNaming.fileName(
+      stem: "stripped-\(item.index + 1)", fileExtension: fileExtension, data: data)
+    return BatchFile(fileName: fileName, data: data)
+  }
+
   func removeMetadata() {
     guard let data = source?.data, !isWorking else { return }
     isWorking = true

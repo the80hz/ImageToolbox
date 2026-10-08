@@ -1,14 +1,22 @@
 import ImageToolboxKit
+import PhotosUI
 import SwiftUI
 import UIKit
 import UniformTypeIdentifiers
 
 struct ChecksumToolsView: View {
   @State private var model = ChecksumToolsModel()
+  @State private var batch = BatchExportModel()
+  @State private var batchItems: [PhotosPickerItem] = []
   @State private var isImporterPresented = false
 
   var body: some View {
     ToolScaffold(identifier: "checksumTools") {
+      BatchSection(identifier: "checksum", model: batch, pickedItems: $batchItems) {
+        let algorithm = model.algorithm
+        return { item in ChecksumToolsModel.batchFile(item, algorithm: algorithm) }
+      }
+
       algorithmSection
       inputSection
       digestSection

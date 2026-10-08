@@ -4,6 +4,9 @@ import SwiftUI
 
 struct CropToolView: View {
   @State private var model = CropToolModel()
+  @State private var batch = BatchExportModel()
+  @State private var batchItems: [PhotosPickerItem] = []
+  @Environment(\.services) private var services
   @State private var pickedItem: PhotosPickerItem?
   @State private var maskItem: PhotosPickerItem?
 
@@ -74,6 +77,36 @@ struct CropToolView: View {
             .buttonStyle(.glassProminent)
             .accessibilityIdentifier("crop.apply")
         }
+      }
+
+      BatchSection(identifier: "crop", model: batch, pickedItems: $batchItems) {
+
+        let x = model.x
+
+        let y = model.y
+
+        let width = model.width
+
+        let height = model.height
+
+        let shape = model.shape
+
+        let mask = model.mask
+
+        let keepMetadata = AppSettings.load(from: .standard).keepMetadata
+
+        let encoder = services.encoder
+
+        return { item in
+
+          CropToolModel.batchFile(
+
+            item, x: x, y: y, width: width, height: height, shape: shape, mask: mask,
+
+            keepMetadata: keepMetadata, encoder: encoder)
+
+        }
+
       }
 
       if let result = model.result {

@@ -4,6 +4,9 @@ import SwiftUI
 
 struct ImageCuttingToolView: View {
   @State private var model = ImageCuttingToolModel()
+  @State private var batch = BatchExportModel()
+  @State private var batchItems: [PhotosPickerItem] = []
+  @Environment(\.services) private var services
   @State private var pickedItem: PhotosPickerItem?
 
   var body: some View {
@@ -48,6 +51,20 @@ struct ImageCuttingToolView: View {
       }
 
       if let result = model.result {
+        BatchSection(identifier: "cutting", model: batch, pickedItems: $batchItems) {
+          let axis = model.axis
+          let start = model.start
+          let end = model.end
+          let keepOnlyCut = model.keepOnlyCut
+          let keepMetadata = AppSettings.load(from: .standard).keepMetadata
+          let encoder = services.encoder
+          return { item in
+            ImageCuttingToolModel.batchFile(
+              item, axis: axis, start: start, end: end, keepOnlyCut: keepOnlyCut,
+              keepMetadata: keepMetadata, encoder: encoder)
+          }
+        }
+
         GlassSection("Result") {
           PictureView(image: result.image)
           ShareFileButton(title: "Share", data: result.data, fileName: result.fileName)

@@ -62,11 +62,13 @@ final class ImageStitchToolModel {
       return
     }
     let inputs = images.map(\.image)
+    // The result takes the metadata of the first picture, when the settings keep metadata.
+    let firstSource = images.first?.data
     let direction = self.direction
     let spacing = Int(self.spacing.rounded())
     let picture = await Task.detached(priority: .userInitiated) { () -> EncodedPicture? in
       guard let stitched = ImageStitcher.stitch(inputs, direction: direction, spacing: spacing),
-        let data = ImageCodec.encode(stitched, as: .png)
+        let data = ExportEncoding.encode(stitched, as: .png, source: firstSource)
       else { return nil }
       let fileName = ExportNaming.fileName(stem: "stitched", fileExtension: "png", data: data)
       return EncodedPicture(image: stitched, data: data, fileName: fileName)

@@ -36,8 +36,11 @@ public enum ImageCodec {
     metadata: [String: Any] = [:]
   ) -> Data? {
     if format == .webp {
-      // ImageIO cannot write WebP; libwebp takes quality in 0...100. Metadata is not written.
-      return WebPCodec.encode(image, quality: Float(min(max(quality, 0), 1) * 100))
+      // ImageIO cannot write WebP, so libwebp writes the pixels and the EXIF chunk is added after.
+      // XMP and IPTC are not written.
+      let exif = metadata.isEmpty ? nil : ExifBlock.tiff(from: metadata, of: image)
+      return WebPCodec.encode(
+        image, quality: Float(min(max(quality, 0), 1) * 100), exif: exif)
     }
 
     let output = NSMutableData()

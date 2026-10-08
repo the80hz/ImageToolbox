@@ -60,6 +60,36 @@ final class CropToolModel {
   var canUndo: Bool { history.canUndo }
   var canRedo: Bool { history.canRedo }
 
+  /// Crops one picture of a batch with the selection the tool has when the batch starts.
+  nonisolated static func batchFile(
+    _ item: BatchExportModel.Item,
+    x: Double, y: Double, width: Double, height: Double,
+    shape: CropShape,
+    mask: CGImage?,
+    keepMetadata: Bool,
+    encoder: any ImageEncoding
+  ) -> BatchFile? {
+    let image = item.picture.image
+    let rect = CGRect(
+      x: x * Double(image.width), y: y * Double(image.height),
+      width: width * Double(image.width), height: height * Double(image.height))
+    guard let cropped = ImageGeometry.crop(image, to: rect) else { return nil }
+    let output: CGImage?
+    if let mask {
+      output = ShapeMask.apply(cropped, mask: mask)
+    } else {
+      output = shape == .rectangle ? cropped : ShapeMask.apply(cropped, shape: shape)
+    }
+    guard let output,
+      let data = encoder.encode(
+        output, as: .png, quality: 0.9,
+        metadataSource: keepMetadata ? item.picture.data : nil)
+    else { return nil }
+    let fileName = ExportNaming.fileName(
+      stem: "cropped-\(item.index + 1)", fileExtension: "png", data: data)
+    return BatchFile(fileName: fileName, data: data)
+  }
+
   func load(_ item: PhotosPickerItem) async {
     let loaded = await PhotoLoader.load(item)
     guard !Task.isCancelled else { return }

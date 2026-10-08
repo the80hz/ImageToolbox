@@ -4,6 +4,8 @@ import SwiftUI
 
 struct WeightResizeToolView: View {
   @State private var model = WeightResizeToolModel()
+  @State private var batch = BatchExportModel()
+  @State private var batchItems: [PhotosPickerItem] = []
   @State private var pickedItem: PhotosPickerItem?
 
   var body: some View {
@@ -43,6 +45,16 @@ struct WeightResizeToolView: View {
       }
 
       if let output = model.result {
+        BatchSection(identifier: "weightResize", model: batch, pickedItems: $batchItems) {
+          let maxBytes = Int((model.targetKilobytes * 1024).rounded())
+          let format = model.format
+          let keepMetadata = AppSettings.load(from: .standard).keepMetadata
+          return { item in
+            WeightResizeToolModel.batchFile(
+              item, maxBytes: maxBytes, format: format, keepMetadata: keepMetadata)
+          }
+        }
+
         GlassSection("Result") {
           Text("Size: \(output.kilobytes, format: .number.precision(.fractionLength(1))) KB")
             .monospacedDigit()

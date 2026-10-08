@@ -19,6 +19,26 @@ final class ImageSplittingToolModel {
   var canUndo: Bool { history.canUndo }
   var canRedo: Bool { history.canRedo }
 
+  /// Splits one picture of a batch into parts. Each part becomes its own file.
+  nonisolated static func batchFiles(
+    _ item: BatchExportModel.Item, parts: Int, axis: SliceAxis, keepMetadata: Bool,
+    encoder: any ImageEncoding
+  ) -> [BatchFile]? {
+    let images = ImageSlicer.split(item.picture.image, parts: parts, axis: axis)
+    guard !images.isEmpty else { return nil }
+    var files: [BatchFile] = []
+    for (index, image) in images.enumerated() {
+      guard
+        let data = encoder.encode(
+          image, as: .png, quality: 0.9,
+          metadataSource: keepMetadata ? item.picture.data : nil)
+      else { return nil }
+      files.append(
+        BatchFile(fileName: "part-\(item.index + 1)-\(index + 1).png", data: data))
+    }
+    return files
+  }
+
   func commitParameters() {
     history.record(currentParameters)
   }

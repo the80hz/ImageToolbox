@@ -47,6 +47,23 @@ final class ScreenshotFramingToolModel {
       background: background)
   }
 
+  /// Frames one picture of a batch with the frame the tool has when the batch starts.
+  nonisolated static func batchFile(
+    _ item: BatchExportModel.Item,
+    frame: ScreenshotFrame,
+    keepMetadata: Bool,
+    encoder: any ImageEncoding
+  ) -> BatchFile? {
+    guard let rendered = frame.render(item.picture.image),
+      let data = encoder.encode(
+        rendered, as: .png, quality: 0.9,
+        metadataSource: keepMetadata ? item.picture.data : nil)
+    else { return nil }
+    let fileName = ExportNaming.fileName(
+      stem: "framed-\(item.index + 1)", fileExtension: "png", data: data)
+    return BatchFile(fileName: fileName, data: data)
+  }
+
   private func restoreParameters(_ parameters: Parameters) {
     padding = parameters.padding
     cornerRadius = parameters.cornerRadius
@@ -76,6 +93,8 @@ final class ScreenshotFramingToolModel {
   var background = Color(red: 240.0 / 255, green: 242.0 / 255, blue: 247.0 / 255)
 
   private(set) var source: CGImage?
+  /// The picked file as it was read. Its metadata is copied into the framed picture when allowed.
+  @ObservationIgnored private var sourceData: Data?
   private(set) var framed: PNGPicture?
   private(set) var framedFileName = "framed.png"
   private(set) var errorMessage: LocalizedStringKey?
@@ -93,10 +112,12 @@ final class ScreenshotFramingToolModel {
     errorMessage = nil
     guard let loaded = await PhotoLoader.load(item) else {
       source = nil
+      sourceData = nil
       errorMessage = "Could not read this photo."
       return
     }
     source = loaded.image
+    sourceData = loaded.data
     await render()
   }
 
@@ -104,9 +125,10 @@ final class ScreenshotFramingToolModel {
   func render() async {
     guard let source else { return }
     let frame = settings.frame
+    let metadataSource = sourceData
     let picture = await Task.detached(priority: .userInitiated) { () -> PNGPicture? in
       guard let rendered = frame.render(source) else { return nil }
-      return PNGPicture(rendered)
+      return PNGPicture(rendered, metadataSource: metadataSource)
     }.value
     guard !Task.isCancelled else { return }
 

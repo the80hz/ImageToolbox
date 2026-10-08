@@ -46,6 +46,31 @@ final class WatermarkingToolModel {
   var canUndo: Bool { history?.canUndo ?? false }
   var canRedo: Bool { history?.canRedo ?? false }
 
+  /// Applies the text and picture watermarks to one picture of a batch, with the settings the tool has when it starts.
+  nonisolated static func batchFile(
+    _ item: BatchExportModel.Item,
+    text: TextWatermark?,
+    overlay: CGImage?,
+    keepMetadata: Bool,
+    encoder: any ImageEncoding
+  ) -> BatchFile? {
+    var current = item.picture.image
+    if let text {
+      guard let next = Watermark.applyText(text, to: current) else { return nil }
+      current = next
+    }
+    if let overlay {
+      guard let next = Watermark.applyImage(overlay, to: current) else { return nil }
+      current = next
+    }
+    guard
+      let data = encoder.encode(
+        current, as: .png, quality: 0.9,
+        metadataSource: keepMetadata ? item.picture.data : nil)
+    else { return nil }
+    return BatchFile(fileName: "watermarked-\(item.index + 1).png", data: data)
+  }
+
   private func commitChoice() {
     let choice = Choice(
       text: text, fontSize: fontSize, opacity: opacity, rotation: rotation,
@@ -167,7 +192,7 @@ final class WatermarkingToolModel {
     readFailed = false
   }
 
-  private func makeTextWatermark() -> TextWatermark? {
+  func makeTextWatermark() -> TextWatermark? {
     let content = useTimestamp ? timestamp(Date.now) : text
     guard !content.isEmpty else { return nil }
     return TextWatermark(

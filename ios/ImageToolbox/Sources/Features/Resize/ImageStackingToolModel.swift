@@ -59,10 +59,12 @@ final class ImageStackingToolModel {
       return
     }
     let inputs = images.map(\.image)
+    // The result takes the metadata of the first picture, when the settings keep metadata.
+    let firstSource = images.first?.data
     let mode = self.mode
     let picture = await Task.detached(priority: .userInitiated) { () -> EncodedPicture? in
       guard let stacked = ImageStacker.stack(inputs, mode: mode),
-        let data = ImageCodec.encode(stacked, as: .png)
+        let data = ExportEncoding.encode(stacked, as: .png, source: firstSource)
       else { return nil }
       let fileName = ExportNaming.fileName(stem: "stacked", fileExtension: "png", data: data)
       return EncodedPicture(image: stacked, data: data, fileName: fileName)

@@ -1,3 +1,4 @@
+import ImageToolboxKit
 import PhotosUI
 import SwiftUI
 
@@ -5,10 +6,14 @@ struct PhotomosaicToolView: View {
   @State private var model = PhotomosaicToolModel()
   @State private var targetItem: PhotosPickerItem?
   @State private var tileItems: [PhotosPickerItem] = []
+  @State private var batch = BatchExportModel()
+  @State private var batchItems: [PhotosPickerItem] = []
+  @Environment(\.services) private var services
 
   var body: some View {
     ToolScaffold(identifier: "photomosaic") {
       picturesSection
+      batchSection
       gridSection
       mosaicSection
     }
@@ -50,6 +55,22 @@ struct PhotomosaicToolView: View {
 
       if model.tilesFailed {
         ErrorText(message: "No tile pictures could be loaded.")
+      }
+    }
+  }
+
+  /// One mosaic per picked picture, built with the tile pictures chosen above.
+  private var batchSection: some View {
+    BatchSection(identifier: "photomosaic", model: batch, pickedItems: $batchItems) {
+      let tiles = model.tiles.map(\.image)
+      let tileSize = Int(model.tileSize)
+      let columns = Int(model.columns)
+      let keepMetadata = AppSettings.load(from: .standard).keepMetadata
+      let encoder = services.encoder
+      return { item in
+        PhotomosaicToolModel.batchFile(
+          item, tiles: tiles, tileSize: tileSize, columns: columns,
+          keepMetadata: keepMetadata, encoder: encoder)
       }
     }
   }

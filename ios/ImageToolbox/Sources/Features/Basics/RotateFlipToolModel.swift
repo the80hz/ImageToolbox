@@ -58,6 +58,29 @@ final class RotateFlipToolModel {
   var canUndo: Bool { history.canUndo }
   var canRedo: Bool { history.canRedo }
 
+  /// Replays the steps on one picture of a batch and encodes it with the chosen format and quality.
+  nonisolated static func batchFile(
+    _ item: BatchExportModel.Item,
+    steps: [RotateFlipStep],
+    format: OutputFormat,
+    quality: Double,
+    keepMetadata: Bool,
+    encoder: any ImageEncoding
+  ) -> BatchFile? {
+    var image: CGImage? = item.picture.image
+    for step in steps {
+      image = image.flatMap { step.apply(to: $0) }
+    }
+    guard let transformed = image,
+      let data = encoder.encode(
+        transformed, as: format, quality: quality,
+        metadataSource: keepMetadata ? item.picture.data : nil)
+    else { return nil }
+    let fileName = ExportNaming.fileName(
+      stem: "transformed-\(item.index + 1)", fileExtension: format.fileExtension, data: data)
+    return BatchFile(fileName: fileName, data: data)
+  }
+
   func rotateLeft() {
     perform(.rotateLeft)
   }

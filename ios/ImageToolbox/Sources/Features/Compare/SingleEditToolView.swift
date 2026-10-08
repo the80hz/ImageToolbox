@@ -4,6 +4,9 @@ import SwiftUI
 
 struct SingleEditToolView: View {
   @State private var model = SingleEditToolModel()
+  @State private var batch = BatchExportModel()
+  @State private var batchItems: [PhotosPickerItem] = []
+  @Environment(\.services) private var services
   @State private var pickedItem: PhotosPickerItem?
 
   var body: some View {
@@ -43,6 +46,30 @@ struct SingleEditToolView: View {
           ParameterSlider(
             title: "Quality", value: $model.quality, range: 0.1...1, step: 0.05, format: "%.2f")
         }
+      }
+
+      BatchSection(identifier: "singleEdit", model: batch, pickedItems: $batchItems) {
+
+        let format = model.format
+
+        let quality = model.quality
+
+        let keepMetadata = AppSettings.load(from: .standard).keepMetadata
+
+        let encoder = services.encoder
+
+        guard let profile = model.profile else { return { _ in nil } }
+
+        return { item in
+
+          SingleEditToolModel.batchFile(
+
+            item, profile: profile, format: format, quality: quality, keepMetadata: keepMetadata,
+
+            encoder: encoder)
+
+        }
+
       }
 
       GlassSection("Result") {

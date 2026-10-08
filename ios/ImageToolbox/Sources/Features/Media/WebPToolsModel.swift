@@ -37,11 +37,31 @@ final class WebPToolsModel {
     Parameters(format: format, quality: quality)
   }
 
+  /// Encodes one picture of a batch in the chosen format.
+  nonisolated static func batchFile(
+    _ item: BatchExportModel.Item,
+    format: OutputFormat,
+    quality: Double,
+    keepMetadata: Bool,
+    encoder: any ImageEncoding
+  ) -> BatchFile? {
+    guard
+      let data = encoder.encode(
+        item.picture.image, as: format, quality: quality,
+        metadataSource: keepMetadata ? item.picture.data : nil)
+    else { return nil }
+    let fileName = ExportNaming.fileName(
+      stem: "converted-\(item.index + 1)", fileExtension: format.fileExtension, data: data)
+    return BatchFile(fileName: fileName, data: data)
+  }
+
   private func restoreParameters(_ parameters: Parameters) {
     format = parameters.format
     quality = parameters.quality
   }
   private(set) var source: CGImage?
+  /// The picked file as it was read. Its metadata is copied into the output when the settings ask.
+  @ObservationIgnored private var sourceData: Data?
   private(set) var encoded: Data?
   private(set) var errorMessage: LocalizedStringKey?
 
@@ -58,24 +78,27 @@ final class WebPToolsModel {
   /// Decodes the first frame of a WebP file (or any other picked image).
   func open(_ url: URL) async {
     source = nil
+    sourceData = nil
     encoded = nil
     errorMessage = nil
-    let decoded = await Task.detached(priority: .userInitiated) { () -> CGImage? in
-      guard let data = MediaFiles.read(url) else { return nil }
-      return ImageCodec.decode(data)
+    let decoded = await Task.detached(priority: .userInitiated) {
+      () -> (image: CGImage, data: Data)? in
+      guard let data = MediaFiles.read(url), let image = ImageCodec.decode(data) else { return nil }
+      return (image, data)
     }.value
 
     guard let decoded else {
       errorMessage = "This file could not be decoded as WebP."
       return
     }
-    source = decoded
+    source = decoded.image
+    sourceData = decoded.data
     refreshEncoding()
   }
 
   private func refreshEncoding() {
     guard let source else { return }
-    encoded = ImageCodec.encode(source, as: format, quality: quality)
+    encoded = ExportEncoding.encode(source, as: format, quality: quality, source: sourceData)
     fileName =
       encoded.map {
         ExportNaming.fileName(stem: "converted", fileExtension: format.fileExtension, data: $0)

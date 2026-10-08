@@ -42,6 +42,27 @@ final class SingleEditToolModel {
   var canUndo: Bool { history?.canUndo ?? false }
   var canRedo: Bool { history?.canRedo ?? false }
 
+  /// Applies one export profile to one picture of a batch and encodes it.
+  nonisolated static func batchFile(
+    _ item: BatchExportModel.Item,
+    profile: ExportProfile,
+    format: OutputFormat,
+    quality: Double,
+    keepMetadata: Bool,
+    encoder: any ImageEncoding
+  ) -> BatchFile? {
+    guard let resized = profile.apply(to: item.picture.image),
+      let data = encoder.encode(
+        resized, as: format, quality: quality,
+        metadataSource: keepMetadata ? item.picture.data : nil)
+    else { return nil }
+    let stem = "\(profile.group)-\(profile.name)-\(item.index + 1)"
+      .lowercased().replacingOccurrences(of: " ", with: "-")
+    let fileName = ExportNaming.fileName(
+      stem: stem, fileExtension: format.fileExtension, data: data)
+    return BatchFile(fileName: fileName, data: data)
+  }
+
   private func commitChoice() {
     let choice = Choice(profile: profile, format: format, quality: quality)
     if history == nil {

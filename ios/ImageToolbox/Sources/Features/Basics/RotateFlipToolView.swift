@@ -4,6 +4,8 @@ import SwiftUI
 
 struct RotateFlipToolView: View {
   @State private var model = RotateFlipToolModel()
+  @State private var batch = BatchExportModel()
+  @State private var batchItems: [PhotosPickerItem] = []
   @Environment(\.services) private var services
 
   var body: some View {
@@ -11,6 +13,30 @@ struct RotateFlipToolView: View {
       GlassSection("Image") {
         SinglePhotoButton(title: "Choose image", selection: Bindable(model).selection)
           .accessibilityIdentifier("rotateFlip.pick")
+      }
+
+      BatchSection(identifier: "rotateFlip", model: batch, pickedItems: $batchItems) {
+
+        let steps = model.history.current
+
+        let format = model.format
+
+        let quality = model.quality
+
+        let keepMetadata = AppSettings.load(from: .standard).keepMetadata
+
+        let encoder = services.encoder
+
+        return { item in
+
+          RotateFlipToolModel.batchFile(
+
+            item, steps: steps, format: format, quality: quality, keepMetadata: keepMetadata,
+
+            encoder: encoder)
+
+        }
+
       }
 
       if let current = model.current {

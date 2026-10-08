@@ -1,8 +1,12 @@
 import ImageToolboxKit
+import PhotosUI
 import SwiftUI
 
 struct WallpapersExportToolView: View {
   @State private var model = WallpapersExportToolModel()
+  @State private var batch = BatchExportModel()
+  @State private var batchItems: [PhotosPickerItem] = []
+  @Environment(\.services) private var services
 
   var body: some View {
     ToolScaffold(identifier: "wallpapersExport") {
@@ -13,6 +17,30 @@ struct WallpapersExportToolView: View {
         if let message = model.errorMessage {
           ErrorText(message: message)
         }
+      }
+
+      BatchSection(identifier: "wallpaper", model: batch, pickedItems: $batchItems) {
+
+        let preset = model.preset
+
+        let format = model.format
+
+        let quality = model.quality
+
+        let keepMetadata = AppSettings.load(from: .standard).keepMetadata
+
+        let encoder = services.encoder
+
+        return { item in
+
+          WallpapersExportToolModel.batchFile(
+
+            item, preset: preset, format: format, quality: quality, keepMetadata: keepMetadata,
+
+            encoder: encoder)
+
+        }
+
       }
 
       GlassSection("Export") {

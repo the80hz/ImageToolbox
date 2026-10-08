@@ -26,6 +26,7 @@
 		25F7417773143EF17A7B0E2D /* DuplicateFinderToolModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59148445F5B0DDF7CAD70ED4 /* DuplicateFinderToolModel.swift */; };
 		28F5FDFE9D5B64C909C0CC23 /* ImagePreviewToolModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 121818B711359583EE8980CF /* ImagePreviewToolModel.swift */; };
 		2AE81B6DAC72E27D6636CECF /* ColorPickerToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B74DE0C328B861AA5A77083B /* ColorPickerToolView.swift */; };
+		2E49CAF7DFFAB4B0BD4AE968 /* BatchExport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062DF3F80BDDCE29296E6682 /* BatchExport.swift */; };
 		33C102331A2CEB1DDCB476C7 /* LibrariesToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D390B1B889C1934CE1D68993 /* LibrariesToolView.swift */; };
 		34E956F9D641DE93B5826E32 /* ScanQRCodeToolModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0ADEBEAD6BA709DD6B0B0D /* ScanQRCodeToolModel.swift */; };
 		359A97053C1C2F89D0AE41DC /* ImagePreviewToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F165F2FB5A8C805D630A85B /* ImagePreviewToolView.swift */; };
@@ -100,6 +101,7 @@
 		E09D8F9677813CD56B5475EA /* ImageToolboxKit in Frameworks */ = {isa = PBXBuildFile; productRef = EDFE2CD53C100887C02A2365 /* ImageToolboxKit */; };
 		E36F57A1C88EC53612C03B26 /* SharedComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472A0330B5D68ECD2585EB6B /* SharedComponents.swift */; };
 		E385EB2374FE7DF696CDF321 /* DocumentScannerToolModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88E41A49E5C0279E6891BDC2 /* DocumentScannerToolModel.swift */; };
+		E73E5CF8F04C285D5DBC00F9 /* ui-sample.png in Resources */ = {isa = PBXBuildFile; fileRef = 6897C2A4302380FE1E4B5EEA /* ui-sample.png */; };
 		E7F93DF8FFF781696712AE70 /* EasterEggToolModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BE481288145B4DABA0514DA /* EasterEggToolModel.swift */; };
 		EB3DAB9378F796A90B618498 /* UITestTools.swift in Sources */ = {isa = PBXBuildFile; fileRef = B60B2AB79261BD87D76CC42E /* UITestTools.swift */; };
 		EBE786B2CF7C1A1EABDC1BE6 /* BatchRenameToolModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E510236C05C824580E278627 /* BatchRenameToolModel.swift */; };
@@ -125,6 +127,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		062DF3F80BDDCE29296E6682 /* BatchExport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchExport.swift; sourceTree = "<group>"; };
 		06E6212D109C557597F52992 /* APNGToolsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APNGToolsModel.swift; sourceTree = "<group>"; };
 		0995823D193A5F9FBBF246C9 /* ColorToolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorToolsView.swift; sourceTree = "<group>"; };
 		09D000FC70137291B08A0AEF /* MediaSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaSupport.swift; sourceTree = "<group>"; };
@@ -167,6 +170,7 @@
 		66AFDC7DEEBECFC428322620 /* UsageStatisticsToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageStatisticsToolView.swift; sourceTree = "<group>"; };
 		68550D52924CD1E128DCB22B /* ImageStitchToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageStitchToolView.swift; sourceTree = "<group>"; };
 		68945BF2FD61921077D9E444 /* WallpapersExportToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WallpapersExportToolView.swift; sourceTree = "<group>"; };
+		6897C2A4302380FE1E4B5EEA /* ui-sample.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ui-sample.png"; sourceTree = "<group>"; };
 		6B8321B9AC7722E1452BFED6 /* HelpToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpToolView.swift; sourceTree = "<group>"; };
 		6BE481288145B4DABA0514DA /* EasterEggToolModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EasterEggToolModel.swift; sourceTree = "<group>"; };
 		6CB297F34DD69B4337FF1A52 /* ChecksumToolsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChecksumToolsModel.swift; sourceTree = "<group>"; };
@@ -298,6 +302,14 @@
 			path = Resize;
 			sourceTree = "<group>";
 		};
+		1425E9A1C44614B622F76C7B /* Fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				6897C2A4302380FE1E4B5EEA /* ui-sample.png */,
+			);
+			path = Fixtures;
+			sourceTree = "<group>";
+		};
 		3399767072F5CA0D4C3ACE47 /* UITests */ = {
 			isa = PBXGroup;
 			children = (
@@ -305,6 +317,7 @@
 				58EBBEC1FEC027A9CAE42D35 /* ImageToolboxUITests.swift */,
 				3D96F94AFA0A24D7E325F477 /* ToolsSmokeTests.swift */,
 				B60B2AB79261BD87D76CC42E /* UITestTools.swift */,
+				1425E9A1C44614B622F76C7B /* Fixtures */,
 			);
 			path = UITests;
 			sourceTree = "<group>";
@@ -313,6 +326,7 @@
 			isa = PBXGroup;
 			children = (
 				BC3B07A0EB6117BC48B1D4D9 /* AppServices.swift */,
+				062DF3F80BDDCE29296E6682 /* BatchExport.swift */,
 				E4B5F147DA64FB0036DFA6FF /* ExportFile.swift */,
 				F62600596894E66FE756CB9A /* FileTransfer.swift */,
 				0FABD54BEAF6134FA35CEB80 /* LoadedImage.swift */,
@@ -511,6 +525,7 @@
 			buildConfigurationList = A212E9F0A161D7C8C4DF3C80 /* Build configuration list for PBXNativeTarget "ImageToolboxUITests" */;
 			buildPhases = (
 				11E6DAFEC006FB1F2D03A54A /* Sources */,
+				8ACD60883172138990823E71 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -583,6 +598,14 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		8ACD60883172138990823E71 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E73E5CF8F04C285D5DBC00F9 /* ui-sample.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E860F3D0F01F403811544449 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -621,6 +644,7 @@
 				D6894E2D259D961D06DA1717 /* AudioCoverToolView.swift in Sources */,
 				F5424A9FD643BA02D99CDCD4 /* Base64ToolModel.swift in Sources */,
 				D5670FDE449AB4889DB2DD83 /* Base64ToolView.swift in Sources */,
+				2E49CAF7DFFAB4B0BD4AE968 /* BatchExport.swift in Sources */,
 				EBE786B2CF7C1A1EABDC1BE6 /* BatchRenameToolModel.swift in Sources */,
 				D64CAA7C0295E7FF0DE491B7 /* BatchRenameToolView.swift in Sources */,
 				A1879279563C4222664B02CD /* ChecksumToolsModel.swift in Sources */,

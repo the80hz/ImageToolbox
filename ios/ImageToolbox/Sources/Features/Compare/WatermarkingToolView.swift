@@ -1,8 +1,12 @@
+import ImageToolboxKit
 import PhotosUI
 import SwiftUI
 
 struct WatermarkingToolView: View {
   @State private var model = WatermarkingToolModel()
+  @State private var batch = BatchExportModel()
+  @State private var batchItems: [PhotosPickerItem] = []
+  @Environment(\.services) private var services
   @State private var baseItem: PhotosPickerItem?
   @State private var overlayItem: PhotosPickerItem?
 
@@ -21,6 +25,16 @@ struct WatermarkingToolView: View {
 
       GlassSection("Timestamp") {
         Toggle("Replace text with the current date and time", isOn: $model.useTimestamp)
+      }
+      BatchSection(identifier: "watermark", model: batch, pickedItems: $batchItems) {
+        let text = model.makeTextWatermark()
+        let overlay = model.overlay?.image
+        let keepMetadata = AppSettings.load(from: .standard).keepMetadata
+        let encoder = services.encoder
+        return { item in
+          WatermarkingToolModel.batchFile(
+            item, text: text, overlay: overlay, keepMetadata: keepMetadata, encoder: encoder)
+        }
       }
 
       resultSection

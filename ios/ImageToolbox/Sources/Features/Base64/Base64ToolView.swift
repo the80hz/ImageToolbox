@@ -1,3 +1,4 @@
+import ImageToolboxKit
 import PhotosUI
 import SwiftUI
 import os
@@ -6,6 +7,10 @@ struct Base64ToolView: View {
   private static let logger = Logger(subsystem: "com.the80hz.imagetoolbox", category: "base64")
 
   @State private var model = Base64ToolModel()
+
+  @State private var batch = BatchExportModel()
+
+  @State private var batchItems: [PhotosPickerItem] = []
   @Environment(\.dynamicTypeSize) private var dynamicTypeSize
   @State private var isPickerPresented = false
   @State private var pickedItem: PhotosPickerItem?
@@ -13,6 +18,10 @@ struct Base64ToolView: View {
   var body: some View {
     ScrollView {
       VStack(spacing: DesignTokens.spacing) {
+        BatchSection(identifier: "base64", model: batch, pickedItems: $batchItems) {
+          return { item in Base64ToolModel.batchFile(item) }
+        }
+
         encodeCard
         decodeCard
       }

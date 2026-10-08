@@ -1,9 +1,12 @@
+import ImageToolboxKit
 import PhotosUI
 import SwiftUI
 import UIKit
 
 struct AsciiArtToolView: View {
   @State private var model = AsciiArtToolModel()
+  @State private var batch = BatchExportModel()
+  @State private var batchItems: [PhotosPickerItem] = []
   @State private var pickedItem: PhotosPickerItem?
 
   var body: some View {
@@ -15,6 +18,16 @@ struct AsciiArtToolView: View {
         if model.failed {
           ErrorText(message: "The picked image could not be read.")
         }
+      }
+
+      BatchSection(identifier: "ascii", model: batch, pickedItems: $batchItems) {
+
+        let columns = model.columns
+
+        let invert = model.invert
+
+        return { item in AsciiArtToolModel.batchFile(item, columns: columns, invert: invert) }
+
       }
 
       GlassSection("Settings") {
