@@ -26,7 +26,11 @@ let package = Package(
                 .product(name: "libwebp", package: "libwebp-Xcode"),
                 "CArchive",
             ],
-            resources: [.copy("Resources/color_names.json")]
+            resources: [
+              .copy("Resources/color_names.json"),
+              // Lookup tables (512 × 512 WebP) from the Android app, for the LUT presets.
+              .copy("Resources/LUT"),
+            ]
         ),
         .testTarget(
             name: "ImageToolboxKitTests",
