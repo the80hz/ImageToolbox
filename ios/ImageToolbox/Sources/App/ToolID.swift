@@ -47,6 +47,23 @@ enum ToolID: String, CaseIterable, Identifiable, Hashable {
   case gradientMaker
   case paletteToPDF
   case photomosaic
+  // Phase 3: large tools
+  case curves
+  case formatConversion
+  case multiFrameFusion
+  case archiveTools
+  case textRecognition
+  case backgroundRemoval
+  case svgTrace
+  case fractals
+  case fileCipher
+  case pdfTools
+  case collage
+  case compressionLab
+  case palettes
+  case drawing
+  case markup
+  case textures
 
   var id: Self { self }
 
@@ -95,6 +112,22 @@ enum ToolID: String, CaseIterable, Identifiable, Hashable {
     case .gradientMaker: "Gradients and mesh"
     case .paletteToPDF: "Palette to PDF"
     case .photomosaic: "Photomosaic"
+    case .curves: "Tone curves"
+    case .formatConversion: "Format conversion"
+    case .multiFrameFusion: "Multi-frame fusion"
+    case .archiveTools: "Archive tools"
+    case .textRecognition: "Text recognition"
+    case .backgroundRemoval: "Background removal"
+    case .svgTrace: "SVG trace"
+    case .fractals: "Fractals"
+    case .fileCipher: "File encryption"
+    case .pdfTools: "PDF tools"
+    case .collage: "Collage"
+    case .compressionLab: "Compression lab"
+    case .palettes: "Palettes"
+    case .drawing: "Drawing"
+    case .markup: "Markup"
+    case .textures: "Textures"
     }
   }
 
@@ -143,6 +176,22 @@ enum ToolID: String, CaseIterable, Identifiable, Hashable {
     case .gradientMaker: "paintbrush"
     case .paletteToPDF: "doc.richtext"
     case .photomosaic: "square.grid.3x3"
+    case .curves: "chart.xyaxis.line"
+    case .formatConversion: "arrow.triangle.2.circlepath"
+    case .multiFrameFusion: "square.stack.3d.down.right"
+    case .archiveTools: "archivebox"
+    case .textRecognition: "text.viewfinder"
+    case .backgroundRemoval: "person.crop.rectangle"
+    case .svgTrace: "scribble.variable"
+    case .fractals: "point.3.connected.trianglepath.dotted"
+    case .fileCipher: "lock.doc"
+    case .pdfTools: "doc.richtext"
+    case .collage: "square.grid.2x2"
+    case .compressionLab: "chart.bar.xaxis"
+    case .palettes: "circle.grid.3x3.fill"
+    case .drawing: "pencil.tip"
+    case .markup: "highlighter"
+    case .textures: "circle.hexagongrid"
     }
   }
 }

@@ -82,3 +82,44 @@ struct OpenTextFileButton: View {
     }
   }
 }
+
+/// Reads the bytes of a file chosen in the system Files picker, for binary formats such as ACV.
+struct OpenDataFileButton: View {
+  let title: LocalizedStringKey
+  let onData: (Data) -> Void
+  let onFailure: () -> Void
+
+  var body: some View {
+    OpenNamedFileButton(title: title, onFile: { _, data in onData(data) }, onFailure: onFailure)
+  }
+}
+
+/// Reads a file chosen in the system Files picker and passes its name with its data, for formats
+/// that the file name identifies, such as `.lzma`.
+struct OpenNamedFileButton: View {
+  let title: LocalizedStringKey
+  let onFile: (_ name: String, _ data: Data) -> Void
+  let onFailure: () -> Void
+
+  @State private var isImporting = false
+
+  var body: some View {
+    // Text only, for the same accessibility reason as OpenTextFileButton.
+    Button(title) {
+      isImporting = true
+    }
+    .buttonStyle(.glass)
+    .fileImporter(isPresented: $isImporting, allowedContentTypes: [.data]) { result in
+      guard case .success(let url) = result else { return }
+      let granted = url.startAccessingSecurityScopedResource()
+      defer {
+        if granted { url.stopAccessingSecurityScopedResource() }
+      }
+      if let data = try? Data(contentsOf: url) {
+        onFile(url.lastPathComponent, data)
+      } else {
+        onFailure()
+      }
+    }
+  }
+}

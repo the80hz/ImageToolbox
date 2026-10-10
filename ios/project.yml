@@ -26,6 +26,9 @@ targets:
     sources:
       - path: ImageToolbox/Sources
       - path: ImageToolbox/Resources
+        excludes:
+          # Not shipped: the model is over the 20 MB budget and no screen uses it.
+          - Models/modnet.mlpackage
     dependencies:
       - package: ImageToolboxKit
         product: ImageToolboxKit

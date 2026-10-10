@@ -101,6 +101,26 @@
         }
       }
     },
+    "Absolute error": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Абсолютная ошибка"
+          }
+        }
+      }
+    },
+    "Angle, degrees counterclockwise": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Угол, градусы против часовой стрелки"
+          }
+        }
+      }
+    },
     "APNG tools": {
       "localizations": {
         "ru": {
@@ -397,6 +417,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Бургер"
+          }
+        }
+      }
+    },
+    "Burgundy": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Бордовая"
+          }
+        }
+      }
+    },
+    "Captions": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подписи"
+          }
+        }
+      }
+    },
+    "Classic": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Классическая"
           }
         }
       }
@@ -1191,12 +1241,62 @@
         }
       }
     },
+    "Creator": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Создатель"
+          }
+        }
+      }
+    },
     "Crop": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "Обрезка"
+          }
+        }
+      }
+    },
+    "Cross-correlation (NCC)": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Взаимная корреляция (NCC)"
+          }
+        }
+      }
+    },
+    "Custom": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Своя"
+          }
+        }
+      }
+    },
+    "Custom colour": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Свой цвет"
+          }
+        }
+      }
+    },
+    "Custom text": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Свой текст"
           }
         }
       }
@@ -1227,6 +1327,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Тёмная"
+          }
+        }
+      }
+    },
+    "Date taken": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дата съёмки"
           }
         }
       }
@@ -1341,6 +1451,16 @@
         }
       }
     },
+    "Draw signature": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нарисовать подпись"
+          }
+        }
+      }
+    },
     "Droplet": {
       "localizations": {
         "ru": {
@@ -1367,6 +1487,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Длительность: %@ с"
+          }
+        }
+      }
+    },
+    "Each picture's own width": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ширина каждой картинки своя"
           }
         }
       }
@@ -1521,6 +1651,16 @@
         }
       }
     },
+    "Exposure settings": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выдержка и диафрагма"
+          }
+        }
+      }
+    },
     "Extract": {
       "localizations": {
         "ru": {
@@ -1551,6 +1691,16 @@
         }
       }
     },
+    "File size": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Размер файла"
+          }
+        }
+      }
+    },
     "Fill": {
       "localizations": {
         "ru": {
@@ -1571,6 +1721,16 @@
         }
       }
     },
+    "First number: %lld": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Первый номер: %lld"
+          }
+        }
+      }
+    },
     "Fit": {
       "localizations": {
         "ru": {
@@ -1587,6 +1747,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Подогнать под размер"
+          }
+        }
+      }
+    },
+    "Fixed page size": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Фиксированный размер страницы"
+          }
+        }
+      }
+    },
+    "Fixed paper size": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Фиксированный размер бумаги"
           }
         }
       }
@@ -1721,12 +1901,52 @@
         }
       }
     },
+    "Graphite": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Графит"
+          }
+        }
+      }
+    },
+    "Grey": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Серый"
+          }
+        }
+      }
+    },
     "Grid": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "Сетка"
+          }
+        }
+      }
+    },
+    "Head length scale": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Коэффициент длины наконечника"
+          }
+        }
+      }
+    },
+    "Highlight colour": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цвет выделения"
           }
         }
       }
@@ -2061,6 +2281,16 @@
         }
       }
     },
+    "Lens": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Объектив"
+          }
+        }
+      }
+    },
     "Libraries": {
       "localizations": {
         "ru": {
@@ -2107,6 +2337,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Номера строк"
+          }
+        }
+      }
+    },
+    "Line width": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ширина линии"
           }
         }
       }
@@ -2281,6 +2521,16 @@
         }
       }
     },
+    "Mean absolute error": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Средняя абсолютная ошибка"
+          }
+        }
+      }
+    },
     "Median": {
       "localizations": {
         "ru": {
@@ -2311,12 +2561,32 @@
         }
       }
     },
+    "Metric": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Метрика"
+          }
+        }
+      }
+    },
     "Metrics": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "Метрики"
+          }
+        }
+      }
+    },
+    "Midnight": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Полночь"
           }
         }
       }
@@ -2371,6 +2641,16 @@
         }
       }
     },
+    "Narrowest picture": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "По самой узкой картинке"
+          }
+        }
+      }
+    },
     "NCC": {
       "localizations": {
         "ru": {
@@ -2417,6 +2697,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Названия"
+          }
+        }
+      }
+    },
+    "Negative": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Негатив"
           }
         }
       }
@@ -2507,6 +2797,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Нет"
+          }
+        }
+      }
+    },
+    "Number": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Номер"
           }
         }
       }
@@ -2607,6 +2907,46 @@
           "stringUnit": {
             "state": "translated",
             "value": "Овал"
+          }
+        }
+      }
+    },
+    "Pages without text are read on this device. Other pages keep their text as it is.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Страницы без текста читаются на этом устройстве. Остальные страницы сохраняют свой текст."
+          }
+        }
+      }
+    },
+    "Peak signal-to-noise ratio": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пиковое отношение сигнал/шум"
+          }
+        }
+      }
+    },
+    "Pen colour": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цвет пера"
+          }
+        }
+      }
+    },
+    "Producer": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Производитель"
           }
         }
       }
@@ -2851,6 +3191,16 @@
         }
       }
     },
+    "Purple": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Фиолетовая"
+          }
+        }
+      }
+    },
     "Quality": {
       "localizations": {
         "ru": {
@@ -2867,6 +3217,56 @@
           "stringUnit": {
             "state": "translated",
             "value": "Качество: %@"
+          }
+        }
+      }
+    },
+    "Recognize text in pictures": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Распознавать текст на картинках"
+          }
+        }
+      }
+    },
+    "Regular polygon": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Правильный многоугольник"
+          }
+        }
+      }
+    },
+    "Regular star": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Правильная звезда"
+          }
+        }
+      }
+    },
+    "Reverse page order": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обратный порядок страниц"
+          }
+        }
+      }
+    },
+    "Right to left": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Справа налево"
           }
         }
       }
@@ -3091,6 +3491,16 @@
         }
       }
     },
+    "Root mean squared error": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Корень из средней квадратичной ошибки"
+          }
+        }
+      }
+    },
     "Rotate and flip": {
       "localizations": {
         "ru": {
@@ -3187,6 +3597,86 @@
           "stringUnit": {
             "state": "translated",
             "value": "Строк до удаления: %lld"
+          }
+        }
+      }
+    },
+    "Sepia": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сепия"
+          }
+        }
+      }
+    },
+    "Shadow colour": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цвет тени"
+          }
+        }
+      }
+    },
+    "Shadow opacity": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Непрозрачность тени"
+          }
+        }
+      }
+    },
+    "Sides": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стороны"
+          }
+        }
+      }
+    },
+    "Size in pixels": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Размер в пикселях"
+          }
+        }
+      }
+    },
+    "Skip the cover": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пропустить обложку"
+          }
+        }
+      }
+    },
+    "Slate": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сланцевая"
+          }
+        }
+      }
+    },
+    "Split wide pages": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Делить широкие страницы"
           }
         }
       }
@@ -3681,6 +4171,16 @@
         }
       }
     },
+    "Structural similarity (SSIM)": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Структурное сходство (SSIM)"
+          }
+        }
+      }
+    },
     "Style": {
       "localizations": {
         "ru": {
@@ -3767,6 +4267,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Текстовые поля"
+          }
+        }
+      }
+    },
+    "Text size": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Размер текста"
           }
         }
       }
@@ -4071,6 +4581,16 @@
         }
       }
     },
+    "Tolerance, percent": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Допуск, проценты"
+          }
+        }
+      }
+    },
     "Tool name": {
       "localizations": {
         "ru": {
@@ -4161,6 +4681,16 @@
         }
       }
     },
+    "Use signature": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Использовать подпись"
+          }
+        }
+      }
+    },
     "Vertical": {
       "localizations": {
         "ru": {
@@ -4191,6 +4721,16 @@
         }
       }
     },
+    "Warm": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тёплая"
+          }
+        }
+      }
+    },
     "Watermarks": {
       "localizations": {
         "ru": {
@@ -4211,12 +4751,42 @@
         }
       }
     },
+    "White": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Белый"
+          }
+        }
+      }
+    },
+    "Widest picture": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "По самой широкой картинке"
+          }
+        }
+      }
+    },
     "Width": {
       "localizations": {
         "ru": {
           "stringUnit": {
             "state": "translated",
             "value": "Ширина"
+          }
+        }
+      }
+    },
+    "Width, share of the page": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ширина, доля страницы"
           }
         }
       }
@@ -4257,6 +4827,5376 @@
           "stringUnit": {
             "state": "translated",
             "value": "×"
+          }
+        }
+      }
+    },
+    "Tone curves": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кривые тонов"
+          }
+        }
+      }
+    },
+    "Curves": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кривые"
+          }
+        }
+      }
+    },
+    "Channel": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Канал"
+          }
+        }
+      }
+    },
+    "Master": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Общая"
+          }
+        }
+      }
+    },
+    "Red": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Красный"
+          }
+        }
+      }
+    },
+    "Green": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Зелёный"
+          }
+        }
+      }
+    },
+    "Blue": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Синий"
+          }
+        }
+      }
+    },
+    "Drag points. Drag empty space to add one.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перетаскивайте точки. Перетащите пустое место, чтобы добавить точку."
+          }
+        }
+      }
+    },
+    "Tone curve": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кривая тонов"
+          }
+        }
+      }
+    },
+    "Remove point": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить точку"
+          }
+        }
+      }
+    },
+    "Reset channel": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сбросить канал"
+          }
+        }
+      }
+    },
+    "Histogram": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Гистограмма"
+          }
+        }
+      }
+    },
+    "Waveform": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Осциллограф"
+          }
+        }
+      }
+    },
+    "Luminance histogram": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Гистограмма яркости"
+          }
+        }
+      }
+    },
+    "The curves could not be applied.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось применить кривые."
+          }
+        }
+      }
+    },
+    "Preset": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пресет"
+          }
+        }
+      }
+    },
+    "Import preset": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Импортировать пресет"
+          }
+        }
+      }
+    },
+    "Share preset": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поделиться пресетом"
+          }
+        }
+      }
+    },
+    "Save preset": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сохранить пресет"
+          }
+        }
+      }
+    },
+    "This file is not a supported curve preset.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Этот файл не похож на пресет кривых."
+          }
+        }
+      }
+    },
+    "Could not read the file.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось прочитать файл."
+          }
+        }
+      }
+    },
+    "Editor": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Редактор"
+          }
+        }
+      }
+    },
+    "Color wheels": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цветовые колёса"
+          }
+        }
+      }
+    },
+    "Shadows": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тени"
+          }
+        }
+      }
+    },
+    "Midtones": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Средние тона"
+          }
+        }
+      }
+    },
+    "Highlights": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Света"
+          }
+        }
+      }
+    },
+    "Edges": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Границы"
+          }
+        }
+      }
+    },
+    "Reset wheels": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сбросить колёса"
+          }
+        }
+      }
+    },
+    "Drag a dot to push its tonal range towards a colour. Edges sets how sharp the ranges are.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перетащите точку, чтобы сдвинуть тональный диапазон к цвету. Границы задают, насколько резко разделяются диапазоны."
+          }
+        }
+      }
+    },
+    "Colour wheel": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цветовое колесо"
+          }
+        }
+      }
+    },
+    "Hue, saturation, value": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оттенок, насыщенность, яркость"
+          }
+        }
+      }
+    },
+    "Hue vs Sat": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оттенок — насыщенность"
+          }
+        }
+      }
+    },
+    "Hue vs Hue": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оттенок — оттенок"
+          }
+        }
+      }
+    },
+    "Hue vs Luma": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оттенок — яркость"
+          }
+        }
+      }
+    },
+    "Luma vs Sat": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Яркость — насыщенность"
+          }
+        }
+      }
+    },
+    "Luma vs Hue": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Яркость — оттенок"
+          }
+        }
+      }
+    },
+    "Sat vs Sat": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Насыщенность — насыщенность"
+          }
+        }
+      }
+    },
+    "Curve": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кривая"
+          }
+        }
+      }
+    },
+    "Reset curve": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сбросить кривую"
+          }
+        }
+      }
+    },
+    "The centre line means no change. Points above it strengthen, points below it weaken.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Средняя линия — без изменений. Точки выше неё усиливают эффект, ниже — ослабляют."
+          }
+        }
+      }
+    },
+    "Lab": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lab"
+          }
+        }
+      }
+    },
+    "Cyan": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Голубой"
+          }
+        }
+      }
+    },
+    "Magenta": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пурпурный"
+          }
+        }
+      }
+    },
+    "Yellow": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Жёлтый"
+          }
+        }
+      }
+    },
+    "Black": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Чёрный"
+          }
+        }
+      }
+    },
+    "Lightness": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Светлота"
+          }
+        }
+      }
+    },
+    "a": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "a"
+          }
+        }
+      }
+    },
+    "b": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "b"
+          }
+        }
+      }
+    },
+    "Scope": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Шкала"
+          }
+        }
+      }
+    },
+    "Vectorscope": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вектороскоп"
+          }
+        }
+      }
+    },
+    "Format conversion": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Конвертация форматов"
+          }
+        }
+      }
+    },
+    "Formats": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Форматы"
+          }
+        }
+      }
+    },
+    "Each format is written by the engine shown. Formats marked unavailable have no encoder on this device.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Каждый формат записывает указанный движок. Форматы без кодировщика на этом устройстве помечены как недоступные."
+          }
+        }
+      }
+    },
+    "Unavailable": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Недоступно"
+          }
+        }
+      }
+    },
+    "Apple ImageIO": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple ImageIO"
+          }
+        }
+      }
+    },
+    "QOI codec": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кодек QOI"
+          }
+        }
+      }
+    },
+    "Telegram sticker: 512 px, up to 512 KB": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стикер Telegram: 512 px, до 512 КБ"
+          }
+        }
+      }
+    },
+    "No encoder in this build": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В этой сборке нет кодировщика"
+          }
+        }
+      }
+    },
+    "This format cannot be written on this device.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Этот формат нельзя записать на этом устройстве."
+          }
+        }
+      }
+    },
+    "The file is larger than this format allows.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Файл больше, чем допускает этот формат."
+          }
+        }
+      }
+    },
+    "Multi-frame fusion": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слияние кадров"
+          }
+        }
+      }
+    },
+    "Frames": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кадры"
+          }
+        }
+      }
+    },
+    "Frames loaded: %lld": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Загружено кадров: %lld"
+          }
+        }
+      }
+    },
+    "%lld frames could not be read.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось прочитать кадров: %lld."
+          }
+        }
+      }
+    },
+    "Method": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Метод"
+          }
+        }
+      }
+    },
+    "Exposure": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Экспозиция"
+          }
+        }
+      }
+    },
+    "Focus": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Фокус"
+          }
+        }
+      }
+    },
+    "Long exposure": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Длинная выдержка"
+          }
+        }
+      }
+    },
+    "Light trails": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Световые следы"
+          }
+        }
+      }
+    },
+    "Motion trails": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Следы движения"
+          }
+        }
+      }
+    },
+    "Align frames": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выровнять кадры"
+          }
+        }
+      }
+    },
+    "Crop to overlap": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обрезать по общей области"
+          }
+        }
+      }
+    },
+    "Contrast": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Контраст"
+          }
+        }
+      }
+    },
+    "Saturation": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Насыщенность"
+          }
+        }
+      }
+    },
+    "Exposure weight": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вес экспозиции"
+          }
+        }
+      }
+    },
+    "Focus radius": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Радиус фокуса"
+          }
+        }
+      }
+    },
+    "Focus strength": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сила фокуса"
+          }
+        }
+      }
+    },
+    "Trail threshold": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Порог следа"
+          }
+        }
+      }
+    },
+    "Trail strength": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сила следа"
+          }
+        }
+      }
+    },
+    "Trail persistence": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Устойчивость следа"
+          }
+        }
+      }
+    },
+    "Fusing frames…": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слияние кадров…"
+          }
+        }
+      }
+    },
+    "The frames could not be fused. They must overlap and have the same size.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кадры не удалось слить. Они должны перекрываться и иметь одинаковый размер."
+          }
+        }
+      }
+    },
+    "Archive tools": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Инструменты архивов"
+          }
+        }
+      }
+    },
+    "Create": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Создать"
+          }
+        }
+      }
+    },
+    "Open": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть"
+          }
+        }
+      }
+    },
+    "Pictures: %lld": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Картинок: %lld"
+          }
+        }
+      }
+    },
+    "Container": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Контейнер"
+          }
+        }
+      }
+    },
+    "Create archive": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Создать архив"
+          }
+        }
+      }
+    },
+    "Share archive": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поделиться архивом"
+          }
+        }
+      }
+    },
+    "Open archive": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть архив"
+          }
+        }
+      }
+    },
+    "%@: %lld files": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@: файлов — %lld"
+          }
+        }
+      }
+    },
+    "%lld bytes": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld байт"
+          }
+        }
+      }
+    },
+    "Files": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Файлы"
+          }
+        }
+      }
+    },
+    "The archive could not be created.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось создать архив."
+          }
+        }
+      }
+    },
+    "Text recognition": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Распознавание текста"
+          }
+        }
+      }
+    },
+    "Background removal": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удаление фона"
+          }
+        }
+      }
+    },
+    "SVG trace": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Трассировка в SVG"
+          }
+        }
+      }
+    },
+    "Fractals": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Фракталы"
+          }
+        }
+      }
+    },
+    "File encryption": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Шифрование файлов"
+          }
+        }
+      }
+    },
+    "Recognition": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Распознавание"
+          }
+        }
+      }
+    },
+    "Text is recognized on this device.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Текст распознаётся на этом устройстве."
+          }
+        }
+      }
+    },
+    "Recognize": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Распознать"
+          }
+        }
+      }
+    },
+    "No text found.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Текст не найден."
+          }
+        }
+      }
+    },
+    "Confidence: %lld%%": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Уверенность: %lld%%"
+          }
+        }
+      }
+    },
+    "Copy text": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Копировать текст"
+          }
+        }
+      }
+    },
+    "Share text": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поделиться текстом"
+          }
+        }
+      }
+    },
+    "Text could not be recognized.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Текст не удалось распознать."
+          }
+        }
+      }
+    },
+    "Removal": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удаление"
+          }
+        }
+      }
+    },
+    "Vision finds the main subject on this device. Everything else becomes transparent.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vision находит главный объект на этом устройстве. Всё остальное становится прозрачным."
+          }
+        }
+      }
+    },
+    "Remove background": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить фон"
+          }
+        }
+      }
+    },
+    "No subject found.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не найден объект."
+          }
+        }
+      }
+    },
+    "The result could not be rendered.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Результат не удалось отрисовать."
+          }
+        }
+      }
+    },
+    "Trace": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Трассировка"
+          }
+        }
+      }
+    },
+    "Colors: %lld": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цветов: %lld"
+          }
+        }
+      }
+    },
+    "Outlines are stepped: there is no smoothing.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Контуры ступенчатые: сглаживания нет."
+          }
+        }
+      }
+    },
+    "The picture could not be traced.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Картинку не удалось трассировать."
+          }
+        }
+      }
+    },
+    "Fractal": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Фрактал"
+          }
+        }
+      }
+    },
+    "Kind": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вид"
+          }
+        }
+      }
+    },
+    "Max iterations": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Макс. итераций"
+          }
+        }
+      }
+    },
+    "Center real": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Центр, действительная часть"
+          }
+        }
+      }
+    },
+    "Center imaginary": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Центр, мнимая часть"
+          }
+        }
+      }
+    },
+    "Span": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Масштаб"
+          }
+        }
+      }
+    },
+    "Julia constant": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Константа Жюлиа"
+          }
+        }
+      }
+    },
+    "Real part": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Действительная часть"
+          }
+        }
+      }
+    },
+    "Imaginary part": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Мнимая часть"
+          }
+        }
+      }
+    },
+    "Multibrot": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Мультиброт"
+          }
+        }
+      }
+    },
+    "Power": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Степень"
+          }
+        }
+      }
+    },
+    "The fractal could not be rendered.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Фрактал не удалось отрисовать."
+          }
+        }
+      }
+    },
+    "Password": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пароль"
+          }
+        }
+      }
+    },
+    "Action": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Действие"
+          }
+        }
+      }
+    },
+    "Encrypt": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Зашифровать"
+          }
+        }
+      }
+    },
+    "Decrypt": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Расшифровать"
+          }
+        }
+      }
+    },
+    "The key is derived from the password. A lost password cannot be recovered.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ключ выводится из пароля. Потерянный пароль восстановить нельзя."
+          }
+        }
+      }
+    },
+    "Enter a password.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Введите пароль."
+          }
+        }
+      }
+    },
+    "Could not read this file.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось прочитать файл."
+          }
+        }
+      }
+    },
+    "The file could not be processed.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Файл не удалось обработать."
+          }
+        }
+      }
+    },
+    "This file was not encrypted by this tool.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Этот файл зашифрован не этим инструментом."
+          }
+        }
+      }
+    },
+    "This file uses a format version this build cannot open.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Файл в версии формата, которую эта сборка не открывает."
+          }
+        }
+      }
+    },
+    "Wrong password or the file is damaged.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Неверный пароль или файл повреждён."
+          }
+        }
+      }
+    },
+    "The key could not be derived from the password.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ключ не удалось получить из пароля."
+          }
+        }
+      }
+    },
+    "PDF tools": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDF-инструменты"
+          }
+        }
+      }
+    },
+    "Collage": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Коллаж"
+          }
+        }
+      }
+    },
+    "Compression lab": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Лаборатория сжатия"
+          }
+        }
+      }
+    },
+    "Palettes": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Палитры"
+          }
+        }
+      }
+    },
+    "Drawing": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Рисование"
+          }
+        }
+      }
+    },
+    "Document": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Документ"
+          }
+        }
+      }
+    },
+    "Open PDF": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть PDF"
+          }
+        }
+      }
+    },
+    "Pages: %lld": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Страниц: %lld"
+          }
+        }
+      }
+    },
+    "Pages": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Страницы"
+          }
+        }
+      }
+    },
+    "Numbers start at 1 and are separated by commas, such as 1,3,2. The order sets the order of the result. Empty keeps every page.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Номера начинаются с 1 и разделяются запятыми, например 1,3,2. Порядок задаёт порядок результата. Пустое поле оставляет все страницы."
+          }
+        }
+      }
+    },
+    "Clockwise: %lld°": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "По часовой: %lld°"
+          }
+        }
+      }
+    },
+    "First page of the result.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Первая страница результата."
+          }
+        }
+      }
+    },
+    "This file is not a readable PDF.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Этот файл не является читаемым PDF."
+          }
+        }
+      }
+    },
+    "The file could not be read.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Файл не удалось прочитать."
+          }
+        }
+      }
+    },
+    "Enter page numbers from 1 to %lld, separated by commas.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Введите номера страниц от 1 до %lld через запятую."
+          }
+        }
+      }
+    },
+    "No pages are left to keep.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не осталось страниц для сохранения."
+          }
+        }
+      }
+    },
+    "One of the page numbers is outside the document.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Один из номеров страниц выходит за пределы документа."
+          }
+        }
+      }
+    },
+    "The PDF could not be written.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDF не удалось записать."
+          }
+        }
+      }
+    },
+    "Gap": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Зазор"
+          }
+        }
+      }
+    },
+    "Margin": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отступ"
+          }
+        }
+      }
+    },
+    "Canvas": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Холст"
+          }
+        }
+      }
+    },
+    "The collage could not be drawn.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Коллаж не удалось нарисовать."
+          }
+        }
+      }
+    },
+    "Minimum SSIM": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Минимальный SSIM"
+          }
+        }
+      }
+    },
+    "Size limit, KB": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Лимит размера, КБ"
+          }
+        }
+      }
+    },
+    "Each format is searched on its own. SSIM and PSNR compare the result with the original picture.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Каждый формат подбирается отдельно. SSIM и PSNR сравнивают результат с исходной картинкой."
+          }
+        }
+      }
+    },
+    "Comparing formats": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сравниваем форматы"
+          }
+        }
+      }
+    },
+    "Size, KB": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Размер, КБ"
+          }
+        }
+      }
+    },
+    "PSNR, dB": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PSNR, дБ"
+          }
+        }
+      }
+    },
+    "Time, s": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Время, с"
+          }
+        }
+      }
+    },
+    "Could not compress with this format.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сжать этим форматом не удалось."
+          }
+        }
+      }
+    },
+    "Palette": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Палитра"
+          }
+        }
+      }
+    },
+    "Open palette": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть палитру"
+          }
+        }
+      }
+    },
+    "Read as": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Читать как"
+          }
+        }
+      }
+    },
+    "Choose format": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выбрать формат"
+          }
+        }
+      }
+    },
+    "Colours: %lld": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цветов: %lld"
+          }
+        }
+      }
+    },
+    "Write as": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Записать как"
+          }
+        }
+      }
+    },
+    "Choose the format this file is saved in.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выберите формат, в котором сохранён файл."
+          }
+        }
+      }
+    },
+    "The palette has no colours.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В палитре нет цветов."
+          }
+        }
+      }
+    },
+    "The file does not match this format.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Файл не соответствует этому формату."
+          }
+        }
+      }
+    },
+    "The file does not start with the header of this format.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Файл не начинается с заголовка этого формата."
+          }
+        }
+      }
+    },
+    "The file ends before its data is complete.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Файл заканчивается раньше, чем его данные."
+          }
+        }
+      }
+    },
+    "The file has a block type this app does not know.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В файле блок неизвестного приложению типа."
+          }
+        }
+      }
+    },
+    "The file uses a colour model this app does not know.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В файле цветовая модель, которую приложение не знает."
+          }
+        }
+      }
+    },
+    "The file uses a colour type this app does not know.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В файле тип цвета, который приложение не знает."
+          }
+        }
+      }
+    },
+    "The file uses a colour space this app does not know.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В файле цветовое пространство, которое приложение не знает."
+          }
+        }
+      }
+    },
+    "Drag on the canvas to draw. A tap makes a dot.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Водите по холсту, чтобы рисовать. Касание ставит точку."
+          }
+        }
+      }
+    },
+    "Clear": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Очистить"
+          }
+        }
+      }
+    },
+    "Brush": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кисть"
+          }
+        }
+      }
+    },
+    "Radius": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Радиус"
+          }
+        }
+      }
+    },
+    "Hardness": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Жёсткость"
+          }
+        }
+      }
+    },
+    "Drawing canvas": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Холст для рисования"
+          }
+        }
+      }
+    },
+    "Markup": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Разметка"
+          }
+        }
+      }
+    },
+    "Add": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Добавить"
+          }
+        }
+      }
+    },
+    "Delete layer": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить слой"
+          }
+        }
+      }
+    },
+    "Drag on the picture to draw.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проведите по картинке, чтобы рисовать."
+          }
+        }
+      }
+    },
+    "Ellipse": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Эллипс"
+          }
+        }
+      }
+    },
+    "Hidden": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скрыт"
+          }
+        }
+      }
+    },
+    "Hide layer": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скрыть слой"
+          }
+        }
+      }
+    },
+    "Layers": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слои"
+          }
+        }
+      }
+    },
+    "Line": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Линия"
+          }
+        }
+      }
+    },
+    "Markup canvas": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Холст разметки"
+          }
+        }
+      }
+    },
+    "Move down": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Переместить вниз"
+          }
+        }
+      }
+    },
+    "Move up": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Переместить вверх"
+          }
+        }
+      }
+    },
+    "No layers yet. Add text, a shape, a stroke or a sticker.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Слоёв пока нет. Добавьте текст, фигуру, штрих или наклейку."
+          }
+        }
+      }
+    },
+    "Select": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выбрать"
+          }
+        }
+      }
+    },
+    "Select a layer on the picture or in the list.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выберите слой на картинке или в списке."
+          }
+        }
+      }
+    },
+    "Selected layer": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выбранный слой"
+          }
+        }
+      }
+    },
+    "Show layer": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Показать слой"
+          }
+        }
+      }
+    },
+    "Sticker": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Наклейка"
+          }
+        }
+      }
+    },
+    "Stroke": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Штрих"
+          }
+        }
+      }
+    },
+    "Tap a layer to select it. Drag it to move it.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите на слой, чтобы выбрать его. Перетащите, чтобы переместить."
+          }
+        }
+      }
+    },
+    "Text to add": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Текст для добавления"
+          }
+        }
+      }
+    },
+    "The image could not be encoded as PNG.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось закодировать картинку в PNG."
+          }
+        }
+      }
+    },
+    "Two side by side": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Два рядом"
+          }
+        }
+      }
+    },
+    "Two stacked": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Два друг над другом"
+          }
+        }
+      }
+    },
+    "Large picture on top": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Большое фото сверху"
+          }
+        }
+      }
+    },
+    "Diagonal": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "По диагонали"
+          }
+        }
+      }
+    },
+    "Offset 2 by 2": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сетка 2 на 2 со смещением"
+          }
+        }
+      }
+    },
+    "Film strip": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Лента кадров"
+          }
+        }
+      }
+    },
+    "Application palettes": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Палитры приложений"
+          }
+        }
+      }
+    },
+    "Adobe": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adobe"
+          }
+        }
+      }
+    },
+    "XML": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "XML"
+          }
+        }
+      }
+    },
+    "VGA": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VGA"
+          }
+        }
+      }
+    },
+    "Source code": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Исходный код"
+          }
+        }
+      }
+    },
+    "Refine": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Уточнение"
+          }
+        }
+      }
+    },
+    "Restore": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Восстановить"
+          }
+        }
+      }
+    },
+    "Erase": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стереть"
+          }
+        }
+      }
+    },
+    "Brush size": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Размер кисти"
+          }
+        }
+      }
+    },
+    "Reset to automatic": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сбросить к автоматическому"
+          }
+        }
+      }
+    },
+    "Refinement canvas": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Холст уточнения"
+          }
+        }
+      }
+    },
+    "Smooth curves": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сглаживать кривые"
+          }
+        }
+      }
+    },
+    "Drag to paint. Restore brings the original back, erase makes it transparent.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проведите по картинке, чтобы рисовать. «Восстановить» возвращает оригинал, «Стереть» делает область прозрачной."
+          }
+        }
+      }
+    },
+    "Lasso": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Лассо"
+          }
+        }
+      }
+    },
+    "Spot healing": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Точечная коррекция"
+          }
+        }
+      }
+    },
+    "Warp": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Деформация"
+          }
+        }
+      }
+    },
+    "Filled": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "С заливкой"
+          }
+        }
+      }
+    },
+    "Strength": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сила"
+          }
+        }
+      }
+    },
+    "Clear inside": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Очистить внутри"
+          }
+        }
+      }
+    },
+    "Fill inside": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Заполнить внутри"
+          }
+        }
+      }
+    },
+    "Deselect": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Снять выделение"
+          }
+        }
+      }
+    },
+    "Drag between opposite corners.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тяните между противоположными углами."
+          }
+        }
+      }
+    },
+    "Drag around an area, then clear or fill it.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обведите область, затем очистите или заполните её."
+          }
+        }
+      }
+    },
+    "Tap or drag over a spot to heal it.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Коснитесь пятна или проведите по нему, чтобы убрать его."
+          }
+        }
+      }
+    },
+    "Drag to push pixels along the stroke.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тяните, чтобы сдвигать пиксели вдоль линии."
+          }
+        }
+      }
+    },
+    "Textures": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Текстуры"
+          }
+        }
+      }
+    },
+    "Noise": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Шум"
+          }
+        }
+      }
+    },
+    "Turbulence": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Турбулентность"
+          }
+        }
+      }
+    },
+    "Marble": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Мрамор"
+          }
+        }
+      }
+    },
+    "Wood": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Дерево"
+          }
+        }
+      }
+    },
+    "Voronoi": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вороной"
+          }
+        }
+      }
+    },
+    "Stripes": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Полосы"
+          }
+        }
+      }
+    },
+    "Checkerboard": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Шахматная доска"
+          }
+        }
+      }
+    },
+    "Dots": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Точки"
+          }
+        }
+      }
+    },
+    "First colour": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Первый цвет"
+          }
+        }
+      }
+    },
+    "Second colour": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Второй цвет"
+          }
+        }
+      }
+    },
+    "Shuffle seed": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Новое зерно"
+          }
+        }
+      }
+    },
+    "Compress PDF": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сжать PDF"
+          }
+        }
+      }
+    },
+    "Open PDF to compress": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть PDF для сжатия"
+          }
+        }
+      }
+    },
+    "Original": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Исходный"
+          }
+        }
+      }
+    },
+    "Compress": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сжать"
+          }
+        }
+      }
+    },
+    "The compressed PDF would not be smaller, so the original is kept.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сжатый PDF не меньше, поэтому оставлен исходный"
+          }
+        }
+      }
+    },
+    "Comic to PDF": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Комикс в PDF"
+          }
+        }
+      }
+    },
+    "Each picture (JPEG, PNG, WebP or GIF) in the archive becomes one page, in name order.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Каждое изображение (JPEG, PNG, WebP или GIF) в архиве становится страницей, по порядку имён"
+          }
+        }
+      }
+    },
+    "This file is not a readable ZIP, CBZ or CBR archive.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Файл не читается как архив ZIP, CBZ или CBR"
+          }
+        }
+      }
+    },
+    "This archive uses a feature that cannot be read, such as encryption or Zip64.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Архив использует возможность, которую нельзя прочитать, например шифрование или Zip64"
+          }
+        }
+      }
+    },
+    "The archive has too many files, or a picture in it is too large.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В архиве слишком много файлов или слишком большое изображение"
+          }
+        }
+      }
+    },
+    "This archive holds no JPEG, PNG, WebP or GIF pictures.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В архиве нет изображений JPEG, PNG, WebP или GIF"
+          }
+        }
+      }
+    },
+    "The picture %@ could not be read.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось прочитать изображение %@"
+          }
+        }
+      }
+    },
+    "Searchable PDF": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDF с возможностью поиска"
+          }
+        }
+      }
+    },
+    "Each picture becomes one page. Text is recognized on this device and placed under it.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Каждое изображение становится страницей. Текст распознаётся на устройстве и размещается под изображением"
+          }
+        }
+      }
+    },
+    "Make searchable PDF": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Создать PDF с возможностью поиска"
+          }
+        }
+      }
+    },
+    "Choose at least one picture.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выберите хотя бы одно изображение"
+          }
+        }
+      }
+    },
+    "U2-Net Portable": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "U2-Net Portable"
+          }
+        }
+      }
+    },
+    "A small neural network that runs on this device and finds the standout object.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Небольшая нейросеть, которая работает на устройстве и находит главный объект на снимке."
+          }
+        }
+      }
+    },
+    "Binary": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Двоичные форматы"
+          }
+        }
+      }
+    },
+    "Pencil": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Карандаш"
+          }
+        }
+      }
+    },
+    "Commit strokes": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Зафиксировать штрихи"
+          }
+        }
+      }
+    },
+    "Draw with Apple Pencil or a finger, then commit the strokes.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Рисуйте Apple Pencil или пальцем, затем зафиксируйте штрихи."
+          }
+        }
+      }
+    },
+    "Polynomial maps": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Полиномиальные отображения"
+          }
+        }
+      }
+    },
+    "Barnsley maps": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отображения Барнсли"
+          }
+        }
+      }
+    },
+    "Transcendental maps": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Трансцендентные отображения"
+          }
+        }
+      }
+    },
+    "Rational and Newton maps": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Рациональные и методы Ньютона"
+          }
+        }
+      }
+    },
+    "Geometric sets": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Геометрические множества"
+          }
+        }
+      }
+    },
+    "Attractors": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Аттракторы"
+          }
+        }
+      }
+    },
+    "Iterated systems and shapes": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Итерированные системы и фигуры"
+          }
+        }
+      }
+    },
+    "Constants": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Константы"
+          }
+        }
+      }
+    },
+    "Constant a/b/c/d": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Константа a/b/c/d"
+          }
+        }
+      }
+    },
+    "Relaxation": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Релаксация"
+          }
+        }
+      }
+    },
+    "Circle": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Круг"
+          }
+        }
+      }
+    },
+    "Solid": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сплошной"
+          }
+        }
+      }
+    },
+    "Arrangement": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Расположение"
+          }
+        }
+      }
+    },
+    "Bring to front": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На передний план"
+          }
+        }
+      }
+    },
+    "Send to back": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На задний план"
+          }
+        }
+      }
+    },
+    "Reset layout": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сбросить раскладку"
+          }
+        }
+      }
+    },
+    "Selected picture": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выбранная картинка"
+          }
+        }
+      }
+    },
+    "Tap a picture in the preview to zoom it or move the photo inside its cell.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите картинку в превью, чтобы изменить масштаб или сдвинуть фото в ячейке."
+          }
+        }
+      }
+    },
+    "Zoom": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Масштаб"
+          }
+        }
+      }
+    },
+    "Reset picture": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сбросить картинку"
+          }
+        }
+      }
+    },
+    "Swap with": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поменять местами с"
+          }
+        }
+      }
+    },
+    "Picture %lld": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Картинка %lld"
+          }
+        }
+      }
+    },
+    "Corners": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скругление"
+          }
+        }
+      }
+    },
+    "Start colour": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Начальный цвет"
+          }
+        }
+      }
+    },
+    "End colour": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Конечный цвет"
+          }
+        }
+      }
+    },
+    "Border": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Рамка"
+          }
+        }
+      }
+    },
+    "Drag a picture to move it. Select it and drag a corner to resize it.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перетащите картинку, чтобы переместить. Выберите её и потяните за угол, чтобы изменить размер."
+          }
+        }
+      }
+    },
+    "Tap a picture to select it, then drag it to move the photo inside its cell.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите картинку, чтобы выбрать её, и потяните, чтобы сдвинуть фото в ячейке."
+          }
+        }
+      }
+    },
+    "This file is not a supported archive.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Этот файл не является поддерживаемым архивом."
+          }
+        }
+      }
+    },
+    "The archive is damaged and cannot be read.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Архив повреждён и не может быть прочитан."
+          }
+        }
+      }
+    },
+    "A file in the archive is too large to open.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Файл в архиве слишком большой, чтобы его открыть."
+          }
+        }
+      }
+    },
+    "The archive uses a feature this app cannot read.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Архив использует функцию, которую приложение не поддерживает."
+          }
+        }
+      }
+    },
+    "The archive is encrypted and cannot be opened here.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Архив зашифрован и здесь не может быть открыт."
+          }
+        }
+      }
+    },
+    "Presets set their own colours and parameters.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пресеты задают свои цвета и параметры."
+          }
+        }
+      }
+    },
+    "Nature": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Природа"
+          }
+        }
+      }
+    },
+    "Materials": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Материалы"
+          }
+        }
+      }
+    },
+    "Space": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Космос"
+          }
+        }
+      }
+    },
+    "Patterns": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Узоры"
+          }
+        }
+      }
+    },
+    "Abstract": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Абстракция"
+          }
+        }
+      }
+    },
+    "CBC, CTR, CFB, CFB8, OFB and RC4 add an HMAC-SHA256 tag. EAX, OCB3 and GCM-SIV authenticate by themselves. RC4 is kept only for compatibility.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CBC, CTR, CFB, CFB8, OFB и RC4 добавляют тег HMAC-SHA256. EAX, OCB3 и GCM-SIV аутентифицируют сами. RC4 оставлен только для совместимости."
+          }
+        }
+      }
+    },
+    "Tools": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Инструменты"
+          }
+        }
+      }
+    },
+    "Tool": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Инструмент"
+          }
+        }
+      }
+    },
+    "Run": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запустить"
+          }
+        }
+      }
+    },
+    "Pictures to PDF": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изображения в PDF"
+          }
+        }
+      }
+    },
+    "Left": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Левый"
+          }
+        }
+      }
+    },
+    "Top": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Верхний"
+          }
+        }
+      }
+    },
+    "Right": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Правый"
+          }
+        }
+      }
+    },
+    "Bottom": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нижний"
+          }
+        }
+      }
+    },
+    "Title": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Название"
+          }
+        }
+      }
+    },
+    "Author": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Автор"
+          }
+        }
+      }
+    },
+    "Subject": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тема"
+          }
+        }
+      }
+    },
+    "Pages, empty for all": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Страницы, пусто значит все"
+          }
+        }
+      }
+    },
+    "Pages in each part: %lld": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Страниц в каждой части: %lld"
+          }
+        }
+      }
+    },
+    "Turns, such as 3:90, 5:270": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повороты, например 3:90, 5:270"
+          }
+        }
+      }
+    },
+    "Label, {n} is the number, {total} the count": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подпись: {n} номер, {total} количество"
+          }
+        }
+      }
+    },
+    "Keywords, separated by commas": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ключевые слова, через запятую"
+          }
+        }
+      }
+    },
+    "Each picture becomes one page. The searchable PDF also recognizes its text on this device.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Каждое изображение становится одной страницей. Searchable PDF также распознаёт текст на этом устройстве."
+          }
+        }
+      }
+    },
+    "Split into parts": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Разделить на части"
+          }
+        }
+      }
+    },
+    "Remove pages": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить страницы"
+          }
+        }
+      }
+    },
+    "Rotate single pages": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Повернуть отдельные страницы"
+          }
+        }
+      }
+    },
+    "Page numbers": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Номера страниц"
+          }
+        }
+      }
+    },
+    "Watermark": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Водяной знак"
+          }
+        }
+      }
+    },
+    "Extract images": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Извлечь изображения"
+          }
+        }
+      }
+    },
+    "PDF to images": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDF в изображения"
+          }
+        }
+      }
+    },
+    "Lock with password": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Защитить паролем"
+          }
+        }
+      }
+    },
+    "Unlock": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Снять защиту"
+          }
+        }
+      }
+    },
+    "Grayscale": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оттенки серого"
+          }
+        }
+      }
+    },
+    "Flatten": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выровнять страницы"
+          }
+        }
+      }
+    },
+    "Repair": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Восстановить"
+          }
+        }
+      }
+    },
+    "Align rotation": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выровнять поворот"
+          }
+        }
+      }
+    },
+    "Extract text": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Извлечь текст"
+          }
+        }
+      }
+    },
+    "Dark mode": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тёмный режим"
+          }
+        }
+      }
+    },
+    "PDF tool": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Инструмент PDF"
+          }
+        }
+      }
+    },
+    "Top left": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сверху слева"
+          }
+        }
+      }
+    },
+    "Top center": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сверху по центру"
+          }
+        }
+      }
+    },
+    "Top right": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сверху справа"
+          }
+        }
+      }
+    },
+    "Middle left": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Посередине слева"
+          }
+        }
+      }
+    },
+    "Middle center": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Посередине по центру"
+          }
+        }
+      }
+    },
+    "Middle right": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Посередине справа"
+          }
+        }
+      }
+    },
+    "Bottom left": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Снизу слева"
+          }
+        }
+      }
+    },
+    "Bottom center": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Снизу по центру"
+          }
+        }
+      }
+    },
+    "Bottom right": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Снизу справа"
+          }
+        }
+      }
+    },
+    "This PDF is locked. Use the unlock tool first.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDF защищён паролем. Сначала снимите защиту."
+          }
+        }
+      }
+    },
+    "The password is wrong.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Неверный пароль."
+          }
+        }
+      }
+    },
+    "Check the values entered for this tool.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проверьте значения для этого инструмента."
+          }
+        }
+      }
+    },
+    "Nothing for this tool was found in the PDF.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "В PDF ничего не найдено для этого инструмента."
+          }
+        }
+      }
+    },
+    "The file could not be written.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось записать файл."
+          }
+        }
+      }
+    },
+    "Three-dimensional fractals": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Трёхмерные фракталы"
+          }
+        }
+      }
+    },
+    "Camera": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Камера"
+          }
+        }
+      }
+    },
+    "Camera yaw": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поворот камеры"
+          }
+        }
+      }
+    },
+    "Camera pitch": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Наклон камеры"
+          }
+        }
+      }
+    },
+    "Camera distance": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Расстояние до камеры"
+          }
+        }
+      }
+    },
+    "Quaternion X": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кватернион X"
+          }
+        }
+      }
+    },
+    "Quaternion Y": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кватернион Y"
+          }
+        }
+      }
+    },
+    "Quaternion Z": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кватернион Z"
+          }
+        }
+      }
+    },
+    "Quaternion W": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Кватернион W"
+          }
+        }
+      }
+    },
+    "Fold": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сворачивание"
+          }
+        }
+      }
+    },
+    "Minimum radius": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Минимальный радиус"
+          }
+        }
+      }
+    },
+    "Sigma": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сигма"
+          }
+        }
+      }
+    },
+    "Rho": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ро"
+          }
+        }
+      }
+    },
+    "Beta": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Бета"
+          }
+        }
+      }
+    },
+    "Double arrow": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Двойная стрелка"
+          }
+        }
+      }
+    },
+    "Line arrow": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стрелка-линия"
+          }
+        }
+      }
+    },
+    "Double line arrow": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Двойная стрелка-линия"
+          }
+        }
+      }
+    },
+    "Polygon": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Многоугольник"
+          }
+        }
+      }
+    },
+    "Locked": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Заблокировано"
+          }
+        }
+      }
+    },
+    "Bold": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Полужирный"
+          }
+        }
+      }
+    },
+    "Italic": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Курсив"
+          }
+        }
+      }
+    },
+    "Underline": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подчёркивание"
+          }
+        }
+      }
+    },
+    "Strikethrough": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Зачёркивание"
+          }
+        }
+      }
+    },
+    "Outline": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обводка"
+          }
+        }
+      }
+    },
+    "Alignment": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выравнивание"
+          }
+        }
+      }
+    },
+    "Start": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Начало"
+          }
+        }
+      }
+    },
+    "Centre": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "По центру"
+          }
+        }
+      }
+    },
+    "End": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Конец"
+          }
+        }
+      }
+    },
+    "Material You": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Material You"
+          }
+        }
+      }
+    },
+    "Seed colour": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Исходный цвет"
+          }
+        }
+      }
+    },
+    "Export palette": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Экспорт палитры"
+          }
+        }
+      }
+    },
+    "Choose a picture to build a scheme from its main colour.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выберите изображение, чтобы построить схему по его основному цвету."
+          }
+        }
+      }
+    },
+    "Tonal spot": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тональное пятно"
+          }
+        }
+      }
+    },
+    "Neutral": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нейтральный"
+          }
+        }
+      }
+    },
+    "Vibrant": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Яркий"
+          }
+        }
+      }
+    },
+    "Expressive": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выразительный"
+          }
+        }
+      }
+    },
+    "Rainbow": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Радуга"
+          }
+        }
+      }
+    },
+    "Fruit salad": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Фруктовый салат"
+          }
+        }
+      }
+    },
+    "Monochrome": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Монохромный"
+          }
+        }
+      }
+    },
+    "Fidelity": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Точность"
+          }
+        }
+      }
+    },
+    "Content": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Содержание"
+          }
+        }
+      }
+    },
+    "This archive is encrypted. Enter its password to open it.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Архив зашифрован. Введите пароль, чтобы открыть его."
+          }
+        }
+      }
+    },
+    "Leave empty for an archive without encryption. A lost password cannot be recovered.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Оставьте пустым, чтобы архив не был зашифрован. Потерянный пароль восстановить нельзя."
+          }
+        }
+      }
+    },
+    "Key size": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Размер ключа"
+          }
+        }
+      }
+    },
+    "Layout %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Макет %@"
+          }
+        }
+      }
+    },
+    "Resize pages": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Изменение размера страниц"
+          }
+        }
+      }
+    },
+    "Pages per sheet": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Страниц на листе"
+          }
+        }
+      }
+    },
+    "Signature": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подпись"
+          }
+        }
+      }
+    },
+    "Remove annotations": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалить аннотации"
+          }
+        }
+      }
+    },
+    "Sanitize": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Очистка"
+          }
+        }
+      }
+    },
+    "Compare PDFs": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сравнение PDF"
+          }
+        }
+      }
+    },
+    "Choose PDFs": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выбрать PDF"
+          }
+        }
+      }
+    },
+    "Merge PDFs": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Объединить PDF"
+          }
+        }
+      }
+    },
+    "Merge": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Объединить"
+          }
+        }
+      }
+    },
+    "Clear files": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Очистить список"
+          }
+        }
+      }
+    },
+    "Choose second PDF": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выбрать второй PDF"
+          }
+        }
+      }
+    },
+    "Second PDF": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Второй PDF"
+          }
+        }
+      }
+    },
+    "Fit mode": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Режим вписывания"
+          }
+        }
+      }
+    },
+    "Match orientation": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Учитывать ориентацию"
+          }
+        }
+      }
+    },
+    "First page": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "По первой странице"
+          }
+        }
+      }
+    },
+    "Portrait": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Книжная"
+          }
+        }
+      }
+    },
+    "Landscape": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Альбомная"
+          }
+        }
+      }
+    },
+    "Paper size": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Формат бумаги"
+          }
+        }
+      }
+    },
+    "Sheet": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Лист"
+          }
+        }
+      }
+    },
+    "Margin, % of the shorter side": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поля, % от меньшей стороны"
+          }
+        }
+      }
+    },
+    "Horizontal centre": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Центр по горизонтали"
+          }
+        }
+      }
+    },
+    "Vertical centre": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Центр по вертикали"
+          }
+        }
+      }
+    },
+    "Annotations": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Аннотации"
+          }
+        }
+      }
+    },
+    "Embedded attachments": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Встроенные вложения"
+          }
+        }
+      }
+    },
+    "Scripts and automatic actions": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скрипты и автоматические действия"
+          }
+        }
+      }
+    },
+    "Scripts rebuilds every page, which also removes links, forms and outlines.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скрипты перестраивают каждую страницу и удаляют ссылки, формы и структуру"
+          }
+        }
+      }
+    },
+    "Links": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ссылки"
+          }
+        }
+      }
+    },
+    "File attachments": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вложения"
+          }
+        }
+      }
+    },
+    "Line annotations": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Линии"
+          }
+        }
+      }
+    },
+    "Popups": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Всплывающие окна"
+          }
+        }
+      }
+    },
+    "Stamps": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Штампы"
+          }
+        }
+      }
+    },
+    "Rectangles and ellipses": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Прямоугольники и эллипсы"
+          }
+        }
+      }
+    },
+    "Sticky notes": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Заметки"
+          }
+        }
+      }
+    },
+    "Highlights and underlines": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Выделения и подчёркивания"
+          }
+        }
+      }
+    },
+    "Free text": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Текст"
+          }
+        }
+      }
+    },
+    "Ink drawings": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Рисунки пером"
+          }
+        }
+      }
+    },
+    "Form fields": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поля форм"
+          }
+        }
+      }
+    },
+    "Other annotations": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Прочие аннотации"
+          }
+        }
+      }
+    },
+    "Annotations removed": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Удалено аннотаций"
+          }
+        }
+      }
+    },
+    "Pages that differ": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отличающихся страниц"
+          }
+        }
+      }
+    },
+    "Columns: %lld": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Столбцов: %lld"
+          }
+        }
+      }
+    },
+    "Rows: %lld": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Строк: %lld"
+          }
+        }
+      }
+    },
+    "Number each picture": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нумеровать изображения"
+          }
+        }
+      }
+    },
+    "Make contact sheet": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Создать контактный лист"
+          }
+        }
+      }
+    },
+    "Files: %lld": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Файлов: %lld"
+          }
+        }
+      }
+    },
+    "Some files could not be read.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Некоторые файлы не удалось прочитать."
+          }
+        }
+      }
+    },
+    "Each file must be an unlocked, readable PDF.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Каждый файл должен быть читаемым PDF без пароля."
+          }
+        }
+      }
+    },
+    "The picture could not be read.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось прочитать изображение."
+          }
+        }
+      }
+    },
+    "The file is shorter than one cipher block, which this mode needs.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Файл короче одного блока шифра, а этому режиму нужен хотя бы один блок."
+          }
+        }
+      }
+    },
+    "Viewer": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Просмотр"
+          }
+        }
+      }
+    },
+    "Print": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Печать"
+          }
+        }
+      }
+    },
+    "Shows the result, or the opened PDF when there is none. Swipe or tap a thumbnail to turn pages.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Показывает результат или открытый PDF, пока результата нет. Листайте страницы или нажмите миниатюру."
+          }
+        }
+      }
+    },
+    "Archive": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Архив"
+          }
+        }
+      }
+    },
+    "Blend mode": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Режим наложения"
+          }
+        }
+      }
+    },
+    "Forms": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Формы"
+          }
+        }
+      }
+    },
+    "Flip horizontally": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отразить по горизонтали"
+          }
+        }
+      }
+    },
+    "Flip vertically": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отразить по вертикали"
+          }
+        }
+      }
+    },
+    "Normal": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нормальный"
+          }
+        }
+      }
+    },
+    "Destination over": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Назначение поверх"
+          }
+        }
+      }
+    },
+    "Source in": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Источник внутри"
+          }
+        }
+      }
+    },
+    "Destination in": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Назначение внутри"
+          }
+        }
+      }
+    },
+    "Source out": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Источник снаружи"
+          }
+        }
+      }
+    },
+    "Destination out": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Назначение снаружи"
+          }
+        }
+      }
+    },
+    "Source atop": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Источник поверх назначения"
+          }
+        }
+      }
+    },
+    "Destination atop": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Назначение поверх источника"
+          }
+        }
+      }
+    },
+    "Xor": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Исключающее ИЛИ"
+          }
+        }
+      }
+    },
+    "Plus": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сложение"
+          }
+        }
+      }
+    },
+    "Screen": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Экран"
+          }
+        }
+      }
+    },
+    "Overlay": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перекрытие"
+          }
+        }
+      }
+    },
+    "Darken": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Затемнение"
+          }
+        }
+      }
+    },
+    "Lighten": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Осветление"
+          }
+        }
+      }
+    },
+    "Colour dodge": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Осветление основы"
+          }
+        }
+      }
+    },
+    "Colour burn": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Затемнение основы"
+          }
+        }
+      }
+    },
+    "Hard light": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Жёсткий свет"
+          }
+        }
+      }
+    },
+    "Soft light": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Мягкий свет"
+          }
+        }
+      }
+    },
+    "Difference": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Разница"
+          }
+        }
+      }
+    },
+    "Exclusion": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Исключение"
+          }
+        }
+      }
+    },
+    "Multiply": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Умножение"
+          }
+        }
+      }
+    },
+    "Hue": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цветовой тон"
+          }
+        }
+      }
+    },
+    "Luminosity": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Яркость"
+          }
+        }
+      }
+    },
+    "Limit lines": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ограничить строки"
+          }
+        }
+      }
+    },
+    "Visible lines": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Видимые строки"
+          }
+        }
+      }
+    },
+    "Vertices": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вершины"
+          }
+        }
+      }
+    },
+    "Inner radius": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Внутренний радиус"
+          }
+        }
+      }
+    },
+    "Shadow offset X": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Смещение тени по X"
+          }
+        }
+      }
+    },
+    "Shadow offset Y": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Смещение тени по Y"
+          }
+        }
+      }
+    },
+    "Shadow blur": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Размытие тени"
+          }
+        }
+      }
+    },
+    "Gradient": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Градиент"
+          }
+        }
+      }
+    },
+    "Gradient angle": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Угол градиента"
+          }
+        }
+      }
+    },
+    "Fade to black": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Затухание до чёрного"
+          }
+        }
+      }
+    },
+    "Show floor": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Показывать пол"
+          }
+        }
+      }
+    },
+    "Supersampling": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Суперсэмплинг"
+          }
+        }
+      }
+    },
+    "Spray": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Спрей"
+          }
+        }
+      }
+    },
+    "Drag to spray dots around the brush.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Проведите, чтобы распылить точки вокруг кисти."
+          }
+        }
+      }
+    },
+    "Tap an area to fill the connected pixels of the same colour.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите область, чтобы залить связанные пиксели того же цвета."
+          }
+        }
+      }
+    },
+    "Density": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Плотность"
+          }
+        }
+      }
+    },
+    "Dot size": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Размер точки"
+          }
+        }
+      }
+    },
+    "Square dots": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Квадратные точки"
+          }
+        }
+      }
+    },
+    "Tolerance": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Допуск"
+          }
+        }
+      }
+    },
+    "Regular": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Правильный"
+          }
+        }
+      }
+    },
+    "Corner rounding": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Скругление углов"
+          }
+        }
+      }
+    },
+    "Arrowhead angle": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Угол наконечника"
+          }
+        }
+      }
+    },
+    "Arrowhead size": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Размер наконечника"
+          }
+        }
+      }
+    },
+    "Line style": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Стиль линии"
+          }
+        }
+      }
+    },
+    "Dashed": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пунктир"
+          }
+        }
+      }
+    },
+    "Dot-dashed": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Точка-тире"
+          }
+        }
+      }
+    },
+    "Zigzag": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Зигзаг"
+          }
+        }
+      }
+    },
+    "Pen": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перо"
+          }
+        }
+      }
+    },
+    "Highlighter": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Маркер"
+          }
+        }
+      }
+    },
+    "Neon": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Неон"
+          }
+        }
+      }
+    },
+    "Eraser": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ластик"
+          }
+        }
+      }
+    },
+    "Blur": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Размытие"
+          }
+        }
+      }
+    },
+    "Pixelate": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пикселизация"
+          }
+        }
+      }
+    },
+    "Push": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Толкать"
+          }
+        }
+      }
+    },
+    "Grow": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Увеличить"
+          }
+        }
+      }
+    },
+    "Shrink": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Уменьшить"
+          }
+        }
+      }
+    },
+    "Swirl clockwise": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Завихрение по часовой"
+          }
+        }
+      }
+    },
+    "Swirl counter-clockwise": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Завихрение против часовой"
+          }
+        }
+      }
+    },
+    "Same shape for all pictures": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Та же форма для всех фото"
+          }
+        }
+      }
+    },
+    "Tap a picture in the preview to zoom it, turn it or change the shape of its cell.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите фото в превью, чтобы изменить масштаб, повернуть его или сменить форму ячейки."
+          }
+        }
+      }
+    },
+    "Reset lines": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сбросить линии"
+          }
+        }
+      }
+    },
+    "Drag a white grip between cells to move the line. Tap a picture to select it.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перетащите белую ручку между ячейками, чтобы сдвинуть линию. Нажмите фото, чтобы выбрать его."
+          }
+        }
+      }
+    },
+    "Output scale": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Масштаб вывода"
+          }
+        }
+      }
+    },
+    "Aspect ratio": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Соотношение сторон"
+          }
+        }
+      }
+    },
+    "Size: %@ px": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Размер: %@ пикс."
+          }
+        }
+      }
+    },
+    "Vertical divider %lld": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Вертикальная линия %lld"
+          }
+        }
+      }
+    },
+    "Horizontal divider %lld": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Горизонтальная линия %lld"
           }
         }
       }

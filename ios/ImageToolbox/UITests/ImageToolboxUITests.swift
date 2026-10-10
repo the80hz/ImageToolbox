@@ -104,4 +104,59 @@ extension ImageToolboxUITests {
 
     XCTAssertTrue(app.staticTexts["photo_001.png"].waitForExistence(timeout: 30))
   }
+
+  /// Picks a picture for the tone curves tool and checks that the curve editor appears.
+  @MainActor
+  func testCurvesEditorAppearsAfterPick() throws {
+    let app = XCUIApplication()
+    app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+    app.launch()
+
+    let search = app.searchFields.firstMatch
+    XCTAssertTrue(search.waitForExistence(timeout: 10))
+    search.tap()
+    search.typeText("Tone curves")
+    app.buttons.matching(identifier: "tool.curves").firstMatch.tap()
+
+    let pick = app.buttons.matching(identifier: "curves.pick").firstMatch
+    XCTAssertTrue(pick.waitForExistence(timeout: 10))
+    pick.tap()
+
+    let photo = app.images.firstMatch
+    XCTAssertTrue(photo.waitForExistence(timeout: 20))
+    photo.tap()
+
+    let editor = app.descendants(matching: .any).matching(identifier: "curves.editor").firstMatch
+    XCTAssertTrue(editor.waitForExistence(timeout: 30))
+  }
+
+  /// Picks a picture, chooses QOI as the target and checks that the converted file can be shared.
+  @MainActor
+  func testFormatConversionOffersSharingAfterChoosingQOI() throws {
+    let app = XCUIApplication()
+    app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+    app.launch()
+
+    let search = app.searchFields.firstMatch
+    XCTAssertTrue(search.waitForExistence(timeout: 10))
+    search.tap()
+    search.typeText("Format conversion")
+    app.buttons.matching(identifier: "tool.formatConversion").firstMatch.tap()
+
+    let pick = app.buttons.matching(identifier: "formatConversion.pick").firstMatch
+    XCTAssertTrue(pick.waitForExistence(timeout: 10))
+    pick.tap()
+
+    let photo = app.images.firstMatch
+    XCTAssertTrue(photo.waitForExistence(timeout: 20))
+    photo.tap()
+
+    let qoi = app.buttons.matching(identifier: "formatConversion.target.qoi").firstMatch
+    XCTAssertTrue(qoi.waitForExistence(timeout: 30))
+    qoi.tap()
+
+    XCTAssertTrue(
+      app.buttons.matching(identifier: "formatConversion.share").firstMatch.waitForExistence(
+        timeout: 30))
+  }
 }

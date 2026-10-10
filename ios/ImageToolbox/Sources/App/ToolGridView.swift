@@ -109,6 +109,22 @@ struct ToolGridView: View {
     case .gradientMaker: GradientMakerToolView()
     case .paletteToPDF: PaletteToPDFToolView()
     case .photomosaic: PhotomosaicToolView()
+    case .curves: CurvesToolView()
+    case .formatConversion: FormatConversionToolView()
+    case .multiFrameFusion: MultiFrameFusionToolView()
+    case .archiveTools: ArchiveToolView()
+    case .textRecognition: OCRToolView()
+    case .backgroundRemoval: BackgroundRemovalToolView()
+    case .svgTrace: SVGTraceToolView()
+    case .fractals: FractalToolView()
+    case .fileCipher: FileCipherToolView()
+    case .pdfTools: PDFToolView()
+    case .collage: CollageToolView()
+    case .compressionLab: CompressionLabToolView()
+    case .palettes: PaletteToolView()
+    case .drawing: DrawingToolView()
+    case .markup: MarkupToolView()
+    case .textures: TextureToolView()
     }
   }
 }
