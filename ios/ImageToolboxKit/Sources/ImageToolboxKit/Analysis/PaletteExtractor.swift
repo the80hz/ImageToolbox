@@ -11,11 +11,15 @@ public enum PaletteExtractor {
   ) -> [RGBA] {
     guard count > 0, raster.width > 0, raster.height > 0 else { return [] }
 
-    // Sample at most ~4000 pixels so large images stay fast.
+    // Sample at most 4000 pixels so large images stay fast. The sample is random rather than strided:
+    // a stride that divides the row length would read the same column of every row.
     let total = raster.width * raster.height
-    let stride = max(1, total / 4000)
+    var generator = SeededGenerator(seed: seed)
+    let indices: [Int] =
+      total <= 4000
+      ? Array(0..<total) : (0..<4000).map { _ in Int.random(in: 0..<total, using: &generator) }
     var samples: [[Double]] = []
-    for index in Swift.stride(from: 0, to: total, by: stride) {
+    for index in indices {
       let base = index * 4
       guard raster.pixels[base + 3] > 0 else { continue }
       samples.append([
@@ -25,9 +29,25 @@ public enum PaletteExtractor {
     }
     guard !samples.isEmpty else { return [] }
 
-    var generator = SeededGenerator(seed: seed)
-    var centroids = (0..<min(count, samples.count)).map { _ in
-      samples.randomElement(using: &generator)!
+    // k-means++ seeding: each new centre is drawn with probability proportional to its squared distance
+    // from the nearest centre chosen so far, so small clusters are not lost to an unlucky start.
+    var centroids: [[Double]] = [samples[Int.random(in: 0..<samples.count, using: &generator)]]
+    while centroids.count < min(count, samples.count) {
+      let distances = samples.map { sample in
+        centroids.map { squaredDistance(sample, $0) }.min() ?? 0
+      }
+      let sum = distances.reduce(0, +)
+      guard sum > 0 else { break }
+      var target = Double.random(in: 0..<sum, using: &generator)
+      var chosen = samples.count - 1
+      for (index, distance) in distances.enumerated() {
+        target -= distance
+        if target < 0 {
+          chosen = index
+          break
+        }
+      }
+      centroids.append(samples[chosen])
     }
     var assignment = [Int](repeating: 0, count: samples.count)
 
@@ -66,15 +86,19 @@ public enum PaletteExtractor {
     var best = 0
     var bestDistance = Double.infinity
     for (index, centroid) in centroids.enumerated() {
-      let d0 = sample[0] - centroid[0]
-      let d1 = sample[1] - centroid[1]
-      let d2 = sample[2] - centroid[2]
-      let distance = d0 * d0 + d1 * d1 + d2 * d2
+      let distance = squaredDistance(sample, centroid)
       if distance < bestDistance {
         bestDistance = distance
         best = index
       }
     }
     return best
+  }
+
+  private static func squaredDistance(_ a: [Double], _ b: [Double]) -> Double {
+    let d0 = a[0] - b[0]
+    let d1 = a[1] - b[1]
+    let d2 = a[2] - b[2]
+    return d0 * d0 + d1 * d1 + d2 * d2
   }
 }

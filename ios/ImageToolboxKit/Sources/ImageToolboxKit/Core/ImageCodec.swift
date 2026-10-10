@@ -43,14 +43,28 @@ public enum ImageCodec {
         image, quality: Float(min(max(quality, 0), 1) * 100), exif: exif)
     }
 
+    return encode(
+      image, typeIdentifier: format.typeIdentifier, lossy: format.isLossy, quality: quality,
+      metadata: metadata)
+  }
+
+  /// Writes `image` with ImageIO in the container `typeIdentifier`. Lossy containers take `quality`
+  /// in 0...1. Containers that are not lossy ignore it.
+  public static func encode(
+    _ image: CGImage,
+    typeIdentifier: String,
+    lossy: Bool,
+    quality: Double = 0.9,
+    metadata: [String: Any] = [:]
+  ) -> Data? {
     let output = NSMutableData()
     guard
       let destination = CGImageDestinationCreateWithData(
-        output, format.typeIdentifier as CFString, 1, nil)
+        output, typeIdentifier as CFString, 1, nil)
     else { return nil }
 
     var properties = metadata
-    if format.isLossy {
+    if lossy {
       properties[kCGImageDestinationLossyCompressionQuality as String] = min(max(quality, 0), 1)
     }
 

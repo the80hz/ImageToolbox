@@ -82,6 +82,17 @@ struct AnalysisTests {
     #expect(colors.contains { $0.blue > 240 && $0.red < 15 })
   }
 
+  @Test("a large image is sampled across all its columns, so both halves are found")
+  func paletteLargeImage() throws {
+    // 256 x 256 pixels is above the 4000-sample budget, so the extractor samples. A stride that
+    // divides the row length would read a single column and see only one half.
+    let image = TestImages.halves(left: red, right: blue, width: 256, height: 256)
+    let raster = try #require(RasterImage(image))
+    let colors = PaletteExtractor.dominantColors(raster, count: 2)
+    #expect(colors.contains { $0.red > 240 && $0.blue < 15 })
+    #expect(colors.contains { $0.blue > 240 && $0.red < 15 })
+  }
+
   @Test("pixel-level metric helpers handle colour-space conversion for palette swatches")
   func palettePDF() throws {
     let data = try #require(PalettePDF.render([red, blue, RGBA(hex: "#00FF00")!]))

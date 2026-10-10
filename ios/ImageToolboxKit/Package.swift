@@ -18,10 +18,13 @@ let package = Package(
         .package(url: "https://github.com/SDWebImage/libwebp-Xcode", from: "1.5.0"),
     ],
     targets: [
+        // The system libarchive, which reads RAR. The SDKs ship no header for it.
+        .systemLibrary(name: "CArchive"),
         .target(
             name: "ImageToolboxKit",
             dependencies: [
                 .product(name: "libwebp", package: "libwebp-Xcode"),
+                "CArchive",
             ],
             resources: [.copy("Resources/color_names.json")]
         ),
