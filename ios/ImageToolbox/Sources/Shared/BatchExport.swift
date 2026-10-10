@@ -50,12 +50,12 @@ final class BatchExportModel {
 
   /// Runs `process` on every picture, several at a time. A picture that `process` cannot handle
   /// stops the whole batch.
-  func run(label: String, process: @escaping @Sendable (Item) -> BatchFile?) {
-    runMany(label: label, process: { item in process(item).map { [$0] } })
+  func run(label: String, process: @escaping @Sendable (Item) async -> BatchFile?) {
+    runMany(label: label, process: { item in await process(item).map { [$0] } })
   }
 
   /// Like `run`, for an operation that produces several files from one picture, such as a split.
-  func runMany(label: String, process: @escaping @Sendable (Item) -> [BatchFile]?) {
+  func runMany(label: String, process: @escaping @Sendable (Item) async -> [BatchFile]?) {
     guard !pictures.isEmpty, task == nil else { return }
     let items = pictures.enumerated().map { Item(index: $0.offset, picture: $0.element) }
     exports = []
@@ -67,7 +67,7 @@ final class BatchExportModel {
           items,
           label: label,
           operation: { item -> [BatchFile] in
-            guard let files = process(item) else { throw BatchError.processingFailed }
+            guard let files = await process(item) else { throw BatchError.processingFailed }
             return files
           },
           progress: { [weak self] report in
@@ -95,7 +95,7 @@ struct BatchSection: View {
   let model: BatchExportModel
   @Binding var pickedItems: [PhotosPickerItem]
   /// Builds the per-picture operation from the tool's current settings, when the batch starts.
-  let makeProcess: () -> (@Sendable (BatchExportModel.Item) -> BatchFile?)
+  let makeProcess: () -> (@Sendable (BatchExportModel.Item) async -> BatchFile?)
 
   var body: some View {
     GlassSection("Batch") {

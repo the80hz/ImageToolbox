@@ -60,5 +60,6 @@ enum UITestTools {
     ("drawing", "Drawing"),
     ("markup", "Markup"),
     ("textures", "Textures"),
+    ("filters", "Filters"),
   ]
 }

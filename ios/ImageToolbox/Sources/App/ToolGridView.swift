@@ -125,6 +125,7 @@ struct ToolGridView: View {
     case .drawing: DrawingToolView()
     case .markup: MarkupToolView()
     case .textures: TextureToolView()
+    case .filters: FiltersToolView()
     }
   }
 }

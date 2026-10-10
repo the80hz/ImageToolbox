@@ -64,6 +64,8 @@ enum ToolID: String, CaseIterable, Identifiable, Hashable {
   case drawing
   case markup
   case textures
+  // Phase 4: extra-large tools
+  case filters
 
   var id: Self { self }
 
@@ -128,6 +130,7 @@ enum ToolID: String, CaseIterable, Identifiable, Hashable {
     case .drawing: "Drawing"
     case .markup: "Markup"
     case .textures: "Textures"
+    case .filters: "Filters"
     }
   }
 
@@ -192,6 +195,7 @@ enum ToolID: String, CaseIterable, Identifiable, Hashable {
     case .drawing: "pencil.tip"
     case .markup: "highlighter"
     case .textures: "circle.hexagongrid"
+    case .filters: "camera.filters"
     }
   }
 }

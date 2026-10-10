@@ -49,6 +49,7 @@
 		354C18CB30086E27446B8984 /* FormatConversionToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB24261CF4DC5F461D45E8AA /* FormatConversionToolView.swift */; };
 		359A97053C1C2F89D0AE41DC /* ImagePreviewToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F165F2FB5A8C805D630A85B /* ImagePreviewToolView.swift */; };
 		3935ABFA01EA7E149F33598E /* CollageToolModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E87F9F0E0F38D48F068A098E /* CollageToolModel.swift */; };
+		3C1567F85206AF8ED82F05B2 /* FilterParametersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75829E9E2E2D0BF969325A46 /* FilterParametersView.swift */; };
 		3C1782ACA70B88EFBE0A64BB /* GIFToolsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50419996D03B7D9E77898E92 /* GIFToolsModel.swift */; };
 		3C8CCCF10CED924CD428258F /* PDFMergeSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEF0BD3A8B1728E2A768A7F1 /* PDFMergeSection.swift */; };
 		3E3F69FD2FD5C5536B41365D /* PDFPrinting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E29D15E120CA4144EA3A92EE /* PDFPrinting.swift */; };
@@ -60,6 +61,7 @@
 		474526C427723F95CBD1A273 /* EasterEggToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F8DF32A7A8C51F824813CC1 /* EasterEggToolView.swift */; };
 		4BD7445FD0239CFDF07D2CB5 /* DocumentScannerToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C36A58465F5405B6F4BBA53 /* DocumentScannerToolView.swift */; };
 		4C19707471141D3E459FBC7B /* ResizeConvertToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 560F9A00095EC0DF9DDD5D54 /* ResizeConvertToolView.swift */; };
+		4CE8EAAEF5D2AABF4FEA3E2C /* FiltersToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75A2CE7B9A8B6E30ACB93899 /* FiltersToolView.swift */; };
 		4E46136DD9AF4552F2E8F31F /* ImageToolboxApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92C9F85C21490722EA81B4C9 /* ImageToolboxApp.swift */; };
 		514B94ECC09DF69516512080 /* ImageCuttingToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB4A5EA479FD2A41A848C59 /* ImageCuttingToolView.swift */; };
 		554B81F83DDC1151463205B6 /* AppLogsToolModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87420B83675B57A3CF934439 /* AppLogsToolModel.swift */; };
@@ -122,6 +124,7 @@
 		B042ED2C583EE7B1C9776DA6 /* ImageSplittingToolModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE5D5C3D35F821C30AD5DFC6 /* ImageSplittingToolModel.swift */; };
 		B04CD9930342561C2611ACEF /* CurvesToolModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6791F75B4099D54107FA749E /* CurvesToolModel.swift */; };
 		B4281EEA86AEC20187A38BCC /* PaletteToPDFToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D379987C8C4265BB61A997C9 /* PaletteToPDFToolView.swift */; };
+		B44C356AD7B659F9EB333CA8 /* FiltersToolModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C58119BB284E5D83FD3060 /* FiltersToolModel.swift */; };
 		B4A16C1BF5F68D0025863DBB /* ChecksumToolsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E62548C1CAD05D6C5299CBB /* ChecksumToolsView.swift */; };
 		B52E3711488BA0E88823DF83 /* CollageCellOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0880C45689BC68A70BB1A46 /* CollageCellOverlay.swift */; };
 		B5A0A72FA1180083956FB3F9 /* LimitsResizeToolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ABC97F6B61DF79F283F994B /* LimitsResizeToolView.swift */; };
@@ -255,6 +258,7 @@
 		5FD7F7DE0C8579D0C3D273C4 /* DrawingPencilCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawingPencilCanvas.swift; sourceTree = "<group>"; };
 		623BE70693B9F2CCF02244D1 /* u2netp.mlpackage */ = {isa = PBXFileReference; path = u2netp.mlpackage; sourceTree = "<group>"; };
 		63C8F3929E8260356DAFF0C0 /* AudioCoverToolModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCoverToolModel.swift; sourceTree = "<group>"; };
+		65C58119BB284E5D83FD3060 /* FiltersToolModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersToolModel.swift; sourceTree = "<group>"; };
 		65C632898D9A8B5478C7C087 /* MultiFrameFusionToolModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiFrameFusionToolModel.swift; sourceTree = "<group>"; };
 		66AFDC7DEEBECFC428322620 /* UsageStatisticsToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageStatisticsToolView.swift; sourceTree = "<group>"; };
 		6772A41F5FF700F07E3A6AD4 /* DrawingCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawingCanvasView.swift; sourceTree = "<group>"; };
@@ -269,6 +273,8 @@
 		7276974E6716791BA00F75FC /* EncodedPicture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncodedPicture.swift; sourceTree = "<group>"; };
 		7281C466EC186F7C3D688173 /* PDFSignaturePad.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFSignaturePad.swift; sourceTree = "<group>"; };
 		739878A56262095E2EDBE7D2 /* LimitsResizeToolModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LimitsResizeToolModel.swift; sourceTree = "<group>"; };
+		75829E9E2E2D0BF969325A46 /* FilterParametersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterParametersView.swift; sourceTree = "<group>"; };
+		75A2CE7B9A8B6E30ACB93899 /* FiltersToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersToolView.swift; sourceTree = "<group>"; };
 		7D018C7425960E6BCFC2864F /* ColorLibraryToolModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorLibraryToolModel.swift; sourceTree = "<group>"; };
 		7D6B2061A37FABE43263CFF5 /* ImageStitchToolModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageStitchToolModel.swift; sourceTree = "<group>"; };
 		7E2AC5EAF41D384EB37B846D /* GradientMakerToolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientMakerToolView.swift; sourceTree = "<group>"; };
@@ -470,6 +476,16 @@
 				9D3A8A52C83240577108A48C /* TextureToolView.swift */,
 			);
 			path = Documents;
+			sourceTree = "<group>";
+		};
+		0F5CE3537315250F0EEB624D /* Filters */ = {
+			isa = PBXGroup;
+			children = (
+				75829E9E2E2D0BF969325A46 /* FilterParametersView.swift */,
+				65C58119BB284E5D83FD3060 /* FiltersToolModel.swift */,
+				75A2CE7B9A8B6E30ACB93899 /* FiltersToolView.swift */,
+			);
+			path = Filters;
 			sourceTree = "<group>";
 		};
 		1425E9A1C44614B622F76C7B /* Fixtures */ = {
@@ -726,6 +742,7 @@
 				4D8FF7B58D8D11FA90EAC63A /* Colour */,
 				CA0E99063B9388002DA08862 /* Compare */,
 				0A1FE9EFCFD085B4897222F1 /* Documents */,
+				0F5CE3537315250F0EEB624D /* Filters */,
 				C82153166EF21F0532F8027D /* Generators */,
 				224770D57B0980E918E8EDE9 /* Markup */,
 				541C992238A5E5CDE5F5717D /* Media */,
@@ -919,6 +936,9 @@
 				8D450C96E3BA80B6AB732100 /* FileCipherToolModel.swift in Sources */,
 				2B1910D7D4511F435EFE7C65 /* FileCipherToolView.swift in Sources */,
 				D2D13100823DCC021BF1FF9C /* FileTransfer.swift in Sources */,
+				3C1567F85206AF8ED82F05B2 /* FilterParametersView.swift in Sources */,
+				B44C356AD7B659F9EB333CA8 /* FiltersToolModel.swift in Sources */,
+				4CE8EAAEF5D2AABF4FEA3E2C /* FiltersToolView.swift in Sources */,
 				8B14A968563CA53364168BE6 /* FormatConversionToolModel.swift in Sources */,
 				354C18CB30086E27446B8984 /* FormatConversionToolView.swift in Sources */,
 				08A188A545771554E9271707 /* FractalToolModel.swift in Sources */,
@@ -1127,6 +1147,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LM_SKIP_METADATA_EXTRACTION = YES;
 				MARKETING_VERSION = 0.1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -1211,6 +1232,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LM_SKIP_METADATA_EXTRACTION = YES;
 				MARKETING_VERSION = 0.1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
