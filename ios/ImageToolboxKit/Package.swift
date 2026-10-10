@@ -34,7 +34,11 @@ let package = Package(
         ),
         .testTarget(
             name: "ImageToolboxKitTests",
-            dependencies: ["ImageToolboxKit"]
+            dependencies: ["ImageToolboxKit"],
+            // Эталоны Android для сверки фильтров по пикселям (AndroidReference).
+            resources: [
+              .copy("Fixtures")
+            ]
         ),
     ]
 )

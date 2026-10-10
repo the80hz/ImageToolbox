@@ -231,15 +231,36 @@ struct LightColourGroupTests {
     let output = try await SepiaFilter().apply(to: picture)
     #expect(output.pixels != picture.pixels)
     #expect(output.pixels[0] > output.pixels[2])
+    // Строки матрицы Aire на сером 100: 135.1, 120.3, 93.7 и отбрасывание дробной части.
+    #expect(Array(output.pixels[0..<4]) == [135, 120, 93, 255])
     let tiny = try await SepiaFilter().apply(to: FilterTestImages.gradient(width: 1, height: 1))
     #expect(tiny.width == 1)
   }
 
-  @Test("posterize with one level gives black, many levels keep the picture close")
-  func posterizeLevels() async throws {
+  @Test("posterize with one level makes a black and white picture by a half threshold")
+  func posterizeOneLevelIsBinary() async throws {
+    let light = FilterTestImages.solid(width: 1, height: 1, red: 128, green: 128, blue: 128)
+    let white = try await PosterizeFilter(levels: 1).apply(to: light)
+    #expect(white.pixels[0] == 255)
+    let dark = FilterTestImages.solid(width: 1, height: 1, red: 100, green: 100, blue: 100)
+    let black = try await PosterizeFilter(levels: 1).apply(to: dark)
+    #expect(black.pixels[0] == 0)
+  }
+
+  @Test("posterize with five levels switches at 25 and 26 as the Android shader does")
+  func posterizeFiveLevelSteps() async throws {
+    // floor(c * 5 + 0.5) / 5: значения 0, 51, 102, 153, 204, 255.
+    let below = FilterTestImages.solid(width: 1, height: 1, red: 25, green: 25, blue: 25)
+    #expect(try await PosterizeFilter(levels: 5).apply(to: below).pixels[0] == 0)
+    let above = FilterTestImages.solid(width: 1, height: 1, red: 26, green: 26, blue: 26)
+    #expect(try await PosterizeFilter(levels: 5).apply(to: above).pixels[0] == 51)
+    let top = FilterTestImages.solid(width: 1, height: 1, red: 255, green: 255, blue: 255)
+    #expect(try await PosterizeFilter(levels: 5).apply(to: top).pixels[0] == 255)
+  }
+
+  @Test("posterize with many levels keeps the picture close")
+  func posterizeManyLevelsKeepsPicture() async throws {
     let picture = FilterTestImages.solid(width: 1, height: 1, red: 128, green: 128, blue: 128)
-    let flat = try await PosterizeFilter(levels: 1).apply(to: picture)
-    #expect(flat.pixels[0] == 0)
     let fine = try await PosterizeFilter(levels: 40).apply(to: picture)
     #expect(abs(Int(fine.pixels[0]) - 128) <= 4)
   }
@@ -249,14 +270,27 @@ struct LightColourGroupTests {
     try await survivesExtremes({ PosterizeFilter(levels: $0) }, [1, 40])
   }
 
-  @Test("solarize at 1 changes nothing, at 0 inverts every channel above it")
-  func solarizeNeutralAndInvert() async throws {
+  @Test("solarize inverts pixels whose luminance is at most the threshold and keeps the rest")
+  func solarizeInvertsDarkPixels() async throws {
+    // Яркость 0.231 не больше порога 0.5, каналы инвертируются. Светлый пиксель не меняется.
     let picture = FilterTestImages.solid(width: 2, height: 2, red: 200, green: 10, blue: 128)
-    let neutral = try await SolarizeFilter(threshold: 1).apply(to: picture)
-    #expect(neutral.pixels == picture.pixels)
-    let inverted = try await SolarizeFilter(threshold: 0).apply(to: picture)
-    #expect(inverted.pixels[0] == 55)
-    #expect(inverted.pixels[1] == 245)
+    let inverted = try await SolarizeFilter(threshold: 0.5).apply(to: picture)
+    #expect(Array(inverted.pixels[0..<4]) == [55, 245, 127, 255])
+    let bright = FilterTestImages.solid(width: 1, height: 1, red: 250, green: 250, blue: 250)
+    let kept = try await SolarizeFilter(threshold: 0.5).apply(to: bright)
+    #expect(kept.pixels == bright.pixels)
+  }
+
+  @Test("solarize at 1 inverts every pixel, at 0 only black pixels")
+  func solarizeThresholdEnds() async throws {
+    let picture = FilterTestImages.solid(width: 1, height: 1, red: 200, green: 10, blue: 128)
+    let all = try await SolarizeFilter(threshold: 1).apply(to: picture)
+    #expect(all.pixels == [55, 245, 127, 255])
+    let none = try await SolarizeFilter(threshold: 0).apply(to: picture)
+    #expect(none.pixels == picture.pixels)
+    let black = FilterTestImages.solid(width: 1, height: 1, red: 0, green: 0, blue: 0)
+    let white = try await SolarizeFilter(threshold: 0).apply(to: black)
+    #expect(white.pixels == [255, 255, 255, 255])
   }
 
   @Test("solarize keeps 0 and 1 valid on 1x1 and 5x3")

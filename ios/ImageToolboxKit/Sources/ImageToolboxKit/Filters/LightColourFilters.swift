@@ -176,7 +176,7 @@ enum LightColourFilters {
       id: "SepiaFilter",
       titleKey: "sepia",
       category: .lightAndColour,
-      engine: .coreImage,
+      engine: .cpu,
       keywords: ["vintage", "brown"],
       make: { _ in SepiaFilter() }
     ),
@@ -205,6 +205,13 @@ enum LightColourFilters {
       ],
       keywords: ["threshold", "invert"],
       make: { SolarizeFilter(threshold: $0.number("value")) }
+    ),
+    FilterDescriptor(
+      id: "SimpleSolarizeFilter",
+      titleKey: "simple_solarize",
+      category: .lightAndColour,
+      engine: .cpu,
+      make: { _ in SimpleSolarizeFilter() }
     ),
     FilterDescriptor(
       id: "VignetteFilter",
@@ -378,8 +385,9 @@ struct HueFilter: Filter {
   }
 }
 
-/// Приближение. Android: `Aire.saturation`. Флаг `tonemapping` сохраняется в настройках, но не
-/// применяется: алгоритм tonemap находится в нативном коде Aire, которого нет в репозитории.
+/// Приближение. Android: `Aire.saturation` (нативный код, в репозитории его нет). Флаг `tonemapping`
+/// сохраняется в настройках, но не применяется. Сверка с эталоном (насыщенность 2, tonemap включён):
+/// среднее отличие 35.5, максимум 111. Известное расхождение, см. `AndroidReferenceParityTests`.
 struct SaturationFilter: Filter {
   let strength: Double
   let tonemapping: Bool
@@ -465,8 +473,8 @@ struct HighlightsAndShadowsFilter: Filter {
   }
 }
 
-/// Приближение. Android: `GPUImageLuminanceFilter`, яркость по весам 0.2125, 0.7154, 0.0721
-/// (веса из GPUImage, в репозитории не проверены). Каждый канал получает яркость.
+/// Android: `GPUImageLuminanceFilter`, шейдер GPUImage 8.1.0: яркость по весам 0.2125, 0.7154,
+/// 0.0721, каждый канал получает её. Сверка с эталоном: отличие не больше 1 уровня (среднее 0.006).
 struct BlackAndWhiteFilter: Filter {
   func apply(to image: RasterImage) async throws -> RasterImage {
     try CoreImageBridge.render(image, filterID: "BlackAndWhiteFilter") { input in
@@ -482,55 +490,75 @@ struct BlackAndWhiteFilter: Filter {
   }
 }
 
-/// Приближение. Android: `ColorMatrix3x3Filter(ColorMatrices.SEPIA)`, матрица Aire
-/// в репозитории отсутствует. Принята стандартная матрица сепии (как в Microsoft).
+/// Android: `ColorMatrix3x3Filter(ColorMatrices.SEPIA)`. Матрица взята из AAR Aire 0.18.1
+/// (`ColorMatrices.SEPIA`, строки по каналам R, G, B), расчёт общий с `ColorMatrix3x3Filter`.
+/// Сверка с эталоном: из 12288 значений 12279 совпали точно, остальные 9 отличаются на 1 уровень.
 struct SepiaFilter: Filter {
   func apply(to image: RasterImage) async throws -> RasterImage {
-    try CoreImageBridge.render(image, filterID: "SepiaFilter") { input in
-      input.applyingFilter(
-        "CIColorMatrix",
-        parameters: [
-          "inputRVector": CIVector(x: 0.393, y: 0.769, z: 0.189, w: 0),
-          "inputGVector": CIVector(x: 0.349, y: 0.686, z: 0.168, w: 0),
-          "inputBVector": CIVector(x: 0.272, y: 0.534, z: 0.131, w: 0),
-          "inputAVector": CIVector(x: 0, y: 0, z: 0, w: 1),
-        ])
-    }
+    ColourMatrixMath.apply3x3(
+      image, rows: [0.393, 0.769, 0.189, 0.349, 0.686, 0.168, 0.272, 0.534, 0.131])
   }
 }
 
-/// Приближение. Android: `GPUImagePosterizeFilter(levels)`. Алгоритм GPUImage в репозитории
-/// отсутствует. Принято: каждый канал делится на `levels` равных ступеней, которые
-/// равномерно растянуты от 0 до 1. При одной ступени результат 0.
+/// Android: `GPUImagePosterizeFilter(levels)`, шейдер GPUImage 8.1.0: каждый канал считается как
+/// `floor(c * L + 0.5) / L`, где `L` — число уровней (на Android `value.toInt()`). При `L = 1`
+/// канал становится 0 или 1 по порогу 0.5. Сверка с эталоном: точное совпадение.
 struct PosterizeFilter: Filter {
   let levels: Double
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    let steps = max(Int(levels.rounded()), 1)
+    let steps = Double(max(Int(levels), 1))
     return mapChannels(image) { value in
-      guard steps > 1 else { return 0 }
-      let step = min(Int(value * Double(steps)), steps - 1)
-      return Double(step) / Double(steps - 1)
+      (value * steps + 0.5).rounded(.down) / steps
     }
   }
 }
 
-/// Приближение. Android: `GPUImageSolarizeFilter(threshold)`: каналы выше порога инвертируются.
-/// Формула GPUImage в репозитории отсутствует, принята по описанию эффекта.
+/// Android: `SimpleSolarizeFilter` через `com.jhlabs.SolarizeFilter` (Jh Labs, нативный JNI-код).
+/// Формула из Java-метода `transferFunction` в AAR: при `v > 0.5` это `2 * (v - 0.5)`, иначе
+/// `2 * (0.5 - v)`, где `v` — канал / 255 во Float. Результат записывается усечением `(int)(f * 255)`.
+/// Сверка с эталоном: точное совпадение. Альфа не меняется.
+struct SimpleSolarizeFilter: Filter {
+  func apply(to image: RasterImage) async throws -> RasterImage {
+    var pixels = image.pixels
+    for index in stride(from: 0, to: pixels.count, by: 4) {
+      for channel in 0..<3 {
+        let value = Float(image.pixels[index + channel]) / 255
+        let folded: Float = value > 0.5 ? 2 * (value - 0.5) : 2 * (0.5 - value)
+        pixels[index + channel] = UInt8(min(max(folded * 255, 0), 255))
+      }
+    }
+    return RasterImage(width: image.width, height: image.height, pixels: pixels)
+  }
+}
+
+/// Android: `GPUImageSolarizeFilter(threshold)`, шейдер GPUImage 8.1.0. Яркость считается по весам
+/// 0.2125, 0.7154, 0.0721. Если она не больше порога, каждый канал инвертируется, иначе пиксель
+/// не меняется. Порог 1 инвертирует всё, порог 0 трогает только чёрный. Сверка с эталоном:
+/// точное совпадение.
 struct SolarizeFilter: Filter {
   let threshold: Double
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    mapChannels(image) { value in
-      value > threshold ? 1 - value : value
+    var pixels = image.pixels
+    for index in stride(from: 0, to: pixels.count, by: 4) {
+      let red = Double(image.pixels[index]) / 255
+      let green = Double(image.pixels[index + 1]) / 255
+      let blue = Double(image.pixels[index + 2]) / 255
+      let luminance = 0.2125 * red + 0.7154 * green + 0.0721 * blue
+      guard luminance <= threshold else { continue }
+      for channel in 0..<3 {
+        pixels[index + channel] = 255 - pixels[index + channel]
+      }
     }
+    return RasterImage(width: image.width, height: image.height, pixels: pixels)
   }
 }
 
-/// Приближение. Android: `GPUImageVignetteFilter(center, color, start, end)`. Алгоритм GPUImage
-/// в репозитории отсутствует. Принято: расстояние от центра в относительных координатах (0...1),
-/// плавный переход от `start` к `end`, края смешиваются с цветом `color`. Для прямоугольной
-/// картинки затемнение вытянуто по сторонам.
+/// Android: `GPUImageVignetteFilter(center, color, start, end)`, шейдер GPUImage 8.1.0:
+/// `smoothstep(start, end, distance)` от центра в координатах текстуры (0...1, без поправки на
+/// пропорции), края смешиваются с `color`. Сверка с эталоном: отличие не больше 1 уровня
+/// (среднее 0.001). Шейдер Android работает в `lowp`, поэтому допуск на 1 уровень сохранён.
 struct VignetteFilter: Filter {
   let start: Double
   let end: Double

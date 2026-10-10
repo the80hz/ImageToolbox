@@ -107,7 +107,84 @@ struct FilterParametersView: View {
           format: "%.2f"
         )
       }
+
+    case .matrix(let size, let defaultValue):
+      MatrixParameterView(
+        title: title,
+        size: size,
+        values: values.matrix(parameter.key),
+        defaultValues: defaultValue,
+        identifier: "filters.parameter.\(parameter.key)",
+        onCommit: {
+          model.setValue(.matrix($0), forKey: parameter.key)
+          model.commit()
+        })
     }
+  }
+}
+
+/// A square grid of number fields, as the text field of the Android matrix filter. A cell that does
+/// not read as a number takes its default value, as on Android. The matrix is applied on Return.
+private struct MatrixParameterView: View {
+  let title: LocalizedStringKey
+  let size: Int
+  let values: [Double]
+  let defaultValues: [Double]
+  let identifier: String
+  let onCommit: ([Double]) -> Void
+
+  @State private var cells: [String]
+
+  init(
+    title: LocalizedStringKey,
+    size: Int,
+    values: [Double],
+    defaultValues: [Double],
+    identifier: String,
+    onCommit: @escaping ([Double]) -> Void
+  ) {
+    self.title = title
+    self.size = size
+    self.values = values
+    self.defaultValues = defaultValues
+    self.identifier = identifier
+    self.onCommit = onCommit
+    _cells = State(initialValue: values.map { String($0) })
+  }
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 8) {
+      Text(title)
+      ForEach(0..<size, id: \.self) { row in
+        HStack(spacing: 8) {
+          ForEach(0..<size, id: \.self) { column in
+            let index = row * size + column
+            TextField("", text: $cells[index])
+              .textFieldStyle(.roundedBorder)
+              .multilineTextAlignment(.center)
+              .keyboardType(.numbersAndPunctuation)
+              .textInputAutocapitalization(.never)
+              .autocorrectionDisabled()
+              .submitLabel(.done)
+              .onSubmit(commit)
+              .accessibilityIdentifier("\(identifier).\(row).\(column)")
+          }
+        }
+      }
+    }
+    .onChange(of: values) { _, newValues in
+      cells = newValues.map { String($0) }
+    }
+  }
+
+  /// Reads every cell; a cell that is not a number gets its default, as on Android.
+  private func commit() {
+    let parsed = cells.enumerated().map { index, text -> Double in
+      let normalised = text.trimmingCharacters(in: .whitespaces).replacingOccurrences(
+        of: ",", with: ".")
+      return Double(normalised) ?? defaultValues[index]
+    }
+    onCommit(parsed)
   }
 }
 

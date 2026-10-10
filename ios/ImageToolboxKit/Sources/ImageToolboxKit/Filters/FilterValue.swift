@@ -36,6 +36,8 @@ public enum FilterValue: Codable, Equatable, Sendable {
   case choice(String)
   case color(FilterColor)
   case point(FilterPoint)
+  /// Square matrix, row by row.
+  case matrix([Double])
 }
 
 /// Settings of one filter after normalisation: every parameter has a value, and each value is in range.
@@ -79,6 +81,13 @@ public struct FilterValues: Equatable, Sendable {
   public func point(_ key: String) -> FilterPoint {
     guard case .point(let value)? = storage[key] else {
       preconditionFailure("\(key) is not a point parameter")
+    }
+    return value
+  }
+
+  public func matrix(_ key: String) -> [Double] {
+    guard case .matrix(let value)? = storage[key] else {
+      preconditionFailure("\(key) is not a matrix parameter")
     }
     return value
   }

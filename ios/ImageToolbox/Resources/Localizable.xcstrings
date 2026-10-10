@@ -10825,6 +10825,38 @@
         }
       }
     },
+    "color_matrix_3x3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color Matrix 3x3"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цветовая матрица 3x3"
+          }
+        }
+      }
+    },
+    "color_matrix_4x4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color Matrix 4x4"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Цветовая матрица 4х4"
+          }
+        }
+      }
+    },
     "deutaromaly": {
       "localizations": {
         "en": {
@@ -11685,6 +11717,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Упрощенный дизеринг Сиерры"
+          }
+        }
+      }
+    },
+    "simple_solarize": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Simple Solarize"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Простая Соляризация"
           }
         }
       }

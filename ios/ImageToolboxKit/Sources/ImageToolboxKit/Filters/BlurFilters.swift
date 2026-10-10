@@ -629,7 +629,9 @@ struct BoxBlurFilter: Filter {
 
 /// Гауссово размытие, ядро `2r+1` с интегралом по пикселю, sigma и краевой режим из Kotlin.
 ///
-/// Статус: приближение. Aire нативный, побитовое совпадение не проверено.
+/// Статус: приближение. Android вызывает `Aire.gaussianBlur` (нативный код, в репозитории его нет).
+/// Сверка с эталоном (по умолчанию: радиус 25, sigma 10, Reflect101): среднее отличие 1.63, максимум 19.
+/// Известное расхождение, см. `AndroidReferenceParityTests`.
 struct GaussianBlurFilter: Filter {
   let radius: Int
   let sigma: Double

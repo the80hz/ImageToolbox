@@ -15,6 +15,9 @@ public struct FilterParameter: Equatable, Sendable {
     case choice(options: [String], defaultValue: String)
     case color(defaultValue: FilterColor)
     case point(defaultValue: FilterPoint)
+    /// A square matrix of `size` x `size` numbers, stored row by row. Android edits it as text.
+    /// No range: Android does not limit the cells.
+    case matrix(size: Int, defaultValue: [Double])
   }
 
   public init(key: String, titleKey: String, kind: Kind) {
@@ -31,6 +34,7 @@ public struct FilterParameter: Equatable, Sendable {
     case .choice(_, let value): .choice(value)
     case .color(let value): .color(value)
     case .point(let value): .point(value)
+    case .matrix(_, let value): .matrix(value)
     }
   }
 
@@ -53,6 +57,12 @@ public struct FilterParameter: Equatable, Sendable {
           blue: Self.unit(color.blue), alpha: Self.unit(color.alpha)))
     case (.point, .point(let point)):
       return .point(FilterPoint(x: Self.unit(point.x), y: Self.unit(point.y)))
+    case (.matrix(let size, let fallback), .matrix(let values)):
+      // A matrix of another size gives the default. A cell that is not finite gives the default cell.
+      guard values.count == size * size, fallback.count == size * size else {
+        return .matrix(fallback)
+      }
+      return .matrix(zip(values, fallback).map { $0.isFinite ? $0 : $1 })
     default:
       return defaultValue
     }
