@@ -185,8 +185,8 @@
 
 ## Фаза 4. Очень большие фичи (XL) и платформенные задачи
 
-- [ ] Фильтры: 500+ фильтров и цепочки (`core/filters`, `feature/filters`), ~75k LOC. Разбить по
-  группам: Core Image, Metal, CPU-порт
+- [ ] Фильтры: 500+ фильтров и цепочки (`core/filters`, `feature/filters`), ~75k LOC. План по этапам,
+  движкам и блокерам F1–F4 — в [FILTERS.md](FILTERS.md). Начало: этап 0 (каркас).
 - [ ] AI-инструменты (`ai-tools`, `lib/neural-tools`), 100+ моделей. Решение по движку (ONNX Runtime или Core ML)
 - [ ] Shader Studio (`shader-studio`). Решение по GLSL → Metal: транслятор или свой DSL
 - [ ] Quick Settings → Control Center controls и App Intents (`quick-tiles`). Не 1:1, отдельная задача
