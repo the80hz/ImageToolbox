@@ -65,13 +65,13 @@ UI (`ios/ImageToolbox/Sources/Features/Filters`): выбор фото, спис�
 изображениях, замер времени на 12 Мп, `swift format --strict` и без предупреждений.
 
 ### Этап 0. Каркас (без фильтров)
-- [ ] `Filter`, `FilterParameter`, `FilterRegistry`, `FilterChain`, `FilterTemplate` в пакете.
-- [ ] Сериализация цепочки и шаблонов (`Codable`), тесты на круговой обход.
-- [ ] Экран «Фильтры»: выбор фото, цепочка, параметры, превью, экспорт. Подключён 3–5 фильтрами-образцами.
-- [ ] Эталонный набор: изображения и снимки результатов Android-версии для сверки (получить у вас
-  или собрать на эмуляторе).
+- [x] `Filter`, `FilterParameter`, `FilterRegistry`, `FilterChain`, `FilterTemplate` в пакете (`Sources/.../Filters`).
+- [x] Сериализация цепочки и шаблонов (`Codable`), тесты на круговой обход: `FilterChainTests`.
+- [x] Экран «Фильтры»: выбор фото, цепочка, параметры, превью, экспорт, пакетный режим. Собран без предупреждений, запущен в симуляторе: UI-тест `testFiltersChainShowsAddedFilter` (выбор фото, добавление «Negative», шаг цепочки, «Share file») и смоук-тест всех инструментов проходят (2026-10-10). Перетаскивание в цепочке заменено кнопками «вверх» и «вниз». Подключены образцы и все фильтры реестра (см. раздел 7).
+- [!] Эталонный набор: снимки результатов Android-версии для сверки. Не выполнено: ни один фильтр не сверен с Android по пикселям. Попытка снять эталоны с эмулятора `itb37` (2026-10-10) не удалась: шторка «Add filter» Compose не попадает в `uiautomator dump`, координатное управление вслепую сбивается. Рабочие варианты: инструментальный тест в Android-проекте, который применяет фильтр к `ios/ImageToolbox/UITests/Fixtures/ui-sample.png` и сохраняет PNG, либо ручные скриншоты.
 
 ### Этап 1. Core Image и матрицы цвета (оценка: 80–100 фильтров)
+Статус: частично, 55 фильтров (раздел 7). ColorMatrix 8 из 44, шум (`Noise`) не сделан, LookupFilter и файловые LUT не сделаны.
 - [ ] Яркость, контраст, насыщенность, экспозиция, гамма, оттенок, баланс белого, уровни, тени и света.
 - [ ] Размытия: гауссово, box, motion, zoom, bokeh, tilt-shift.
 - [ ] Резкость, шум, виньетка, зерно, сепия, чёрно-белое, инверсия, постеризация, пикселизация.
@@ -79,6 +79,7 @@ UI (`ios/ImageToolbox/Sources/Features/Filters`): выбор фото, спис�
 - [ ] LUT: `LookupFilter`, `LUT512x512`, `CubeLut` через `CIColorCube`.
 
 ### Этап 2. Порт на Swift и Metal без внешних зависимостей (около 120 фильтров)
+Статус: частично, 54 фильтра (раздел 7). Тональная компрессия 6 из 10 (ACES Hill не сделан, три G'MIC-фильтра нет), CLAHE 2 из 13, морфология 7 из 10, глитч и CRT 2 из 15.
 - [ ] Дизеринг (21): Floyd–Steinberg, Atkinson, Bayer, Burkes, Jarvis и т. д. — CPU.
 - [ ] Морфология: эрозия, дилатация, открытие и закрытие, top-hat и black-hat.
 - [ ] Тональная компрессия: ACES, Hable, Hejl–Burgess, Drago, логарифмическая.
@@ -123,3 +124,64 @@ UI (`ios/ImageToolbox/Sources/Features/Filters`): выбор фото, спис�
 - Расхождение результата с Android: источник правды — эталонные снимки, допуск задаётся в тестах.
 - Объём: 500+ фильтров — это недели работы, делим на PR по 10–15 фильтров.
 - App Store: приложение, использующее G'MIC, должно соблюдать условия лицензии.
+
+## 7. Статус выполнения (2026-10-10)
+
+Реестр: 109 фильтров. Все id совпадают с именами классов `feature/filters/.../data/model` (проверено скриптом). Тесты пакета: см. итог последнего прогона `swift test` в этом разделе, фильтры покрыты своими `*FilterTests.swift` и общим тестом крайних значений `FilterRegistryTests`.
+
+Статусы: **перенесён** — формула взята из Android-кода в репозитории (6 фильтров); **приближение** — алгоритм собран по стандартной или опубликованной формуле, потому что Android вызывает нативную библиотеку (Aire, GPUImage, Trickle, Jh Labs) или шейдер, кода которого в репозитории нет (103 фильтра). Ни один фильтр не сверен с Android по пикселям: эталонных снимков нет. Все приближения помечены `приближение` в doc-комментариях файла.
+
+| Группа | Файл | Перенесено | Приближений | Не перенесено |
+|---|---|---|---|---|
+| Яркость и цвет | `LightColourFilters.swift` | 0 | 16 | 0 (`SimpleSolarizeFilter` не добавлен, см. раздел 9) |
+| Размытия | `BlurFilters.swift` | 0 | 13 | 2 |
+| Резкость и шум | `SharpenNoiseFilters.swift` | 0 | 6 | 5 |
+| ColorMatrix и дальтонизм | `ColourMatrixFilters.swift` | 0 | 8 | 3 |
+| LUT (12 пресетов) | `LUTFilters.swift` | 0 | 12 | 3 |
+| Дизеринг (диффузия) | `DitheringFilters.swift` | 0 | 10 | 0 |
+| Дизеринг (упорядоченный) | `OrderedDitheringFilters.swift` | 0 | 9 | 2 |
+| Морфология | `MorphologyFilters.swift` | 0 | 7 | 3 |
+| Тональная компрессия | `ToneMappingFilters.swift` | 0 | 6 | 4 |
+| Гистограммы | `HistogramFilters.swift` | 0 | 4 | 2 |
+| CLAHE | `ClaheFilters.swift` | 0 | 2 | 11 |
+| Искажения | `DistortionFilters.swift` | 5 | 9 | 1 |
+| Глитч и CRT | `GlitchCRTFilters.swift` | 1 | 1 | 11 (`FilmStock50` и `BleachBypass` — в LUT) |
+
+Перенесено по формуле: `GlassHexTiles`, `GlassRectTiles`, `GlassTriangleTiles`, `LogarithmicSpiral`, `SpiralDroste` (Искажения) и `GradientMap` (Глитч и CRT).
+
+Итого: 109 зарегистрировано, 6 перенесено по формуле, 103 приближения, 0 сверено с Android по пикселям.
+
+## 8. Не перенесено
+
+Имя в скобках — класс Android.
+
+- **Тональная компрессия (4):** `AcesHill` (Aire, точные матрицы не воспроизводятся надёжно по памяти); `Retinex`, `DynamicContrast`, `LocalContrastEnhancement` (G'MIC, CeCILL-C, нативный код). Шесть операторов перенесены как приближения по опубликованным формулам (см. раздел 9, решение 1).
+- **LUT (3):** `Lookup` (GPUImage без таблицы в Kotlin); `LUT512x512` и `CubeLut` как самостоятельные фильтры — нужен вид параметра «файл», которого в `FilterParameter` нет. Таблицы 12 пресетов добавлены в `Resources/LUT`.
+- **Размытия (2):** `EnhancedZoomBlur` (семантика `angle` и `strength` в нативном Aire), `PoissonBlur` (алгоритм Aire не воспроизводим по Kotlin).
+- **Резкость и шум (5):** `ConstrainedSharpen`, `AlphaSharpen` (G'MIC); `Noise` (Trickle, семантика threshold не восстанавливается); `ReduceNoise`, `Despeckle` (Jh Labs).
+- **ColorMatrix (3):** `ColorMatrix3x3`, `ColorMatrix4x4` (пользовательская матрица: нужен вид параметра «матрица»); `ColorAnomaly` (через `Aldridge`, Aire).
+- **Упорядоченный дизеринг (2):** `PosterizedDithering` (G'MIC), `YililomaDithering` (палитра Trickle).
+- **Морфология (3):** `FillHoles`, `Skeleton` (G'MIC); `Contour` (Jh Labs, не морфология).
+- **Гистограммы (2):** `EqualizeLight`, `EqualizeShadow` (G'MIC).
+- **CLAHE (11):** `ClaheLAB`, `ClaheLUV`, `ClaheHSL`, `ClaheHSV`, `ClaheOklab`, `ClaheOklch`, `ClaheJzazbz` и четыре цветовых варианта `EqualizeHistogramAdaptive*` (в Kotlin только вызовы Aire, формул перевода нет). Перенесены `Clahe` и `EqualizeHistogramAdaptive` в RGB.
+- **Искажения (1):** `Droste` (G'MIC).
+- **Глитч и CRT (11):** `EnhancedGlitch` (Aire); `BlockGlitch`, `GlitchVariant`, `CrtCurvature`, `VHS`, `VHSNtsc`, `SimpleOldTv` (Trickle); `HuffmanGlitch`, `CrtPhosphors`, `CrtScanlines` (G'MIC); `OldTv` (цепочка Aire и GPUImage).
+
+## 9. Решения и открытые вопросы
+
+Принятые решения (2026-10-10, по рекомендациям, согласовано с пользователем):
+
+1. **Тональная компрессия — гибрид.** Шесть операторов (ACES Narkowicz, Hable, Hejl–Burgess, логарифмический, Uchimura, Drago) перенесены как приближения по опубликованным формулам, а не по Aire. ACES Hill не перенесён. Три G'MIC-фильтра не переносятся. Drago: отображение `threshold` на максимум яркости не сверено с Android.
+2. **LUT — таблицы в ресурсах пакета.** 12 `lookup_*.webp` (512 × 512) скопированы из Android `core/resources` в `Sources/ImageToolboxKit/Resources/LUT` и подключены в `Package.swift`. Декодирование через ImageIO при каждом применении, без кэша. `CubeLut` и вид параметра «файл» откладываются.
+3. **Приближения принимаются** для этапов 1–2 со статусом «приближение». Пункт «эталонный набор» остаётся невыполненным: сверка с Android по пикселям нужна отдельно.
+4. **Движок.** Hue переведён на `.cpu` (поворот оттенка в HSV). Saturation, Vibrance, WhiteBalance и HighlightsAndShadows оставлены на `.coreImage`: ближайший `CIFilter` допустим, если фильтр помечен приближением.
+
+Открытые вопросы:
+
+- **Эталоны.** Нужны снимки Android-приложения на тестовых картинках для 10 популярных фильтров; без них статус «приближение» не превращается в «проверено».
+- **Заголовки параметров.** У `BilaterialBlur` и `FastBilaterialBlur` подпись второго параметра («sigma») в Kotlin управляет `spatialSigma`, а `spatial_sigma` — `rangeSigma`. Значения по умолчанию сохранены, подписи стоит поправить.
+- **TentBlur.** Значение по умолчанию в UI (10) и в Kotlin (15) различаются; взято значение UI.
+- **Производительность.** `Bokeh`, `Median`, `Bilateral`, `FastBilateral` считают O(пикселей × ядро); LUT декодирует таблицу при каждом применении. На 12 Мп при максимальных параметрах будет медленно. Замер времени не выполнен.
+- **`SimpleSolarizeFilter`** есть в Android, в список этапов не входит и не добавлен.
+- **Формат шаблонов (F4).** `FilterTemplate` сохраняется в JSON по Swift-структуре; совместимость с Android не проверялась.
+- **Блокеры F1–F4** не закрыты: G'MIC, лицензии, OpenCV и формат шаблонов ждут решения пользователя.
