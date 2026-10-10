@@ -13,3 +13,17 @@
 /.kotlin
 /scripts/
 /outputs/
+
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+*.pyc
+
+# Logs, coverage, test results
+*.log
+*.profraw
+*.xcresult
+coverage/

@@ -8,3 +8,9 @@
 DerivedData/
 xcuserdata/
 *.xcuserstate
+
+# Local artifacts
+*.xcresult
+*.profraw
+*.dSYM/
+*.ipa
