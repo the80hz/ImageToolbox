@@ -5500,4 +5500,9 @@
     <string name="screenshot_framing_shadow">Bayangan lembut</string>
     <string name="screenshot_framing_shadow_sub">Angkat gambar di atas latar belakang</string>
     <string name="screenshot_framing_shadow_opacity">Opasitas bayangan</string>
+    <string name="weblate_info_sub">Anda dapat membantu menerjemahkan Image Toolbox di Weblate. Tingkatkan terjemahan yang ada atau tambahkan bahasa Anda agar aplikasi tersedia bagi lebih banyak orang.</string>
+    <string name="understood">Mengerti</string>
+    <string name="open">Membuka</string>
+    <string name="dialog_position">Posisi Dialog</string>
+    <string name="dialog_position_sub">Pilih di mana dialog muncul di layar</string>
 </resources>

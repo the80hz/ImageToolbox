@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ ImageToolbox is an image editor for android
   ~ Copyright (c) 2026 T8RIN (Malik Mukhametzyanov)
   ~
@@ -4967,7 +4968,7 @@
     <string name="compression_lab_mode_manual">Stała jakość</string>
     <string name="compression_lab_mode_target_quality">Najmniejszy pod względem jakości</string>
     <string name="compression_lab_mode_target_size">Najlepiej poniżej rozmiaru</string>
-    <string name="compression_lab_target_quality">Docelowa jakość wizualna</string>
+    <string name="compression_lab_target_quality">Docelowy wskaźnik podobieństwa wizualnego</string>
     <string name="compression_lab_target_size">Docelowy rozmiar pliku</string>
     <string name="compression_lab_run">Uruchom porównanie</string>
     <string name="compression_lab_result_details">Koder: %1$s · %2$d ms\nSSIM: %3$s · PSNR: %4$s</string>
@@ -5503,4 +5504,9 @@
     <string name="screenshot_framing_shadow">Miękki cień</string>
     <string name="screenshot_framing_shadow_sub">Podnieś obraz ponad tło</string>
     <string name="screenshot_framing_shadow_opacity">Nieprzezroczystość cienia</string>
+    <string name="weblate_info_sub">Możesz pomóc w tłumaczeniu Image Toolbox na Weblate. Popraw istniejące tłumaczenia lub dodaj swój język, aby udostępnić aplikację większej liczbie osób.</string>
+    <string name="understood">Rozumiem</string>
+    <string name="open">Otwarte</string>
+    <string name="dialog_position">Pozycja dialogowa</string>
+    <string name="dialog_position_sub">Wybierz, gdzie na ekranie mają pojawiać się okna dialogowe</string>
 </resources>

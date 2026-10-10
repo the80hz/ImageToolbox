@@ -57,6 +57,7 @@ import com.t8rin.imagetoolbox.core.resources.emoji.Emoji.initEmoji
 import com.t8rin.imagetoolbox.core.settings.domain.model.CacheAutoClearInterval
 import com.t8rin.imagetoolbox.core.settings.domain.model.ColorHarmonizer
 import com.t8rin.imagetoolbox.core.settings.domain.model.CopyToClipboardMode
+import com.t8rin.imagetoolbox.core.settings.domain.model.DialogPosition
 import com.t8rin.imagetoolbox.core.settings.domain.model.FastSettingsSide
 import com.t8rin.imagetoolbox.core.settings.domain.model.FilenameBehavior
 import com.t8rin.imagetoolbox.core.settings.domain.model.FlingType
@@ -154,6 +155,7 @@ data class UiSettingsState(
     val openEditInsteadOfPreview: Boolean,
     val canEnterPresetsByTextField: Boolean,
     val donateDialogOpenCount: Int?,
+    val weblateInfoDialogOpenCount: Int?,
     val colorBlindType: ColorBlindType?,
     val favoriteScreenList: List<Int>,
     val isLinkPreviewEnabled: Boolean,
@@ -171,6 +173,7 @@ data class UiSettingsState(
     val mainScreenTitle: String,
     val sliderType: SliderType,
     val isCenterAlignDialogButtons: Boolean,
+    val dialogPosition: DialogPosition,
     val fastSettingsSide: FastSettingsSide,
     val settingGroupsInitialVisibility: Map<Int, Boolean>,
     val customFonts: List<UiFontFamily.Custom>,
@@ -430,6 +433,7 @@ fun SettingsState.toUiState(
                 openEditInsteadOfPreview = openEditInsteadOfPreview,
                 canEnterPresetsByTextField = canEnterPresetsByTextField,
                 donateDialogOpenCount = donateDialogOpenCount.takeIf { it >= 0 },
+                weblateInfoDialogOpenCount = weblateInfoDialogOpenCount.takeIf { it >= 0 },
                 colorBlindType = colorBlindType,
                 favoriteScreenList = favoriteScreenList,
                 isLinkPreviewEnabled = isLinkPreviewEnabled,
@@ -447,6 +451,7 @@ fun SettingsState.toUiState(
                 mainScreenTitle = mainScreenTitle,
                 sliderType = sliderType,
                 isCenterAlignDialogButtons = isCenterAlignDialogButtons,
+                dialogPosition = dialogPosition,
                 fastSettingsSide = fastSettingsSide,
                 settingGroupsInitialVisibility = settingGroupsInitialVisibility,
                 customFonts = customFonts,

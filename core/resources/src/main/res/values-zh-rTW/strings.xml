@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ ImageToolbox is an image editor for android
   ~ Copyright (c) 2026 T8RIN (Malik Mukhametzyanov)
   ~
@@ -4964,7 +4965,7 @@
     <string name="compression_lab_mode_manual">固定質量</string>
     <string name="compression_lab_mode_target_quality">質量最小</string>
     <string name="compression_lab_mode_target_size">最佳尺寸偏小</string>
-    <string name="compression_lab_target_quality">目標視覺質量</string>
+    <string name="compression_lab_target_quality">目標視覺計算相似度評分</string>
     <string name="compression_lab_target_size">目標檔案大小</string>
     <string name="compression_lab_run">運行比較</string>
     <string name="compression_lab_result_details">編碼器：%1$s · %2$d ms\nSSIM：%3$s · PSNR：%4$s</string>
@@ -5500,4 +5501,9 @@
     <string name="screenshot_framing_shadow">軟陰影</string>
     <string name="screenshot_framing_shadow_sub">將影像提升到背景之上</string>
     <string name="screenshot_framing_shadow_opacity">陰影不透明度</string>
+    <string name="weblate_info_sub">您可以在 Weblate 上協助翻譯 Image Toolbox。改進現有翻譯或添加您的語言，以使更多人可以使用該應用程式。</string>
+    <string name="understood">知道了</string>
+    <string name="open">打開</string>
+    <string name="dialog_position">對話方塊位置</string>
+    <string name="dialog_position_sub">選擇對話方塊在螢幕上顯示的位置</string>
 </resources>
