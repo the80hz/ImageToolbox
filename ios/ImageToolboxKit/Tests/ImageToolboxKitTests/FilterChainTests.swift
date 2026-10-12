@@ -73,10 +73,10 @@ struct FilterChainTests {
     ])
     let a = try await negativeFirst.apply(to: picture)
     let b = try await contrastFirst.apply(to: picture)
-    // Gain 0 turns every channel into middle grey, 128 after rounding 0.5 up.
-    // Negative first: 64 -> 191 -> 128. Grey first: 128 -> 255 - 128 = 127.
-    #expect(a.pixels[0] == 128)
-    #expect(b.pixels[0] == 127)
+    // Gain 0 turns every channel into middle grey, 127 as Aire truncates 127.5.
+    // Negative first: 64 -> 191 -> 127. Grey first: 127 -> 255 - 127 = 128.
+    #expect(a.pixels[0] == 127)
+    #expect(b.pixels[0] == 128)
   }
 
   @Test("an unknown step fails the whole chain")

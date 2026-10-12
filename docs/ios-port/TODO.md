@@ -187,10 +187,10 @@
 
 - [~] Фильтры: 500+ фильтров и цепочки (`core/filters`, `feature/filters`), ~75k LOC. План по этапам,
   движкам и блокерам F1–F4 — в [FILTERS.md](FILTERS.md). Сделано (2026-10-11): этап 0 (каркас, экран «Фильтры» собран и проверен UI-тестом
-  в симуляторе), 112 фильтров из этапов 1–2: 37 проверено по эталону Android (расхождений нет, `SaturationFilter` и `GaussianBlurFilter` исправлены 2026-10-13 по исходникам Aire, восемь фильтров дальтонизма исправлены 2026-10-13 матрицами `ColorMatrices.Assistance` из Aire 0.18.1, `BrightnessFilter` и `SimpleThresholdDitheringFilter` совпали при сверке, см. FILTERS.md, раздел 10),
-  0 по формуле без сверки, 75 приближений (эталоны сняты 2026-10-13: 73 расходятся с Android, числа в FILTERS.md, раздел 10; `GrainFilter` и `RandomDitheringFilter` недетерминированы; `GaussianBlurFilter` на ядре 81 расходится: среднее 3.396, наибольшее 125); 12 LUT-пресетов, 6 тональных операторов, вид параметра «матрица».
+  в симуляторе), 112 фильтров из этапов 1–2: 54 проверено по эталону Android (расхождений нет, `SaturationFilter` и `GaussianBlurFilter` исправлены 2026-10-13 по исходникам Aire, восемь фильтров дальтонизма исправлены 2026-10-13 матрицами `ColorMatrices.Assistance` из Aire 0.18.1, `BrightnessFilter` и `SimpleThresholdDitheringFilter` совпали при сверке, 12 LUT-пресетов по Trickle 1.9.3, `ContrastFilter`, `UchimuraFilter` и `UnsharpFilter` по Aire 0.18.1, `LevelsFilter` и `TwirlFilter` по Jh Labs 8.1.0 исправлены 2026-10-13 (FILTERS.md, решение 14), см. FILTERS.md, раздел 10),
+  0 по формуле без сверки, 58 приближений (эталоны сняты 2026-10-13: 56 расходятся с Android, числа в FILTERS.md, раздел 10; `GrainFilter` и `RandomDitheringFilter` недетерминированы; `GaussianBlurFilter` на ядре 81 расходится: среднее 3.396, наибольшее 125); 12 LUT-пресетов (проверены), 6 тональных операторов, вид параметра «матрица».
   Не сделано: ACES Hill и три G'MIC-фильтра тональной компрессии, CLAHE в цветовых пространствах, файловые LUT
-  (`LUT512x512`, `CubeLut`: нативный Trickle, см. FILTERS.md, раздел 8), `Lookup` (нет таблицы): отложены по решению 2026-10-11, исправление расхождений приближений по эталонам, этапы 3–6.
+  (`LUT512x512`, `CubeLut`: нужен вид параметра «файл», см. FILTERS.md, раздел 8), `Lookup` (нет таблицы): отложены по решению 2026-10-11, исправление расхождений приближений по эталонам, этапы 3–6.
 - [ ] AI-инструменты (`ai-tools`, `lib/neural-tools`), 100+ моделей. Решение по движку (ONNX Runtime или Core ML)
 - [ ] Shader Studio (`shader-studio`). Решение по GLSL → Metal: транслятор или свой DSL
 - [ ] Quick Settings → Control Center controls и App Intents (`quick-tiles`). Не 1:1, отдельная задача

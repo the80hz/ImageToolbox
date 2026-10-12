@@ -2,9 +2,9 @@ import Foundation
 
 /// Тональная компрессия: ACES (Narkowicz), Hable, Hejl–Burgess, логарифмическая, Uchimura и Drago.
 ///
-/// Статус каждого фильтра — приближение. Android вызывает нативный Aire, его кода в репозитории нет,
-/// поэтому формулы взяты из опубликованных описаний операторов, а не из Android. Результаты с Android
-/// не сверены: эталонных снимков нет. ACES Hill не перенесён: точные матрицы не воспроизводятся надёжно.
+/// Android вызывает нативный Aire 0.18.1 (исходники открыты: github.com/awxkee/aire). Uchimura сверен
+/// с эталоном Android. Остальные операторы — приближения по опубликованным описаниям, с эталоном
+/// расходятся (FILTERS.md, раздел 10). ACES Hill не перенесён.
 enum ToneMappingFilters {
   static let descriptors: [FilterDescriptor] = [
     descriptor(
@@ -83,6 +83,7 @@ private enum ToneColour {
   static func apply(
     _ image: RasterImage,
     encodeOutput: Bool = true,
+    rounding: FloatingPointRoundingRule = .toNearestOrAwayFromZero,
     _ operatorCurve: (Double) -> Double
   ) -> RasterImage {
     var pixels = image.pixels
@@ -93,7 +94,7 @@ private enum ToneColour {
         let straight = min(1, Double(pixels[index + channel]) / 255 / alpha)
         let mapped = operatorCurve(linear(straight))
         let output = encodeOutput ? encoded(mapped) : min(max(mapped, 0), 1)
-        pixels[index + channel] = UInt8((min(1, max(0, output)) * alpha * 255).rounded())
+        pixels[index + channel] = UInt8((min(1, max(0, output)) * alpha * 255).rounded(rounding))
       }
     }
     return RasterImage(width: image.width, height: image.height, pixels: pixels)
@@ -161,8 +162,12 @@ struct LogarithmicFilter: Filter {
   }
 }
 
-/// Uchimura's GT curve (CEDEC 2017) with the published defaults P = 1, a = 1, m = 0.22, l = 0.4,
-/// c = 1.33, b = 0. `scale` multiplies the linear input before the curve.
+/// Uchimura's GT curve (CEDEC 2017) with the constants P = 1, a = 1, m = 0.22, l = 0.4, c = 1.33,
+/// b = 0, as in Aire 0.18.1 (`UchimuraToneMapper.hpp`, `ConvolveToneMapper.cpp`, `aire::uchimura`).
+/// `scale` is Android `exposure` and multiplies the linear input before the curve (no 2^x).
+///
+/// Aire writes the byte by truncation, not rounding; that is what makes the result match.
+/// Статус: проверено по эталону.
 struct UchimuraFilter: Filter {
   let scale: Double
 
@@ -178,7 +183,7 @@ struct UchimuraFilter: Filter {
     let s1 = start + contrast * l0
     let c2 = contrast * peak / (peak - s1)
     let cp = -c2 / peak
-    return ToneColour.apply(image) { x in
+    return ToneColour.apply(image, rounding: .towardZero) { x in
       let v = x * scale
       let w0 = 1 - Self.smoothstep(0, start, v)
       let w2 = v >= start + l0 ? 1.0 : 0.0

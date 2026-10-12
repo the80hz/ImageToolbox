@@ -20,21 +20,21 @@ struct LUTPresetTests {
     }
   }
 
-  @Test("every bundled table decodes to a 64-cube")
+  @Test("every bundled table decodes to a 512 × 512 image")
   func tablesLoad() throws {
     for descriptor in LUTFilters.descriptors {
       let name = try #require(LUTFilterNames.table(for: descriptor.id))
-      let table = try #require(LUTAtlas.table(named: name), "\(name)")
-      #expect(table.size == 64)
+      let image = try #require(LUTAtlas.image(named: name), "\(name)")
+      #expect(image.width == 512 && image.height == 512)
     }
   }
 
-  @Test("intensity 0 leaves the picture within one level of the input")
+  @Test("intensity 0 leaves the picture within 3 levels of the input (quantisation to 4)")
   func zeroIntensityIsIdentity() async throws {
     let picture = FilterTestImages.gradient(width: 8, height: 8)
     let output = try await LUTPresetFilter(table: "lookup_kodak", intensity: 0).apply(to: picture)
     let largest = zip(output.pixels, picture.pixels).map { abs(Int($0) - Int($1)) }.max() ?? 0
-    #expect(largest <= 1)
+    #expect(largest <= 3)
   }
 
   @Test("intensity 1 changes a mid-grey picture")

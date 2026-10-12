@@ -1,4 +1,3 @@
-import CoreImage
 import Foundation
 
 /// Резкость, зерно и пикселизация из групп резкости и шума.
@@ -26,7 +25,7 @@ enum SharpenNoiseFilters {
       id: "UnsharpFilter",
       titleKey: "unsharp",
       category: .sharpenAndNoise,
-      engine: .coreImage,
+      engine: .cpu,
       parameters: [
         FilterParameter(
           key: "value", titleKey: "unsharp",
@@ -124,25 +123,77 @@ struct SharpenFilter: Filter {
   }
 }
 
-/// Нерезкая маска из Core Image.
+/// Нерезкая маска как `Aire.unsharp` (Aire 0.18.1, `jni/Base.cpp` `unsharpImpl`, `base/Sharpness.cpp`
+/// `applyUnsharp`, `blur/GaussBlur.cpp` `gaussBlurU8`, `base/Convolve1D.cpp`).
 ///
-/// Приближение: Aire недоступен в репозитории, радиус размытия Aire неизвестен.
-/// Взят радиус `CIUnsharpMask` по умолчанию, интенсивность равна значению настройки.
+/// Маска — гауссово размытие с ядром 5 и sigma 4 (`exp(-0.5 * ((x - 2) / 4)^2)`, нормированное):
+/// сначала по строкам, потом по столбцам, края повторяют крайний пиксель, после каждого прохода
+/// округление в байт. Результат: `c - (c - blur) * intensity` в долях 1, в байт с отбрасыванием
+/// дробной части (не округлением). Формула Aire именно такая, с минусом: фактически это
+/// смягчение, а не усиление резкости; она перенесена как есть.
+/// Альфа обрабатывается наравне с цветом, цвет берётся premultiplied; проверено на непрозрачной.
+///
+/// Статус: проверено по эталону.
 struct UnsharpFilter: Filter {
-  /// Радиус размытия, который Aire не раскрывает. Задан условно.
-  static let assumedRadius = 2.5
+  /// Ядро и sigma фиксированы в Aire.
+  private static let kernel: [Float] = {
+    let raw = (0..<5).map { index in
+      expf(-0.5 * powf((Float(index - 2)) / 4, 2))
+    }
+    let total = raw.reduce(0, +)
+    return raw.map { $0 / total }
+  }()
 
   let intensity: Double
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    try CoreImageBridge.render(image, filterID: "UnsharpFilter") { input in
-      input.applyingFilter(
-        "CIUnsharpMask",
-        parameters: [
-          "inputRadius": Self.assumedRadius,
-          "inputIntensity": intensity,
-        ])
+    let blurred = Self.blur(image)
+    let strength = Float(intensity)
+    var output = image.pixels
+    for index in output.indices {
+      let colour = Float(image.pixels[index]) / 255
+      let mask = Float(blurred[index]) / 255
+      let value = (colour - (colour - mask) * strength) * 255
+      output[index] = UInt8(min(max(value, 0), 255))
     }
+    return RasterImage(width: image.width, height: image.height, pixels: output)
+  }
+
+  /// Горизонтальный и вертикальный проходы по байтам; сумма округляется до ближайшего чётного.
+  private static func blur(_ image: RasterImage) -> [UInt8] {
+    let width = image.width
+    let height = image.height
+    var horizontal = [UInt8](repeating: 0, count: image.pixels.count)
+    for y in 0..<height {
+      for x in 0..<width {
+        for channel in 0..<4 {
+          var sum: Float = 0
+          for (tap, weight) in kernel.enumerated() {
+            let source = min(max(x + tap - 2, 0), width - 1)
+            sum += Float(image.pixels[(y * width + source) * 4 + channel]) * weight
+          }
+          horizontal[(y * width + x) * 4 + channel] = byte(sum)
+        }
+      }
+    }
+    var output = [UInt8](repeating: 0, count: image.pixels.count)
+    for y in 0..<height {
+      for x in 0..<width {
+        for channel in 0..<4 {
+          var sum: Float = 0
+          for (tap, weight) in kernel.enumerated() {
+            let source = min(max(y + tap - 2, 0), height - 1)
+            sum += Float(horizontal[(source * width + x) * 4 + channel]) * weight
+          }
+          output[(y * width + x) * 4 + channel] = byte(sum)
+        }
+      }
+    }
+    return output
+  }
+
+  private static func byte(_ value: Float) -> UInt8 {
+    UInt8(min(max(value.rounded(.toNearestOrEven), 0), 255))
   }
 }
 

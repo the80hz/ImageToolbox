@@ -22,11 +22,12 @@ struct LightColourFilterTests {
     #expect(output.pixels == picture.pixels)
   }
 
-  @Test("a contrast gain of 1 changes nothing")
+  @Test("a contrast gain of 1 changes nothing beyond Aire's truncation (one level)")
   func contrastOneIsIdentity() async throws {
     let picture = FilterTestImages.gradient(width: 6, height: 4)
     let output = try await ContrastFilter(gain: 1).apply(to: picture)
-    #expect(output.pixels == picture.pixels)
+    let largest = zip(output.pixels, picture.pixels).map { abs(Int($0) - Int($1)) }.max() ?? 0
+    #expect(largest <= 1)
   }
 
   @Test("a contrast gain above 1 pushes values away from middle grey")

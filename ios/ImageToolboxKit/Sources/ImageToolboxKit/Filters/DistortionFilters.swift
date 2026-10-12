@@ -431,9 +431,16 @@ struct SwirlDistortionFilter: Filter {
 
 /// Закрутка: угол поворота линейно падает от центра к краю круга.
 ///
-/// status: приближение. Формула JHLabs `TwirlFilter` не в репозитории. Центр и радиус заданы как
-/// в `UiTwirlFilter`: доли картинки, радиус в долях половины длинной стороны. При `angle` 0
-/// картинка не меняется.
+/// Источник: Jh Labs `TwirlFilter` в T8RIN/ImageToolboxLibs 8.1.0, `libs/jhlabs/src/main/rust/jhlabs/
+/// src/lib.rs` (`transform_filter`, ветка `"TwirlFilter"`, `bilinear`, `sample`). Всё в `Float`:
+/// центр `centre * размер` и координаты пикселя целые (без сдвига на 0.5), радиус
+/// `radius * max(w, h) / 2` (в `Float`, как в Kotlin), угол в радианах. Вне круга (`distance > radius`)
+/// пиксель берётся как есть, внутри угол равен `angle * (radius - distance) / radius`. Выборка
+/// билинейная, байт получается отбрасыванием дробной части, за краем координата прижимается к краю
+/// (`CLAMP`, цвет сохраняется). Цвет берётся premultiplied, как хранит `RasterImage`.
+/// Радиус 0 в Jh Labs означает меньшую из половин размера, здесь это тоже так; если и она 0
+/// (центр на краю), картинка не меняется: в Jh Labs там получилось бы деление на ноль.
+/// Статус: проверено по эталону.
 struct TwirlFilter: Filter {
   let angle: Double
   let centreX: Double
@@ -441,22 +448,48 @@ struct TwirlFilter: Filter {
   let radius: Double
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    let w = Double(image.width)
-    let h = Double(image.height)
-    let cx = centreX * w
-    let cy = centreY * h
-    let limit = radius * max(w, h) / 2
-    let turn = angle * .pi / 180
-    return DistortionSampling.warp(image) { x, y in
-      let dx = x - cx
-      let dy = y - cy
-      let distance = (dx * dx + dy * dy).squareRoot()
-      guard limit > 0, distance < limit else { return (x, y) }
-      let theta = turn * (1 - distance / limit)
-      let c = cos(theta)
-      let s = sin(theta)
-      return (cx + dx * c - dy * s, cy + dx * s + dy * c)
+    let width = image.width
+    let height = image.height
+    let centreXPixels = Float(centreX) * Float(width)
+    let centreYPixels = Float(centreY) * Float(height)
+    let turn = Float(angle * .pi / 180)
+    let scaled = Float(radius) * (Float(max(width, height)) / 2)
+    let limit = scaled == 0 ? min(centreXPixels, centreYPixels) : scaled
+    var output = image.pixels
+    for y in 0..<height {
+      for x in 0..<width {
+        let dx = Float(x) - centreXPixels
+        let dy = Float(y) - centreYPixels
+        let distance = (dx * dx + dy * dy).squareRoot()
+        guard limit > 0, distance <= limit else { continue }
+        let theta = turn * (limit - distance) / limit
+        let sine = sinf(theta)
+        let cosine = cosf(theta)
+        let sourceX = centreXPixels + cosine * dx - sine * dy
+        let sourceY = centreYPixels + sine * dx + cosine * dy
+        let index = (y * width + x) * 4
+        for channel in 0..<4 {
+          output[index + channel] = Self.bilinear(
+            image, x: sourceX, y: sourceY, channel: channel)
+        }
+      }
     }
+    return RasterImage(width: width, height: height, pixels: output)
+  }
+
+  private static func bilinear(_ image: RasterImage, x: Float, y: Float, channel: Int) -> UInt8 {
+    let left = min(max(x, -1e6), 1e6).rounded(.down)
+    let top = min(max(y, -1e6), 1e6).rounded(.down)
+    let xWeight = x - left
+    let yWeight = y - top
+    func value(_ dx: Int, _ dy: Int) -> Float {
+      let column = min(max(Int(left) + dx, 0), image.width - 1)
+      let row = min(max(Int(top) + dy, 0), image.height - 1)
+      return Float(image.pixels[(row * image.width + column) * 4 + channel])
+    }
+    let north = value(0, 0) * (1 - xWeight) + value(1, 0) * xWeight
+    let south = value(0, 1) * (1 - xWeight) + value(1, 1) * xWeight
+    return UInt8(min(max(Int(north * (1 - yWeight) + south * yWeight), 0), 255))
   }
 }
 

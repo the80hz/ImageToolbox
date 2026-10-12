@@ -24,7 +24,7 @@ enum LightColourFilters {
       id: "ContrastFilter",
       titleKey: "contrast",
       category: .lightAndColour,
-      engine: .coreImage,
+      engine: .cpu,
       parameters: [
         FilterParameter(
           key: "value", titleKey: "contrast",
@@ -258,24 +258,24 @@ struct BrightnessFilter: Filter {
   }
 }
 
-/// Scales each channel around the middle grey 0.5 by `gain`. A gain of 1 changes nothing.
+/// Scales each channel around the middle grey 0.5 by `gain`. A gain of 1 may still lower some
+/// channels by one level, because Aire truncates the `Float` result.
+///
+/// As Aire 0.18.1 `aire::adjustment` (`color/Adjustments.cpp`, bias 0): `gain * (c / 255 - 0.5) + 0.5`
+/// in `Float`, clamped, written to the byte by truncation. Applied to the stored (premultiplied)
+/// channels, alpha is kept.
+/// Статус: проверено по эталону.
 struct ContrastFilter: Filter {
   let gain: Double
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    let scale = CGFloat(gain)
-    let offset = CGFloat(0.5 - 0.5 * gain)
-    return try CoreImageBridge.render(image, filterID: "ContrastFilter") { input in
-      input.applyingFilter(
-        "CIColorMatrix",
-        parameters: [
-          "inputRVector": CIVector(x: scale, y: 0, z: 0, w: 0),
-          "inputGVector": CIVector(x: 0, y: scale, z: 0, w: 0),
-          "inputBVector": CIVector(x: 0, y: 0, z: scale, w: 0),
-          "inputAVector": CIVector(x: 0, y: 0, z: 0, w: 1),
-          "inputBiasVector": CIVector(x: offset, y: offset, z: offset, w: 0),
-        ])
+    let factor = Float(gain)
+    var pixels = image.pixels
+    for index in pixels.indices where index % 4 != 3 {
+      let value = factor * (Float(pixels[index]) / 255 - 0.5) + 0.5
+      pixels[index] = UInt8(min(max(value * 255, 0), 255))
     }
+    return RasterImage(width: image.width, height: image.height, pixels: pixels)
   }
 }
 
@@ -482,9 +482,12 @@ struct WhiteBalanceFilter: Filter {
   }
 }
 
-/// Приближение. Android: `Jh Labs LevelsFilter`, четыре значения (вход и выход, низ и верх).
-/// Формула Jh Labs в репозитории отсутствует. Принята стандартная линейная растяжка каналов:
-/// `out = lowOutput + (highOutput - lowOutput) * clamp((in - lowInput) / (highInput - lowInput))`.
+/// Android: Jh Labs `LevelsFilter` (T8RIN/ImageToolboxLibs 8.1.0, `libs/jhlabs/src/main/rust/jhlabs/src/lib.rs`,
+/// ветка `"LevelsFilter"` и `transfer`). Таблица на 256 значений в `Float`:
+/// `lowOutput + (highOutput - lowOutput) * (v - lowInput) / (highInput - lowInput)`, `v` = байт / 255.
+/// Без ограничения позиции: результат `255 * f(v)` отбрасывает дробную часть и только потом ограничивается
+/// 0...255. Если `lowInput == highInput`, к `highInput` прибавляется 1/255.
+/// Статус: проверено по эталону.
 struct LevelsFilter: Filter {
   let lowInput: Double
   let highInput: Double
@@ -492,16 +495,22 @@ struct LevelsFilter: Filter {
   let highOutput: Double
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    let span = highInput - lowInput
-    return mapChannels(image) { value in
-      let position: Double
-      if span > 0 {
-        position = min(max((value - lowInput) / span, 0), 1)
-      } else {
-        position = value < lowInput ? 0 : 1
-      }
-      return lowOutput + (highOutput - lowOutput) * position
+    let low = Float(lowInput)
+    let high = lowInput == highInput ? Float(highInput) + 1 / 255 : Float(highInput)
+    let outputLow = Float(lowOutput)
+    let outputHigh = Float(highOutput)
+    let table = (0..<256).map { byte -> UInt8 in
+      let value = Float(byte) / 255
+      let mapped = outputLow + (outputHigh - outputLow) * (value - low) / (high - low)
+      // Rust `as i32` truncates toward zero and saturates; NaN becomes 0.
+      let scaled = mapped.isNaN ? 0 : max(min(255 * mapped, 1000), -1000)
+      return UInt8(min(max(Int(scaled), 0), 255))
     }
+    var pixels = image.pixels
+    for index in pixels.indices where index % 4 != 3 {
+      pixels[index] = table[Int(pixels[index])]
+    }
+    return RasterImage(width: image.width, height: image.height, pixels: pixels)
   }
 }
 

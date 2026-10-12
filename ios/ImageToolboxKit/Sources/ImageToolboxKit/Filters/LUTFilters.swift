@@ -2,11 +2,12 @@ import CoreImage
 import Foundation
 import ImageIO
 
-/// Таблицы цвета (LUT): 12 пресетов Android на таблицах `lookup_*.webp` (512 × 512) из `Resources/LUT`
-/// и общий путь через `CIColorCube`. Каждый пресет — `LUT512x512Filter` с одной таблицей и силой 0...1.
+/// Таблицы цвета (LUT): 12 пресетов Android на таблицах `lookup_*.webp` (512 × 512) из `Resources/LUT`.
+/// Каждый пресет — `LUT512x512Filter` с одной таблицей и силой 0...1.
 ///
-/// Статус — приближение: раскладка 8 × 8 взята из стандартных LUT-решёток, а нативный Trickle
-/// `applyLut`, которым Android применяет таблицу, в репозитории отсутствует. Не сверено с Android.
+/// Источник: Trickle 1.9.3 (github.com/T8RIN/Trickle), `trickle/src/main/cpp/ProcessingFilters.cpp`,
+/// `applyLutImpl`: поиск по ближайшей записи без интерполяции (см. `LUT512x512Filter`).
+/// Статус: проверено по эталону.
 /// `LUT512x512Filter` без таблицы (выбор файла) и `CubeLutFilter` (файл от пользователя) не
 /// зарегистрированы: `FilterParameter` не умеет передавать файл.
 enum LUTFilters {
@@ -15,7 +16,7 @@ enum LUTFilters {
       id: preset.id,
       titleKey: preset.titleKey,
       category: .lut,
-      engine: .coreImage,
+      engine: .cpu,
       parameters: [
         FilterParameter(
           key: "value", titleKey: "strength",
@@ -44,15 +45,16 @@ enum LUTFilters {
 
 /// Загрузка таблицы из ресурсов пакета. Декодирование при каждом применении: пока без кэша.
 enum LUTAtlas {
-  /// The 512 × 512 lookup table bundled as `Resources/LUT/<name>.webp`, or nil if it cannot be read.
-  static func table(named name: String) -> LUTTable? {
+  /// The 512 × 512 lookup image bundled as `Resources/LUT/<name>.webp`, or nil if it cannot be read.
+  static func image(named name: String) -> RasterImage? {
     guard
       let url = Bundle.module.url(forResource: name, withExtension: "webp", subdirectory: "LUT"),
       let source = CGImageSourceCreateWithURL(url as CFURL, nil),
       let cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil),
-      let raster = RasterImage(cgImage)
+      let raster = RasterImage(cgImage),
+      raster.width == 512, raster.height == 512
     else { return nil }
-    return LUTTable(lookup: raster)
+    return raster
   }
 }
 
@@ -62,10 +64,10 @@ struct LUTPresetFilter: Filter {
   let intensity: Double
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    guard let lut = LUTAtlas.table(named: table) else {
+    guard let lookup = LUTAtlas.image(named: table) else {
       throw FilterError.renderFailed(table)
     }
-    return try applyColorCube(lut, intensity: intensity, filterID: table, to: image)
+    return LUT512x512Filter(lookup: lookup, intensity: intensity).render(image)
   }
 }
 
@@ -81,30 +83,6 @@ struct LUTTable: Sendable, Equatable {
     guard size >= 2, values.count == size * size * size * 3 else { return nil }
     self.size = size
     self.values = values
-  }
-
-  /// Таблица из решётки 512 × 512: 8 × 8 квадратов по 64 × 64. Квадрат с номером `b` (по строкам)
-  /// хранит срез синего `b`; внутри квадрата x — красный, y — зелёный.
-  ///
-  /// Допущение: раскладка взята из стандартных LUT-решёток, а не из нативной Trickle, которой
-  /// в репозитории нет. Поэтому статус фильтров с этой таблицей — «приближение».
-  init?(lookup image: RasterImage) {
-    guard image.width == 512, image.height == 512 else { return nil }
-    var values: [Float] = []
-    values.reserveCapacity(64 * 64 * 64 * 3)
-    for blue in 0..<64 {
-      let tileX = (blue % 8) * 64
-      let tileY = (blue / 8) * 64
-      for green in 0..<64 {
-        for red in 0..<64 {
-          let index = ((tileY + green) * 512 + tileX + red) * 4
-          values.append(Float(image.pixels[index]) / 255)
-          values.append(Float(image.pixels[index + 1]) / 255)
-          values.append(Float(image.pixels[index + 2]) / 255)
-        }
-      }
-    }
-    self.init(size: 64, values: values)
   }
 
   /// Разбор текста `.cube`: `LUT_3D_SIZE`, строки «r g b». Поддерживается только домен 0...1,
@@ -166,12 +144,41 @@ struct LUTTable: Sendable, Equatable {
 
 /// Применяет таблицу цвета из решётки 512 × 512 (Android `LUT512x512Filter`, Trickle `applyLut`).
 /// `intensity` 0...1: 0 не меняет картинку, 1 даёт полный эффект таблицы.
+///
+/// Как в Trickle 1.9.3 `applyLutImpl`: каждый канал делится на 4 нацело (`r`, `g`, `b` в 0...63),
+/// запись берётся в квадрате `b` (8 × 8 квадратов по 64 × 64: `x = (b % 8) * 64 + r`,
+/// `y = (b / 8) * 64 + g`) без интерполяции, результат = round(c * 4 + intensity * (lut - c * 4)),
+/// где `c * 4` — канал, округлённый вниз до кратного 4. Альфа не меняется.
 struct LUT512x512Filter: Filter {
-  let table: LUTTable
+  let lookup: RasterImage
   let intensity: Double
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    try applyColorCube(table, intensity: intensity, filterID: "LUT512x512Filter", to: image)
+    guard lookup.width == 512, lookup.height == 512 else {
+      throw FilterError.renderFailed("LUT512x512Filter")
+    }
+    return render(image)
+  }
+
+  /// `lookup` должен быть 512 × 512.
+  func render(_ image: RasterImage) -> RasterImage {
+    let strength = Float(intensity)
+    func mix(_ level: Int, _ entry: UInt8) -> UInt8 {
+      let base = Float(level * 4)
+      let mixed = (base + strength * (Float(entry) - base)).rounded(.toNearestOrAwayFromZero)
+      return UInt8(min(max(mixed, 0), 255))
+    }
+    var output = image.pixels
+    for index in stride(from: 0, to: output.count, by: 4) {
+      let red = Int(output[index] / 4)
+      let green = Int(output[index + 1] / 4)
+      let blue = Int(output[index + 2] / 4)
+      let lutIndex = ((blue / 8) * 64 + green) * 512 + (blue % 8) * 64 + red
+      output[index] = mix(red, lookup.pixels[lutIndex * 4])
+      output[index + 1] = mix(green, lookup.pixels[lutIndex * 4 + 1])
+      output[index + 2] = mix(blue, lookup.pixels[lutIndex * 4 + 2])
+    }
+    return RasterImage(width: image.width, height: image.height, pixels: output)
   }
 }
 

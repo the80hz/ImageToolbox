@@ -134,7 +134,7 @@ struct AndroidReferenceCase: Sendable, CustomTestStringConvertible {
     AndroidReferenceCase(
       name: "ContrastFilter",
       filter: ContrastFilter(gain: 2),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 0.667, наибольшее 1."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "GammaFilter",
       filter: GammaFilter(power: 1.5),
@@ -196,7 +196,7 @@ struct AndroidReferenceCase: Sendable, CustomTestStringConvertible {
     AndroidReferenceCase(
       name: "UnsharpFilter",
       filter: UnsharpFilter(intensity: 0.5),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 0.147, наибольшее 4."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "CirclePixelationFilter",
       filter: CirclePixelationFilter(size: 24),
@@ -240,51 +240,51 @@ struct AndroidReferenceCase: Sendable, CustomTestStringConvertible {
     AndroidReferenceCase(
       name: "AmatorkaFilter",
       filter: LUTPresetFilter(table: "lookup_amatorka", intensity: 1),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 1.683, наибольшее 5."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "KodakFilter",
       filter: LUTPresetFilter(table: "lookup_kodak", intensity: 1),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 2.472, наибольшее 14."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "BleachBypassFilter",
       filter: LUTPresetFilter(table: "lookup_bleach_bypass", intensity: 1),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 1.725, наибольшее 7."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "CandlelightFilter",
       filter: LUTPresetFilter(table: "lookup_candlelight", intensity: 1),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 1.793, наибольшее 10."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "CelluloidFilter",
       filter: LUTPresetFilter(table: "lookup_celluloid", intensity: 1),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 1.783, наибольшее 8."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "CoffeeFilter",
       filter: LUTPresetFilter(table: "lookup_coffee", intensity: 1),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 1.505, наибольшее 6."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "DropBluesFilter",
       filter: LUTPresetFilter(table: "lookup_drop_blues", intensity: 1),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 1.478, наибольшее 4."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "EdgyAmberFilter",
       filter: LUTPresetFilter(table: "lookup_edgy_amber", intensity: 1),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 1.674, наибольшее 7."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "FallColorsFilter",
       filter: LUTPresetFilter(table: "lookup_fall_colors", intensity: 1),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 1.393, наибольшее 4."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "FilmStock50Filter",
       filter: LUTPresetFilter(table: "lookup_filmstock_50", intensity: 1),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 1.615, наибольшее 5."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "FoggyNightFilter",
       filter: LUTPresetFilter(table: "lookup_foggy_night", intensity: 1),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 1.917, наибольшее 8."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "GoldenForestFilter",
       filter: LUTPresetFilter(table: "lookup_golden_forest", intensity: 1),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 1.149, наибольшее 5."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "FloydSteinbergDitheringFilter",
       filter: FloydSteinbergDitheringFilter(threshold: 200, grayScale: false),
@@ -404,7 +404,7 @@ struct AndroidReferenceCase: Sendable, CustomTestStringConvertible {
     AndroidReferenceCase(
       name: "UchimuraFilter",
       filter: UchimuraFilter(scale: 1),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 0.885, наибольшее 1."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "DragoFilter",
       filter: DragoFilter(scale: 1, whitePoint: 250),
@@ -440,7 +440,7 @@ struct AndroidReferenceCase: Sendable, CustomTestStringConvertible {
     AndroidReferenceCase(
       name: "TwirlFilter",
       filter: TwirlFilter(angle: 45, centreX: 0.5, centreY: 0.5, radius: 0.5),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 0.100, наибольшее 3."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "PinchFilter",
       filter: PinchFilter(angle: 15, centreX: 0.5, centreY: 0.5, radius: 1, amount: 0.5),
@@ -471,7 +471,7 @@ struct AndroidReferenceCase: Sendable, CustomTestStringConvertible {
     AndroidReferenceCase(
       name: "LevelsFilter_custom",
       filter: LevelsFilter(lowInput: 0.1, highInput: 0.9, lowOutput: 0.2, highOutput: 0.8),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 2.198, наибольшее 20."),
+      knownIssue: nil),
     // Нестандартные матрицы из `ReferenceFilterExportTest`, те же коэффициенты.
     AndroidReferenceCase(
       name: "ColorMatrix3x3Filter_custom",
