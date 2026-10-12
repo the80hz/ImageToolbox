@@ -143,11 +143,13 @@ struct LightColourGroupTests {
     try await survivesExtremes({ VibranceFilter(amount: $0) }, [-5, 5])
   }
 
-  @Test("white balance at 6500 K and tint 0 changes nothing")
+  // Нейтральная точка Android — 5000 K: смешивание с тёплым фильтром равно нулю, остаётся перевод в YIQ.
+  // На тестовой картинке он без потерь (проверено по формуле шейдера вне Swift).
+  @Test("white balance at 5000 K and tint 0 changes nothing")
   func whiteBalanceNeutral() async throws {
     let picture = FilterTestImages.gradient(width: 6, height: 4)
-    let neutral = try await WhiteBalanceFilter(temperature: 6500, tint: 0).apply(to: picture)
-    #expect(maxColourDifference(neutral, picture) <= 2)
+    let neutral = try await WhiteBalanceFilter(temperature: 5000, tint: 0).apply(to: picture)
+    #expect(maxColourDifference(neutral, picture) == 0)
   }
 
   @Test("white balance keeps 1000 K and 10000 K valid on 1x1 and 5x3")
@@ -335,13 +337,12 @@ struct HueRotationTests {
     #expect(largest <= 1)
   }
 
-  @Test("pure red turns green after 120 degrees")
+  // Поворот по формуле GPUImage (в YIQ, не в HSV): красный при 120° даёт зелёный 187, а не 255.
+  @Test("pure red after 120 degrees follows the GPUImage YIQ rotation")
   func redToGreen() async throws {
     let picture = FilterTestImages.solid(width: 1, height: 1, red: 255, green: 0, blue: 0)
     let output = try await HueFilter(degrees: 120).apply(to: picture)
-    #expect(output.pixels[0] <= 1)
-    #expect(output.pixels[1] == 255)
-    #expect(output.pixels[2] <= 1)
+    #expect(Array(output.pixels) == [0, 187, 0, 255])
   }
 
   @Test("grey stays grey")

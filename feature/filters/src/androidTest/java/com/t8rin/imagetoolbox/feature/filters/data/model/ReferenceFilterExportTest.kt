@@ -34,8 +34,9 @@ import java.io.File
 /**
  * Снимает эталоны для сверки iOS-порта фильтров (docs/ios-port/FILTERS.md, раздел 9).
  *
- * Каждый из 10 фильтров применяется с параметрами по умолчанию, плюс `SimpleSolarizeFilter` и две
- * нестандартные матрицы (`*_custom`), к `reference/ui-sample.png` (64x64) через `transform`.
+ * Каждый фильтр из списка применяется с параметрами по умолчанию (конструктор без аргументов или
+ * значения по умолчанию из `ProceduralEffect`), плюс две нестандартные матрицы (`*_custom`),
+ * к `reference/ui-sample.png` (64x64) через `transform`.
  * Результат пишется PNG в `getExternalFilesDir(null)/reference`.
  * Вход пишется туда же как `input.png` (байты совпадают с ассетом). Файлы забираются через adb pull.
  *
@@ -89,6 +90,20 @@ class ReferenceFilterExportTest {
         "SharpenFilter" to SharpenFilter(),
         "SaturationFilter" to SaturationFilter(),
         "SimpleSolarizeFilter" to SimpleSolarizeFilter(),
+        "ExposureFilter" to ExposureFilter(),
+        "HueFilter" to HueFilter(),
+        "WhiteBalanceFilter" to WhiteBalanceFilter(),
+        "BulgeDistortionFilter" to BulgeDistortionFilter(),
+        "SwirlDistortionFilter" to SwirlDistortionFilter(),
+        "SphereRefractionFilter" to SphereRefractionFilter(),
+        "GlassSphereRefractionFilter" to GlassSphereRefractionFilter(),
+        "ZoomBlurFilter" to ZoomBlurFilter(),
+        "GlassHexTilesFilter" to GlassHexTilesFilter(),
+        "GlassRectTilesFilter" to GlassRectTilesFilter(),
+        "GlassTriangleTilesFilter" to GlassTriangleTilesFilter(),
+        "LogarithmicSpiralFilter" to LogarithmicSpiralFilter(),
+        "SpiralDrosteFilter" to SpiralDrosteFilter(),
+        "GradientMapFilter" to GradientMapFilter(),
         // Нестандартные матрицы: строки записаны подряд, по строке на выходной канал.
         "ColorMatrix3x3Filter_custom" to ColorMatrix3x3Filter(
             floatArrayOf(

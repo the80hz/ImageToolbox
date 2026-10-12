@@ -267,6 +267,34 @@ enum DistortionSampling {
     return RasterImage(width: width, height: height, pixels: output)
   }
 
+  /// Для каждого пикселя результата вызывает `color` с центром пикселя в нормированных координатах
+  /// (0...1) и функцией выборки из `image`. Выборка билинейная, за краем берётся край картинки,
+  /// как у GPUImage с линейной фильтрацией и `clamp to edge`.
+  static func render(
+    _ image: RasterImage,
+    _ color: (Double, Double, (Double, Double) -> SIMD4<Double>) -> SIMD4<Double>
+  ) -> RasterImage {
+    let width = image.width
+    let height = image.height
+    var output = [UInt8](repeating: 0, count: image.pixels.count)
+    image.pixels.withUnsafeBufferPointer { pixels in
+      func sample(_ u: Double, _ v: Double) -> SIMD4<Double> {
+        bilinear(pixels, width: width, height: height, x: u * Double(width), y: v * Double(height))
+      }
+      for y in 0..<height {
+        for x in 0..<width {
+          let value = color(
+            (Double(x) + 0.5) / Double(width), (Double(y) + 0.5) / Double(height), sample)
+          let index = (y * width + x) * 4
+          for channel in 0..<4 {
+            output[index + channel] = UInt8(min(max(value[channel].rounded(), 0), 255))
+          }
+        }
+      }
+    }
+    return RasterImage(width: width, height: height, pixels: output)
+  }
+
   /// Билинейная выборка premultiplied RGBA. Точки за краем берутся с края картинки.
   private static func bilinear(
     _ pixels: UnsafeBufferPointer<UInt8>, width: Int, height: Int, x: Double, y: Double
@@ -350,8 +378,9 @@ struct FishEyeFilter: Filter {
 
 /// Выпуклость: внутри круга картинка растягивается от центра.
 ///
-/// status: приближение. Формула GPUImage bulge не в репозитории. Радиус в долях ширины, расчёт
-/// расстояния с поправкой на пропорции. При `scale` 0 картинка не меняется.
+/// Статус: проверено по эталону (`BulgeDistortionFilter`, раздел 10): совпадение в допуске на
+/// эталонном входе. Радиус в долях ширины, расчёт расстояния с поправкой на пропорции.
+/// При `scale` 0 картинка не меняется.
 struct BulgeDistortionFilter: Filter {
   let radius: Double
   let scale: Double
@@ -374,8 +403,9 @@ struct BulgeDistortionFilter: Filter {
 
 /// Водоворот: угол поворота падает от центра к краю круга.
 ///
-/// status: приближение. Формула GPUImage swirl не в репозитории. Расчёт в долях картинки,
-/// как в исходном шейдере. При `angle` 0 картинка не меняется.
+/// Статус: проверено по эталону (`SwirlDistortionFilter`, раздел 10): совпадение в допуске на
+/// эталонном входе. Расчёт в долях картинки, как в исходном шейдере. При `angle` 0 картинка
+/// не меняется.
 struct SwirlDistortionFilter: Filter {
   let radius: Double
   let angle: Double
@@ -499,52 +529,72 @@ struct KaleidoscopeFilter: Filter {
   }
 }
 
-/// Сферическая линза: внутри круга картинка сжимается к центру.
+/// Сферическая линза по шейдеру GPUImage `SPHERE_FRAGMENT_SHADER`: внутри круга пиксель берётся
+/// из точки, куда его преломляет шар с индексом `refractiveIndex`. Вне круга результат чёрный:
+/// шейдер умножает цвет на `step(distance, radius)`.
 ///
-/// status: приближение. Формула GPUImage sphere refraction не в репозитории. Глубина сферы
-/// `sqrt(1 - r^2)` в пределах круга, коэффициент — `refractiveIndex`. При индексе 0 картинка
-/// не меняется.
+/// Статус: проверено по эталону (`SphereRefractionFilter`, раздел 10).
 struct SphereRefractionFilter: Filter {
   let radius: Double
   let refractiveIndex: Double
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    DistortionSampling.warp(image, lensSource(image, radius: radius, strength: -refractiveIndex))
+    sphereLens(image, radius: radius, refractiveIndex: refractiveIndex, glass: false)
   }
 }
 
-/// Стеклянная сфера: внутри круга картинка растягивается от центра, то есть перевёрнута.
+/// Стеклянная сфера по шейдеру GPUImage `GlassSphere`: вектор преломления удваивается и
+/// отражается по осям, поверх добавляется освещение (рассеянное и блик от точки (-0.5, 0.5, 1)).
 ///
-/// status: приближение. Формула GPUImage glass sphere не в репозитории: здесь тот же шар, что и
-/// в `SphereRefractionFilter`, но с обратным знаком коэффициента. При индексе 0 картинка не меняется.
+/// Статус: проверено по эталону (`GlassSphereRefractionFilter`, раздел 10).
 struct GlassSphereRefractionFilter: Filter {
   let radius: Double
   let refractiveIndex: Double
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    DistortionSampling.warp(image, lensSource(image, radius: radius, strength: refractiveIndex))
+    sphereLens(image, radius: radius, refractiveIndex: refractiveIndex, glass: true)
   }
 }
 
-/// Общая часть линз: пиксель внутри круга сдвигается к центру или от центра по глубине сферы.
-private func lensSource(
-  _ image: RasterImage, radius: Double, strength: Double
-) -> (Double, Double) -> (Double, Double) {
-  let w = Double(image.width)
-  let h = Double(image.height)
-  let aspect = h / w
-  return { x, y in
-    let u = x / w - 0.5
-    let v = (y / h - 0.5) * aspect
-    let distance = (u * u + v * v).squareRoot()
-    guard radius > 0, distance < radius else { return (x, y) }
-    let depth = (1 - (distance / radius) * (distance / radius)).squareRoot()
-    let factor = 1 + strength * depth
-    return (w / 2 + (x - w / 2) * factor, h / 2 + (y - h / 2) * factor)
+/// Общая часть двух шаров. Координаты как в шейдере: y умножается на соотношение сторон,
+/// центр картинки — (0.5, 0.5), глубина сферы `radius * sqrt(1 - (d / radius)^2)`.
+private func sphereLens(
+  _ image: RasterImage, radius: Double, refractiveIndex eta: Double, glass: Bool
+) -> RasterImage {
+  let aspect = Double(image.height) / Double(image.width)
+  let lightLength = (0.25 + 0.25 + 1.0).squareRoot()
+  let light = (-0.5 / lightLength, 0.5 / lightLength, 1.0 / lightLength)
+  return DistortionSampling.render(image) { u, v, sample in
+    let dx = u - 0.5
+    let dy = v * aspect + 0.5 - 0.5 * aspect - 0.5
+    let distance = (dx * dx + dy * dy).squareRoot()
+    guard radius > 0, distance <= radius else { return .zero }
+    let scaled = distance / radius
+    let depth = radius * (1 - scaled * scaled).squareRoot()
+    let length = (dx * dx + dy * dy + depth * depth).squareRoot()
+    let normal = (x: dx / length, y: dy / length, z: depth / length)
+    // refract((0, 0, -1), N, eta) из GLSL. При отрицательном подкоренном выражении вектор нулевой.
+    let cosine = -normal.z
+    let discriminant = 1 - eta * eta * (1 - cosine * cosine)
+    var refracted = (x: 0.0, y: 0.0)
+    if discriminant >= 0 {
+      let factor = eta * cosine + discriminant.squareRoot()
+      refracted = (-factor * normal.x, -factor * normal.y)
+    }
+    guard glass else {
+      return sample((refracted.x + 1) * 0.5, (refracted.y + 1) * 0.5)
+    }
+    let texel = sample((-2 * refracted.x + 1) * 0.5, (-2 * refracted.y + 1) * 0.5)
+    let ambient = 2.5 * (1 - pow(min(max(normal.z, 0), 1), 0.25))
+    let dot = light.0 * normal.x + light.1 * normal.y + light.2 * normal.z
+    let highlight = pow(min(max(dot, 0), 1), 15)
+    let shade = (ambient + 0.8 * highlight) * 255
+    return SIMD4(texel.x + shade, texel.y + shade, texel.z + shade, 255)
   }
 }
 
-/// Стеклянные плитки, квадратная сетка. Формула из `ProceduralShaders.kt` перенесена точно.
+/// Стеклянные плитки, квадратная сетка. Формула из `ProceduralShaders.kt` перенесена точно,
+/// проверена по эталону (`GlassRectTilesFilter`, раздел 10).
 struct GlassRectTilesFilter: Filter {
   let intensity: Double
   let distortion: Double
@@ -566,7 +616,8 @@ struct GlassRectTilesFilter: Filter {
   }
 }
 
-/// Стеклянные плитки, шестиугольная сетка. Формула из `ProceduralShaders.kt` перенесена точно.
+/// Стеклянные плитки, шестиугольная сетка. Формула из `ProceduralShaders.kt` перенесена точно,
+/// проверена по эталону (`GlassHexTilesFilter`, раздел 10).
 struct GlassHexTilesFilter: Filter {
   let intensity: Double
   let distortion: Double
@@ -599,7 +650,8 @@ struct GlassHexTilesFilter: Filter {
   }
 }
 
-/// Стеклянные плитки, треугольная сетка. Формула из `ProceduralShaders.kt` перенесена точно.
+/// Стеклянные плитки, треугольная сетка. Формула из `ProceduralShaders.kt` перенесена точно,
+/// проверена по эталону (`GlassTriangleTilesFilter`, раздел 10).
 struct GlassTriangleTilesFilter: Filter {
   let intensity: Double
   let distortion: Double
@@ -627,7 +679,8 @@ struct GlassTriangleTilesFilter: Filter {
 }
 
 /// Логарифмическая спираль. Формула из `ProceduralShaders.kt` перенесена точно, выборка
-/// без зеркала, как в шейдере (`fract` по текстурным координатам).
+/// без зеркала, как в шейдере (`fract` по текстурным координатам). Проверена по эталону
+/// (`LogarithmicSpiralFilter`, раздел 10).
 struct LogarithmicSpiralFilter: Filter {
   let count: Double
   let intensity: Double
@@ -651,7 +704,8 @@ struct LogarithmicSpiralFilter: Filter {
   }
 }
 
-/// Спираль Droste. Формула из `ProceduralShaders.kt` перенесена точно.
+/// Спираль Droste. Формула из `ProceduralShaders.kt` перенесена точно, проверена по эталону
+/// (`SpiralDrosteFilter`, раздел 10).
 struct SpiralDrosteFilter: Filter {
   let intensity: Double
   let distortion: Double

@@ -125,6 +125,7 @@ struct GlitchFilter: Filter {
 ///
 /// Яркость целочисленная: `(77 R + 150 G + 29 B) >> 8` по прямым (не premultiplied) каналам.
 /// Альфа сохраняется. Палитра берётся из `GradientPaletteTable`, на 256 уровней яркости.
+/// Проверено по эталону (`GradientMapFilter`, раздел 10): совпадение точное.
 struct GradientMapFilter: Filter {
   /// Имя палитры из `GradientPaletteTable.names`.
   let palette: String

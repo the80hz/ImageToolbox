@@ -112,7 +112,7 @@ enum LightColourFilters {
       id: "WhiteBalanceFilter",
       titleKey: "white_balance",
       category: .lightAndColour,
-      engine: .coreImage,
+      engine: .cpu,
       parameters: [
         FilterParameter(
           key: "temperature", titleKey: "temperature",
@@ -299,8 +299,8 @@ struct GammaFilter: Filter {
   }
 }
 
-/// Приближение. Android: `GPUImageExposureFilter`, по формуле GPUImage `out = in * 2^EV`.
-/// Формула GPUImage в репозитории отсутствует, поэтому она взята как стандартная.
+/// Android: `GPUImageExposureFilter`, по формуле GPUImage `out = in * 2^EV`.
+/// Проверено по эталону (`ExposureFilter`, раздел 10): совпадение точное.
 struct ExposureFilter: Filter {
   /// Exposure in stops (EV). Each stop doubles or halves the brightness.
   let stops: Double
@@ -320,68 +320,38 @@ struct ExposureFilter: Filter {
   }
 }
 
-/// Приближение. Android: `GPUImageHueFilter`, угол в градусах. Поворот оттенка в HSV на CPU
-/// (раньше был `CIHueAdjust`). Единица шкалы Android 0...255 не подтверждена: значение принято
-/// как градусы, как и раньше.
+/// Поворот оттенка по шейдеру GPUImage `HUE_FRAGMENT_SHADER`: цвет переводится в YIQ, фаза
+/// поворачивается на `-hueAdjust`, затем результат возвращается в RGB. `setHue` в Java берёт остаток
+/// от деления угла на 360 и переводит его в радианы во float32.
+///
+/// Статус: проверено по эталону (`HueFilter`, раздел 10).
 struct HueFilter: Filter {
   let degrees: Double
 
   func apply(to image: RasterImage) async throws -> RasterImage {
+    let adjust = Float(degrees).truncatingRemainder(dividingBy: 360) * 3.1415927 / 180
     var pixels = image.pixels
     for index in stride(from: 0, to: pixels.count, by: 4) {
-      let alpha = Double(pixels[index + 3]) / 255
-      guard alpha > 0 else { continue }
-      let red = min(1, Double(pixels[index]) / 255 / alpha)
-      let green = min(1, Double(pixels[index + 1]) / 255 / alpha)
-      let blue = min(1, Double(pixels[index + 2]) / 255 / alpha)
-      let (hue, saturation, value) = Self.hsv(red: red, green: green, blue: blue)
-      let turned = (hue + degrees).truncatingRemainder(dividingBy: 360) + 360
-      let rgb = Self.rgb(
-        hue: turned.truncatingRemainder(dividingBy: 360), saturation: saturation, value: value)
-      pixels[index] = UInt8((rgb.0 * alpha * 255).rounded())
-      pixels[index + 1] = UInt8((rgb.1 * alpha * 255).rounded())
-      pixels[index + 2] = UInt8((rgb.2 * alpha * 255).rounded())
-    }
-    return RasterImage(width: image.width, height: image.height, pixels: pixels)
-  }
-
-  /// Hue in degrees 0..<360, saturation and value in 0...1.
-  private static func hsv(red: Double, green: Double, blue: Double) -> (Double, Double, Double) {
-    let maximum = max(red, green, blue)
-    let minimum = min(red, green, blue)
-    let delta = maximum - minimum
-    var hue = 0.0
-    if delta > 0 {
-      if maximum == red {
-        hue = 60 * ((green - blue) / delta).truncatingRemainder(dividingBy: 6)
-      } else if maximum == green {
-        hue = 60 * ((blue - red) / delta + 2)
-      } else {
-        hue = 60 * ((red - green) / delta + 4)
+      let red = Float(pixels[index]) / 255
+      let green = Float(pixels[index + 1]) / 255
+      let blue = Float(pixels[index + 2]) / 255
+      let luma = 0.299 * red + 0.587 * green + 0.114 * blue
+      let inphase = 0.595716 * red - 0.274453 * green - 0.321263 * blue
+      let quadrature = 0.211456 * red - 0.522591 * green + 0.31135 * blue
+      let hue = atan2(quadrature, inphase) - adjust
+      let chroma = (inphase * inphase + quadrature * quadrature).squareRoot()
+      let rotatedInphase = chroma * cos(hue)
+      let rotatedQuadrature = chroma * sin(hue)
+      let channels: [Float] = [
+        luma + 0.9563 * rotatedInphase + 0.6210 * rotatedQuadrature,
+        luma - 0.2721 * rotatedInphase - 0.6474 * rotatedQuadrature,
+        luma - 1.1070 * rotatedInphase + 1.7046 * rotatedQuadrature,
+      ]
+      for channel in 0..<3 {
+        pixels[index + channel] = UInt8(min(max(channels[channel] * 255, 0), 255).rounded())
       }
     }
-    if hue < 0 { hue += 360 }
-    let saturation = maximum == 0 ? 0 : delta / maximum
-    return (hue, saturation, maximum)
-  }
-
-  private static func rgb(hue: Double, saturation: Double, value: Double) -> (
-    Double, Double, Double
-  ) {
-    let chroma = value * saturation
-    let sector = hue / 60
-    let second = chroma * (1 - abs(sector.truncatingRemainder(dividingBy: 2) - 1))
-    let match = value - chroma
-    let (r, g, b): (Double, Double, Double)
-    switch sector {
-    case 0..<1: (r, g, b) = (chroma, second, 0)
-    case 1..<2: (r, g, b) = (second, chroma, 0)
-    case 2..<3: (r, g, b) = (0, chroma, second)
-    case 3..<4: (r, g, b) = (0, second, chroma)
-    case 4..<5: (r, g, b) = (second, 0, chroma)
-    default: (r, g, b) = (chroma, 0, second)
-    }
-    return (r + match, g + match, b + match)
+    return RasterImage(width: image.width, height: image.height, pixels: pixels)
   }
 }
 
@@ -413,21 +383,46 @@ struct VibranceFilter: Filter {
   }
 }
 
-/// Приближение. Android: `GPUImageWhiteBalanceFilter(temperature, tint)`. Core Image сдвигает
-/// баланс от заданной точки белого (`inputNeutral`) к 6500 K, поэтому шкала отличается от Android.
-/// Значение 6500 K и тон 0 дают исходную картинку.
+/// Баланс белого по шейдеру GPUImage `WHITE_BALANCE_FRAGMENT_SHADER`: сдвиг тона в YIQ и
+/// смешивание с тёплым фильтром. Параметры переводятся как `setTemperature` и `setTint` в Java:
+/// температура ниже 5000 K — `0.0004 * (T - 5000)`, иначе `0.00006 * (T - 5000)`; тон делится на 100.
+///
+/// Статус: проверено по эталону (`WhiteBalanceFilter`, раздел 10). Матрицы в GLSL заданы по
+/// столбцам, поэтому коэффициенты ниже записаны по строкам результата.
 struct WhiteBalanceFilter: Filter {
   let temperature: Double
   let tint: Double
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    return try CoreImageBridge.render(image, filterID: "WhiteBalanceFilter") { input in
-      input.applyingFilter(
-        "CITemperatureAndTint",
-        parameters: [
-          "inputNeutral": CIVector(x: CGFloat(temperature), y: CGFloat(tint))
-        ])
+    let warmth = Float(
+      temperature < 5000 ? 0.0004 * (temperature - 5000) : 0.00006 * (temperature - 5000))
+    let tintUniform = Float(tint / 100)
+    let warm: [Float] = [0.93, 0.54, 0]
+    var pixels = image.pixels
+    for index in stride(from: 0, to: pixels.count, by: 4) {
+      let red = Float(pixels[index]) / 255
+      let green = Float(pixels[index + 1]) / 255
+      let blue = Float(pixels[index + 2]) / 255
+      let luma = 0.299 * red + 0.596 * green + 0.212 * blue
+      let inphase = 0.587 * red - 0.274 * green - 0.523 * blue
+      let quadrature = min(
+        max(0.114 * red - 0.322 * green + 0.311 * blue + tintUniform * 0.5226 * 0.1, -0.5226),
+        0.5226)
+      let rgb: [Float] = [
+        luma + inphase + quadrature,
+        0.956 * luma - 0.272 * inphase - 1.105 * quadrature,
+        0.621 * luma - 0.647 * inphase + 1.702 * quadrature,
+      ]
+      for channel in 0..<3 {
+        let value = rgb[channel]
+        let processed =
+          value < 0.5
+          ? 2 * value * warm[channel] : 1 - 2 * (1 - value) * (1 - warm[channel])
+        let mixed = value * (1 - warmth) + processed * warmth
+        pixels[index + channel] = UInt8(min(max(mixed * 255, 0), 255).rounded())
+      }
     }
+    return RasterImage(width: image.width, height: image.height, pixels: pixels)
   }
 }
 

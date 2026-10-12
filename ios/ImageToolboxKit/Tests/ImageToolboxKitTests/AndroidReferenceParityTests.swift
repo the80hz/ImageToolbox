@@ -7,8 +7,9 @@ import Testing
 
 /// Сверка фильтров с эталонами Android по пикселям (`Fixtures/AndroidReference`).
 ///
-/// Эталоны сняты `ReferenceFilterExportTest` на эмуляторе Android: каждый из 10 фильтров с параметрами
-/// по умолчанию применён к `input.png` (64x64, градиент) через `transform`. Размер не меняется.
+/// Эталоны сняты `ReferenceFilterExportTest` на эмуляторе Android: каждый фильтр из списка ниже
+/// применён с параметрами по умолчанию Android к `input.png` (64x64, градиент) через `transform`.
+/// Размер не меняется.
 @Suite("Android reference parity with default parameters")
 struct AndroidReferenceParityTests {
 
@@ -80,6 +81,56 @@ struct AndroidReferenceCase: Sendable, CustomTestStringConvertible {
         + "среднее отличие 35.5, наибольшее 111"),
     AndroidReferenceCase(
       name: "SimpleSolarizeFilter", filter: SimpleSolarizeFilter(), knownIssue: nil),
+    AndroidReferenceCase(name: "ExposureFilter", filter: ExposureFilter(stops: 1), knownIssue: nil),
+    AndroidReferenceCase(name: "HueFilter", filter: HueFilter(degrees: 90), knownIssue: nil),
+    AndroidReferenceCase(
+      name: "WhiteBalanceFilter",
+      filter: WhiteBalanceFilter(temperature: 7000, tint: 100),
+      knownIssue: nil),
+    AndroidReferenceCase(
+      name: "BulgeDistortionFilter",
+      filter: BulgeDistortionFilter(radius: 0.25, scale: 0.5),
+      knownIssue: nil),
+    AndroidReferenceCase(
+      name: "SwirlDistortionFilter",
+      filter: SwirlDistortionFilter(radius: 0.5, angle: 1, centreX: 0.5, centreY: 0.5),
+      knownIssue: nil),
+    AndroidReferenceCase(
+      name: "SphereRefractionFilter",
+      filter: SphereRefractionFilter(radius: 0.25, refractiveIndex: 0.71),
+      knownIssue: nil),
+    AndroidReferenceCase(
+      name: "GlassSphereRefractionFilter",
+      filter: GlassSphereRefractionFilter(radius: 0.25, refractiveIndex: 0.71),
+      knownIssue: nil),
+    AndroidReferenceCase(
+      name: "ZoomBlurFilter",
+      filter: ZoomBlurFilter(centerX: 0.5, centerY: 0.5, size: 5),
+      knownIssue: nil),
+    AndroidReferenceCase(
+      name: "GlassHexTilesFilter",
+      filter: GlassHexTilesFilter(intensity: 0.2, distortion: 0.25, frequency: 8),
+      knownIssue: nil),
+    AndroidReferenceCase(
+      name: "GlassRectTilesFilter",
+      filter: GlassRectTilesFilter(intensity: 0.2, distortion: 0.25, frequency: 8),
+      knownIssue: nil),
+    AndroidReferenceCase(
+      name: "GlassTriangleTilesFilter",
+      filter: GlassTriangleTilesFilter(intensity: 0.2, distortion: 0.25, frequency: 8),
+      knownIssue: nil),
+    AndroidReferenceCase(
+      name: "LogarithmicSpiralFilter",
+      filter: LogarithmicSpiralFilter(count: 2, intensity: 1),
+      knownIssue: nil),
+    AndroidReferenceCase(
+      name: "SpiralDrosteFilter",
+      filter: SpiralDrosteFilter(intensity: 2, distortion: 0.2),
+      knownIssue: nil),
+    AndroidReferenceCase(
+      name: "GradientMapFilter",
+      filter: GradientMapFilter(palette: "Spectral"),
+      knownIssue: nil),
     // Нестандартные матрицы из `ReferenceFilterExportTest`, те же коэффициенты.
     AndroidReferenceCase(
       name: "ColorMatrix3x3Filter_custom",

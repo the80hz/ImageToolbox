@@ -681,43 +681,29 @@ struct MotionBlurFilter: Filter {
   }
 }
 
-/// Размытие к центру: 10 отсчётов вдоль луча к центру, равные веса.
+/// Размытие к центру по шейдеру GPUImage `ZOOM_BLUR_FRAGMENT_SHADER`: девять отсчётов вдоль луча
+/// к центру. Шаг равен `0.01 * (центр - пиксель) * size`, веса 0.18, 0.15, 0.12, 0.09, 0.05
+/// симметрично относительно центрального отсчёта.
 ///
-/// Статус: приближение. Шейдер GPUImage в репозитории не лежит: масштаб 0.01 на единицу `size`
-/// и число отсчётов 10 выбраны сами.
+/// Статус: проверено по эталону (`ZoomBlurFilter`, раздел 10).
 struct ZoomBlurFilter: Filter {
   let centerX: Double
   let centerY: Double
   let size: Double
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    let samples = 10
-    return filtered(image) { plane in
-      var values = [Float](repeating: 0, count: plane.values.count)
-      for y in 0..<plane.height {
-        for x in 0..<plane.width {
-          let target = (y * plane.width + x) * 4
-          let u = (Double(x) + 0.5) / Double(plane.width)
-          let v = (Double(y) + 0.5) / Double(plane.height)
-          for i in 0..<samples {
-            let factor = size * 0.01 * Double(i)
-            let su = u + (centerX - u) * factor
-            let sv = v + (centerY - v) * factor
-            let sx = BlurBorderMode.clamp.index(
-              Int((su * Double(plane.width)).rounded(.down)), count: plane.width)
-            let sy = BlurBorderMode.clamp.index(
-              Int((sv * Double(plane.height)).rounded(.down)), count: plane.height)
-            let source = (sy * plane.width + sx) * 4
-            for c in 0..<4 {
-              values[target + c] += plane.values[source + c]
-            }
-          }
-          for c in 0..<4 {
-            values[target + c] /= Float(samples)
-          }
-        }
+    let taps: [(Double, Double)] = [
+      (0, 0.18), (1, 0.15), (2, 0.12), (3, 0.09), (4, 0.05),
+      (-1, 0.15), (-2, 0.12), (-3, 0.09), (-4, 0.05),
+    ]
+    return DistortionSampling.render(image) { u, v, sample in
+      let stepX = 0.01 * (centerX - u) * size
+      let stepY = 0.01 * (centerY - v) * size
+      var sum = SIMD4<Double>(repeating: 0)
+      for (tap, weight) in taps {
+        sum += sample(u + tap * stepX, v + tap * stepY) * weight
       }
-      return BlurPlane(width: plane.width, height: plane.height, values: values)
+      return sum
     }
   }
 }

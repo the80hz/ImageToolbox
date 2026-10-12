@@ -145,12 +145,13 @@ struct DistortionFilterTests {
     #expect(output.pixels != picture.pixels)
   }
 
-  @Test("sphere refraction with index 0 changes nothing")
-  func sphereNeutral() async throws {
+  // Шейдер GPUImage умножает цвет на step(distance, radius): вне круга результат чёрный, без тождества.
+  @Test("sphere refraction paints the corners outside its circle black")
+  func sphereOutsideIsBlack() async throws {
     let picture = FilterTestImages.gradient(width: 16, height: 16)
-    let output = try await SphereRefractionFilter(radius: 0.5, refractiveIndex: 0)
+    let output = try await SphereRefractionFilter(radius: 0.5, refractiveIndex: 0.71)
       .apply(to: picture)
-    #expect(output.pixels == picture.pixels)
+    #expect(Array(output.pixels[0..<4]) == [0, 0, 0, 0])
   }
 
   @Test("glass sphere refraction keeps the size at the extremes")
