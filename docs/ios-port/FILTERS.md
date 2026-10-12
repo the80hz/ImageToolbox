@@ -130,15 +130,15 @@ UI (`ios/ImageToolbox/Sources/Features/Filters`): выбор фото, спис�
 Реестр: 112 фильтров (на 2026-10-10 было 109; добавлены `SimpleSolarizeFilter`, `ColorMatrix3x3Filter`, `ColorMatrix4x4Filter`). Все id совпадают с именами классов `feature/filters/.../data/model`. Тесты пакета: полный прогон `swift test` 2026-10-11, см. раздел 11. Фильтры покрыты своими `*FilterTests.swift`, общим тестом крайних значений `FilterRegistryTests` и сверкой с эталонами `AndroidReferenceParityTests` (раздел 10).
 
 Статусы:
-- **проверено по эталону** — выход на эталонном входе совпал с Android в пределах допуска: среднее отличие по каналам не больше 0.25, наибольшее не больше 1 (54 фильтра, раздел 10).
-- **приближение** — формула собрана по стандартной схеме, либо Android вызывает нативный код, которого в репозитории нет (58 фильтров). Эталоны сняты для всех, кроме `GrainFilter` и `RandomDitheringFilter` (недетерминированы); 56 случаев расходятся с Android, числа в разделе 10. `GaussianBlurFilter` и `SaturationFilter` перенесены по исходникам Aire и libblur и перешли в «проверено», `BrightnessFilter` и `SimpleThresholdDitheringFilter` совпали с эталоном при первой сверке (2026-10-13). Восемь фильтров дальтонизма перешли в «проверено» 2026-10-13 после замены матриц на константы `ColorMatrices.Assistance` из Aire 0.18.1 и применения через `apply3x3`. Ещё 17 фильтров перешли в «проверено» 2026-10-13 (пакет 2, решение 14): 12 LUT-пресетов (Trickle 1.9.3 `applyLut`), `ContrastFilter`, `UchimuraFilter`, `UnsharpFilter` (Aire 0.18.1), `LevelsFilter` и `TwirlFilter` (Jh Labs 8.1.0).
+- **проверено по эталону** — выход на эталонном входе совпал с Android в пределах допуска: среднее отличие по каналам не больше 0.25, наибольшее не больше 1 (67 фильтров, раздел 10).
+- **приближение** — формула собрана по стандартной схеме, либо Android вызывает нативный код, которого в репозитории нет (45 фильтров). Эталоны сняты для всех, кроме `GrainFilter` и `RandomDitheringFilter` (недетерминированы); 43 случая расходятся с Android, числа в разделе 10. `GaussianBlurFilter` и `SaturationFilter` перенесены по исходникам Aire и libblur и перешли в «проверено», `BrightnessFilter` и `SimpleThresholdDitheringFilter` совпали с эталоном при первой сверке (2026-10-13). Восемь фильтров дальтонизма перешли в «проверено» 2026-10-13 после замены матриц на константы `ColorMatrices.Assistance` из Aire 0.18.1 и применения через `apply3x3`. Ещё 17 фильтров перешли в «проверено» 2026-10-13 (пакет 2, решение 14): 12 LUT-пресетов (Trickle 1.9.3 `applyLut`), `ContrastFilter`, `UchimuraFilter`, `UnsharpFilter` (Aire 0.18.1), `LevelsFilter` и `TwirlFilter` (Jh Labs 8.1.0). Ещё 13 фильтров перешли в «проверено» 2026-10-13 (пакет 3a, решение 15): `GammaFilter`, `VibranceFilter`, пять операторов тональной компрессии (ACES, Hable, Hejl–Burgess, логарифмический, Drago; Uchimura проверен в пакете 2), `EqualizeFilter` (Jh Labs 8.1.0) и пять Aire-фильтров гистограмм (`EqualizeHistogramFilter`, `EqualizeHistogramHSVFilter`, `EqualizeHistogramPixelationFilter`, `EqualizeHistogramAdaptiveFilter`, `ClaheFilter`).
 - **перенесён** — формула взята из Android-кода, сверки с эталоном нет. Таких фильтров сейчас нет: все шесть перенесённых по формуле сверены в этом заходе.
 
 Все приближения и проверенные фильтры помечены в doc-комментариях файла.
 
 | Группа | Файл | Проверено по эталону | Перенесено | Приближений | Не перенесено |
 |---|---|---|---|---|---|
-| Яркость и цвет | `LightColourFilters.swift` | 14 | 0 | 3 | 0 |
+| Яркость и цвет | `LightColourFilters.swift` | 16 | 0 | 1 | 0 |
 | Размытия | `BlurFilters.swift` | 2 | 0 | 11 | 2 |
 | Резкость и шум | `SharpenNoiseFilters.swift` | 3 | 0 | 3 | 5 |
 | ColorMatrix и дальтонизм | `ColourMatrixFilters.swift` | 10 | 0 | 0 | 1 |
@@ -146,26 +146,26 @@ UI (`ios/ImageToolbox/Sources/Features/Filters`): выбор фото, спис�
 | Дизеринг (диффузия) | `DitheringFilters.swift` | 0 | 0 | 10 | 0 |
 | Дизеринг (упорядоченный) | `OrderedDitheringFilters.swift` | 1 | 0 | 8 | 2 |
 | Морфология | `MorphologyFilters.swift` | 0 | 0 | 7 | 3 |
-| Тональная компрессия | `ToneMappingFilters.swift` | 1 | 0 | 5 | 4 |
-| Гистограммы | `HistogramFilters.swift` | 0 | 0 | 4 | 2 |
-| CLAHE | `ClaheFilters.swift` | 0 | 0 | 2 | 11 |
+| Тональная компрессия | `ToneMappingFilters.swift` | 6 | 0 | 0 | 4 |
+| Гистограммы | `HistogramFilters.swift` | 4 | 0 | 0 | 2 |
+| CLAHE | `ClaheFilters.swift` | 2 | 0 | 0 | 11 |
 | Искажения | `DistortionFilters.swift` | 10 | 0 | 4 | 1 |
 | Глитч и CRT | `GlitchCRTFilters.swift` | 1 | 0 | 1 | 11 (`FilmStock50` и `BleachBypass` — в LUT) |
-| **Итого** | | **54** | **0** | **58** | **45** |
+| **Итого** | | **67** | **0** | **45** | **45** |
 
-Проверено по эталону: `SepiaFilter`, `NegativeFilter`, `BlackAndWhiteFilter`, `SolarizeFilter`, `PosterizeFilter`, `VignetteFilter`, `SimpleSolarizeFilter`, `ExposureFilter`, `HueFilter`, `WhiteBalanceFilter`, `SaturationFilter`, `BrightnessFilter`, `ContrastFilter`, `LevelsFilter` (Яркость и цвет); `ZoomBlurFilter`, `GaussianBlurFilter` (Размытия); `PixelationFilter`, `SharpenFilter`, `UnsharpFilter` (Резкость); `ColorMatrix3x3Filter`, `ColorMatrix4x4Filter`, `ProtanopiaFilter`, `DeuteranopiaFilter`, `TritanopiaFilter`, `AchromatopsiaFilter`, `ProtonomalyFilter`, `DeutaromalyFilter`, `TritonomalyFilter`, `AchromatomalyFilter` (ColorMatrix и дальтонизм); `BulgeDistortionFilter`, `SwirlDistortionFilter`, `SphereRefractionFilter`, `GlassSphereRefractionFilter`, `GlassHexTilesFilter`, `GlassRectTilesFilter`, `GlassTriangleTilesFilter`, `LogarithmicSpiralFilter`, `SpiralDrosteFilter`, `TwirlFilter` (Искажения); `GradientMapFilter` (Глитч и CRT); `SimpleThresholdDitheringFilter` (Дизеринг, упорядоченный); `UchimuraFilter` (Тональная компрессия); `AmatorkaFilter`, `KodakFilter`, `BleachBypassFilter`, `CandlelightFilter`, `CelluloidFilter`, `CoffeeFilter`, `DropBluesFilter`, `EdgyAmberFilter`, `FallColorsFilter`, `FilmStock50Filter`, `FoggyNightFilter`, `GoldenForestFilter` (LUT).
+Проверено по эталону: `SepiaFilter`, `NegativeFilter`, `BlackAndWhiteFilter`, `SolarizeFilter`, `PosterizeFilter`, `VignetteFilter`, `SimpleSolarizeFilter`, `ExposureFilter`, `HueFilter`, `WhiteBalanceFilter`, `SaturationFilter`, `BrightnessFilter`, `ContrastFilter`, `LevelsFilter`, `GammaFilter`, `VibranceFilter` (Яркость и цвет); `ZoomBlurFilter`, `GaussianBlurFilter` (Размытия); `PixelationFilter`, `SharpenFilter`, `UnsharpFilter` (Резкость); `ColorMatrix3x3Filter`, `ColorMatrix4x4Filter`, `ProtanopiaFilter`, `DeuteranopiaFilter`, `TritanopiaFilter`, `AchromatopsiaFilter`, `ProtonomalyFilter`, `DeutaromalyFilter`, `TritonomalyFilter`, `AchromatomalyFilter` (ColorMatrix и дальтонизм); `BulgeDistortionFilter`, `SwirlDistortionFilter`, `SphereRefractionFilter`, `GlassSphereRefractionFilter`, `GlassHexTilesFilter`, `GlassRectTilesFilter`, `GlassTriangleTilesFilter`, `LogarithmicSpiralFilter`, `SpiralDrosteFilter`, `TwirlFilter` (Искажения); `GradientMapFilter` (Глитч и CRT); `SimpleThresholdDitheringFilter` (Дизеринг, упорядоченный); `UchimuraFilter`, `AcesFilmicToneMappingFilter`, `HableFilmicToneMappingFilter`, `HejlBurgessToneMappingFilter`, `LogarithmicToneMappingFilter`, `DragoFilter` (Тональная компрессия); `GammaFilter`, `VibranceFilter` (Яркость и цвет, пакет 3a); `EqualizeFilter`, `EqualizeHistogramFilter`, `EqualizeHistogramHSVFilter`, `EqualizeHistogramPixelationFilter` (Гистограммы); `ClaheFilter`, `EqualizeHistogramAdaptiveFilter` (CLAHE); `AmatorkaFilter`, `KodakFilter`, `BleachBypassFilter`, `CandlelightFilter`, `CelluloidFilter`, `CoffeeFilter`, `DropBluesFilter`, `EdgyAmberFilter`, `FallColorsFilter`, `FilmStock50Filter`, `FoggyNightFilter`, `GoldenForestFilter` (LUT).
 
-Среди проверенных по эталону расхождений нет; среди 58 приближений расходятся 56 фильтров (список в разделе 10; ещё 2 фильтра не сняты, см. там же). `GaussianBlurFilter` и `SaturationFilter` исправлены 2026-10-13 (нативный Aire прочитан в публичном репозитории awxkee/aire и libblur, раздел 10).
+Среди проверенных по эталону расхождений нет; среди 45 приближений расходятся 43 фильтра (список в разделе 10; ещё 2 фильтра не сняты, см. там же). `GaussianBlurFilter` и `SaturationFilter` исправлены 2026-10-13 (нативный Aire прочитан в публичном репозитории awxkee/aire и libblur, раздел 10).
 
 Перенесено по формуле и сверено с эталоном в этом заходе: `GlassHexTiles`, `GlassRectTiles`, `GlassTriangleTiles`, `LogarithmicSpiral`, `SpiralDroste` (Искажения) и `GradientMap` (Глитч и CRT).
 
-Итого: 112 зарегистрировано: 54 проверено по эталону, 0 перенесено по формуле, 58 приближений, 45 не перенесено (раздел 8).
+Итого: 112 зарегистрировано: 67 проверено по эталону, 0 перенесено по формуле, 45 приближений, 45 не перенесено (раздел 8).
 
 ## 8. Не перенесено
 
 Имя в скобках — класс Android.
 
-- **Тональная компрессия (4):** `AcesHill` (Aire, точные матрицы не воспроизводятся надёжно по памяти); `Retinex`, `DynamicContrast`, `LocalContrastEnhancement` (G'MIC, CeCILL-C, нативный код). Шесть операторов перенесены как приближения по опубликованным формулам (см. раздел 9, решение 1).
+- **Тональная компрессия (4):** `AcesHill` (Aire, точные матрицы не воспроизводятся надёжно по памяти); `Retinex`, `DynamicContrast`, `LocalContrastEnhancement` (G'MIC, CeCILL-C, нативный код). Шесть операторов перенесены по исходникам Aire и совпали с эталоном (см. раздел 9, решения 1 и 15).
 - **LUT (3):** `Lookup`: Kotlin создаёт `GPUImageLookupFilter(value)` без второй текстуры, поведение без таблицы не восстанавливается по коду. `LUT512x512` и `CubeLut`: в Kotlin только разбор параметров и вызов `Trickle.applyLut` / `Trickle.applyCubeLut`, а Trickle — нативная библиотека (`libtrickle.so`). Формула `applyLut` найдена 2026-10-13 в публичном репозитории T8RIN/Trickle (решение 14) и используется 12 пресетами; сам `LUT512x512` (таблица от пользователя) остаётся незарегистрированным, а для `CubeLut` формула `applyCubeLutImpl` не разбиралась; вид параметра «файл» не добавлен, потому что без фильтра он не используется. Таблицы 12 пресетов добавлены в `Resources/LUT`. **Отложено (2026-10-11) по решению пользователя.** Вернуться, когда появится вид параметра «файл».
 - **Размытия (2):** `EnhancedZoomBlur` (семантика `angle` и `strength` в нативном Aire), `PoissonBlur` (алгоритм Aire не воспроизводим по Kotlin).
 - **Резкость и шум (5):** `ConstrainedSharpen`, `AlphaSharpen` (G'MIC); `Noise` (Trickle, семантика threshold не восстанавливается); `ReduceNoise`, `Despeckle` (Jh Labs).
@@ -182,10 +182,10 @@ UI (`ios/ImageToolbox/Sources/Features/Filters`): выбор фото, спис�
 
 Принятые решения (2026-10-10, по рекомендациям, согласовано с пользователем):
 
-1. **Тональная компрессия — гибрид.** Шесть операторов (ACES Narkowicz, Hable, Hejl–Burgess, логарифмический, Uchimura, Drago) перенесены как приближения по опубликованным формулам, а не по Aire. ACES Hill не перенесён. Три G'MIC-фильтра не переносятся. Drago: отображение `threshold` на максимум яркости не сверено с Android.
+1. **Тональная компрессия — гибрид.** Шесть операторов (ACES Narkowicz, Hable, Hejl–Burgess, логарифмический, Uchimura, Drago) перенесены как приближения по опубликованным формулам, а не по Aire. ACES Hill не перенесён. Три G'MIC-фильтра не переносятся. Drago: отображение `threshold` на максимум яркости не сверено с Android. Заменено 2026-10-13: все шесть операторов (без ACES Hill) считаются по исходникам Aire (решение 15).
 2. **LUT — таблицы в ресурсах пакета.** 12 `lookup_*.webp` (512 × 512) скопированы из Android `core/resources` в `Sources/ImageToolboxKit/Resources/LUT` и подключены в `Package.swift`. Декодирование через ImageIO при каждом применении, без кэша. `CubeLut` и вид параметра «файл» откладываются. С 2026-10-13 пресеты считаются по формуле Trickle на CPU (решение 14), `CIColorCube` остался только у `CubeLutFilter`.
 3. **Приближения принимаются** для этапов 1–2 со статусом «приближение». Пункт «эталонный набор» остаётся невыполненным: сверка с Android по пикселям нужна отдельно.
-4. **Движок.** Hue и WhiteBalance считаются на `.cpu` по формулам шейдеров GPUImage (решение 12). Vibrance и HighlightsAndShadows оставлены на `.coreImage` (Saturation с 2026-10-13 на `.cpu`, решение 13): ближайший `CIFilter` допустим, если фильтр помечен приближением. Exposure тоже на `.coreImage` (`CIColorMatrix` с множителем 2^EV совпадает с эталоном точно).
+4. **Движок.** Hue и WhiteBalance считаются на `.cpu` по формулам шейдеров GPUImage (решение 12). HighlightsAndShadows оставлен на `.coreImage` (Saturation с 2026-10-13 на `.cpu`, решение 13, Gamma и Vibrance с 2026-10-13 на `.cpu`, решение 15): ближайший `CIFilter` допустим, если фильтр помечен приближением. Exposure тоже на `.coreImage` (`CIColorMatrix` с множителем 2^EV совпадает с эталоном точно).
 
 Решения 2026-10-11 (пакет A и пакет B):
 
@@ -210,9 +210,26 @@ UI (`ios/ImageToolbox/Sources/Features/Filters`): выбор фото, спис�
     - **TwirlFilter.** Та же `lib.rs`, `transform_filter`, ветка `"TwirlFilter"`, `bilinear`, `sample`: центр `centre · размер` в пикселях (координаты целые, без сдвига на 0.5), радиус `radius · max(w, h) / 2` во Float, `distance > radius` — пиксель без изменений, иначе угол `angle · (radius − distance) / radius`; билинейная выборка во Float с усечением, край `CLAMP`. Прежняя версия брала центры пикселей (+0.5) и `DistortionSampling.warp` с округлением. Теперь точно.
     - **Источники.** Aire — `awxkee/aire`, master; наличие `unsharpImpl`, `uchimura`, `gaussBlurU8` в `libaire.so` из `aire-0.18.1.aar` подтверждено `strings`. Совпадение с эталоном — окончательная проверка.
 
+15. **Пакет 3a: цвет, тональная компрессия, гистограммы (2026-10-13).** 13 фильтров совпали с эталоном; везде причину нашло чтение исходников, подбора не было. Общее для Aire: он работает с сохранёнными (premultiplied) байтами `Bitmap`, поэтому iOS-версии не снимают и не накладывают альфу, а запись в байт идёт усечением. Источники Aire — `awxkee/aire` (master, апрель 2026), Rust-зависимости взяты с crates.io по версиям из `libaire_filters.so` из `aire-0.18.1.aar`.
+    - **Gamma.** Aire 0.18.1, `jni/Base.cpp`, `gammaImpl`: таблица `uint8(clamp(powf(i, gamma), 0, 255))`, где `i` — сам байт 0...255, а не доля. Поэтому `gamma = 1` тождество, 1.5 даёт почти белую картинку (все значения от 41 дают 255), 0.5 тёмную. Прежняя версия: `CIGammaAdjust` по доле 0...1 (140.26 и 237). Значение по умолчанию реестра iOS (1) и Android (1.5) по-прежнему различаются; реестр не менялся.
+    - **Vibrance.** Aire 0.18.1, `base/Vibrance.cpp`: не насыщенность, а сдвиг яркости `boost = trunc(clamp((max - (R+G+B)/3) · amount, -255, 255))` (среднее целочисленное), прибавляется ко всем трём каналам. Прежняя версия: `CIVibrance` (104.93 и 255).
+    - **Тональная компрессия (ACES, Hable, Hejl–Burgess, логарифмический, Drago).** Aire 0.18.1, `color/ConvolveToneMapper.cpp` и `color/tone/*ToneMapper.hpp`. `exposure` у всех операторов — множитель линейного значения (прежняя версия умножала на `2^exposure`); Hable без нормировки на белую точку 11.2 и без множителя 2 (прежняя версия добавляла и то и другое); Hejl–Burgess после кривой возводит в 2.4 и затем общий путь снова кодирует в sRGB; логарифмический и Drago — по яркости 0.299 / 0.587 / 0.114 с общим масштабом для каналов (прежняя версия обрабатывала каналы по отдельности); Drago `threshold` — максимум яркости SDR `maxLd` в формуле Drago с `Lwa = 1` и bias 0.85, а не `threshold / 250`.
+      - **Деление на 255 неточное.** Highway `ApproximateReciprocal` на arm64 — NEON `FRECPE`: `255 · rcp(255)` = 0.99998 (`rcp(255)` = 0.003921509), так же `1/12.92` (0.07739258) и `1/1.055` (0.9472656) в `SRGBToLinear` (`eotf-inl.h`), порог линейного участка там 0.045. Оценка определена спецификацией ARM, её воспроизводит `NEONEmulation.reciprocalEstimate`. С точным 1/255 среднее у логарифмического оператора 0.0017, максимум 1, с оценкой 0.
+      - **SIMD-блоки и скалярный хвост различаются.** Aire обрабатывает `4 · ((width - 1) / 4)` первых пикселей строки блоками, остальные 1...4 скалярно. Hejl–Burgess: смещение 0.0004 в блоках и 0.004 в хвосте (разница до 6 уровней в последних четырёх пикселях строки); Drago: максимум `maxLd` в блоках и `maxLd · exposure` в хвосте, хвост возвращается без изменений при масштабе ровно 1; логарифмический: в хвосте при нулевой яркости пиксель не меняется. Оба пути воспроизведены (`AireToneOperator.vector` и `tail`).
+      - **Логарифм и степень SIMD-кода** (многочлен `Lognf`, Sleef `Exp` и `LogFast`) отличаются от libm на единицы последнего разряда `Float`; проверено, что с точными функциями байты те же.
+      - Uchimura оставлен на прежнем коде (проверен в пакете 2), `ToneColour.apply` остался только у него; он по-прежнему снимает premultiplied, а Aire — нет (на непрозрачном эталоне не видно).
+    - **EqualizeFilter (Jh Labs).** T8RIN/ImageToolboxLibs 8.1.0, `lib.rs`, функция `equalize`: по каналу таблица `round(накопленное · 255 / N)` во `Float`, минимум не вычитается. Однотонная картинка поэтому становится белой. Прежняя версия вычитала минимум (43.67 и 127).
+    - **EqualizeHistogram, EqualizeHistogramAdaptive, Clahe.** Aire `hists.rs` вызывает крейт `histogram_equalization` 0.2.4 (`hist_equal_yuv_impl.rs`, `clahe_yuv_impl.rs`): картинка переводится в YCgCo (крейт `yuv` 0.8.6, `rgb_to_ycgco.rs` и `ycgco_to_rgb_alpha.rs`, целочисленно с 13 битами точности, полный диапазон, округление вниз при ровно половине), выравнивается только яркость Y, Cg и Co остаются. Прежняя версия выравнивала R, G и B по отдельности. Таблица корзины: `round(255 (cdf - cdfMin) / (N - cdfMin))` в `Double`, `cdfMin` — минимум по всем 256 корзинам, то есть число пикселей с Y = 0. Адаптивные варианты: плитки `width / grid` на `height / grid`, последняя плитка забирает остаток, билинейная интерполяция четырёх таблиц во `Float` с усечением до байта.
+      - **CLAHE у Aire обнуляет плитки при малом пороге.** `clip_hist_clahe`: предел `trunc(threshold · w · h / 256)`, в `excess` складывается весь счёт корзины, превысившей предел (а не излишек), а срезанные корзины получают предел. При `threshold` 0.5 и плитке 8 на 8 предел 0, все корзины нули, таблица тоже нули, и яркость Y становится 0: результат эталона почти чёрный, цвет остаётся только из Cg и Co. На настоящих фото плитки крупнее (при 4000 на 3000 и сетке 8 на 8 предел около 360), картинка не чернеет, но обрезка всё равно не та, что в классическом CLAHE. Это поведение Android, оно перенесено как есть.
+      - **`NaN` в Rust.** Если все пиксели плитки в корзине 0 (`cdfMin = N`), деление `0 · inf` даёт `NaN`, а `f64::min` отдаёт верхнюю границу, поэтому таблица целиком равна 255. Ветка не проверена эталоном (эталон не содержит чёрных плиток), перенесена по правилу Rust.
+      - **Сетка больше картинки.** В Rust размер плитки становится нулевым и деление на него падает (паника в JNI); в iOS размер плитки не меньше одного пикселя.
+    - **EqualizeHistogramHSV.** `hist_equal_impl.rs` и `colorutils-rs` 0.7.5: H в целых градусах, S и V целые в `0...bins-1`, выравнивается гистограмма V, H и S остаются. Первые 56 пикселей строки шириной 64 (блоки по 16 и по 8, `while cx + 16 < width`, `while cx + 8 < width`) идут NEON-кодом (`neon/colors.rs`, `neon/image_to_hsv.rs`, `neon/hsv_to_image.rs`), остальные скалярным (`hsv.rs`). NEON: `FRECPE` вместо деления в H и S, `vfmodq_f32` из erydanos 0.2 (`a - trunc(a · (1/b)) · b`), округление `vcvtaq` вместо усечения при переводе в целое и обратно. Скалярный путь усекает H и результат. Без NEON-части расхождение 0.52 и 5 (хвост строки уже точный), с ней 0. Пересчёт цвета выполняется дважды (гистограмма, затем замена V), поэтому лишней памяти не нужно.
+    - **EqualizeHistogramPixelation.** `aire-filters/src/equalize_hist.rs`: плитки `width / grid`, в каждой скалярный HSV (`hsv.rs`, H и S во `Float`) и гистограмма V из 101 корзины (`round(V · 100)`), новая V — `round(100 (cdf - cdfMin) / (N - cdfMin)) / 100`, обратный перевод усекает. На сетке 50 для 64x64 плитка из одного пикселя, поэтому V всегда 1 (при V = 0 тоже: `NaN` в Rust даёт верхнюю границу). Прежняя версия: поканальное выравнивание в плитках без переноса H и S (75.85 и 255).
+    - **Источники.** Крейты взяты с crates.io: `histogram_equalization` 0.2.4, `colorutils-rs` 0.7.5, `yuv` 0.8.6, `erydanos` 0.2.18 (версия из `Cargo.lock` aire-filters; `libaire_filters.so` содержит пути именно этих версий, кроме erydanos, у которого строк-путей нет). Совпадение с эталоном — окончательная проверка: 13 фильтров дают среднее 0 и наибольшее 0.
+
 Открытые вопросы:
 
-- **Эталоны.** Снято 112 эталонов (раздел 10): 27 с 2026-10-11 и 85 новых 2026-10-13 (приближения, `LevelsFilter_custom` и два дополнительных размера ядра `GaussianBlurFilter`). Проверены 54 фильтра; `GaussianBlurFilter` и `SaturationFilter` закрыты 2026-10-13 (решение 13), ещё 17 фильтров закрыты в пакете 2 (решение 14). Эталонов нет у `GrainFilter` и `RandomDitheringFilter` (недетерминированы на Android), а также у 45 не перенесённых фильтров. Расхождения 56 случаев записаны числами и ждут отдельной задачи исправления. Эталоны сняты на эмуляторе arm64 с программным GL (`hw.gpu.enabled=no`), на устройстве с GPU не сверялись.
+- **Эталоны.** Снято 112 эталонов (раздел 10): 27 с 2026-10-11 и 85 новых 2026-10-13 (приближения, `LevelsFilter_custom` и два дополнительных размера ядра `GaussianBlurFilter`). Проверены 67 фильтров; `GaussianBlurFilter` и `SaturationFilter` закрыты 2026-10-13 (решение 13), ещё 17 фильтров закрыты в пакете 2 (решение 14), ещё 13 в пакете 3a (решение 15). Эталонов нет у `GrainFilter` и `RandomDitheringFilter` (недетерминированы на Android), а также у 45 не перенесённых фильтров. Расхождения 43 случаев записаны числами и ждут отдельной задачи исправления. Эталоны сняты на эмуляторе arm64 с программным GL (`hw.gpu.enabled=no`), на устройстве с GPU не сверялись.
 - **Заголовки параметров.** У `BilaterialBlur` и `FastBilaterialBlur` подпись второго параметра («sigma») в Kotlin управляет `spatialSigma`, а `spatial_sigma` — `rangeSigma`. Значения по умолчанию сохранены, подписи стоит поправить.
 - **TentBlur.** Значение по умолчанию в UI (10) и в Kotlin (15) различаются; взято значение UI.
 - **Производительность.** `Bokeh`, `Median`, `Bilateral`, `FastBilateral` считают O(пикселей × ядро); LUT декодирует таблицу при каждом применении. На 12 Мп при максимальных параметрах будет медленно. Замер времени не выполнен.
@@ -236,7 +253,7 @@ UI (`ios/ImageToolbox/Sources/Features/Filters`): выбор фото, спис�
 adb pull /sdcard/Android/data/ru.tech.imageresizershrinker.debug/files/reference/. ios/ImageToolboxKit/Tests/ImageToolboxKitTests/Fixtures/AndroidReference/
 ```
 
-Сверка: `AndroidReferenceParityTests` (Swift Testing), по каналам RGB. Допуск: среднее отличие не больше 0.25 и наибольшее не больше 1. Расхождение, которое не укладывается в допуск, записывается в тесте через `withKnownIssue` с числами; сейчас таких 56 случаев (из 112).
+Сверка: `AndroidReferenceParityTests` (Swift Testing), по каналам RGB. Допуск: среднее отличие не больше 0.25 и наибольшее не больше 1. Расхождение, которое не укладывается в допуск, записывается в тесте через `withKnownIssue` с числами; сейчас таких 43 случая (из 112).
 
 | Фильтр | Параметры | Среднее | Наибольшее | Статус |
 |---|---|---|---|---|
@@ -280,11 +297,9 @@ adb pull /sdcard/Android/data/ru.tech.imageresizershrinker.debug/files/reference
 
 | Фильтр | Параметры (аргументы Swift, значения по умолчанию Android) | Среднее | Наибольшее | Статус |
 |---|---|---|---|---|
-| `ClaheFilter` | threshold: 0.5, gridX: 8, gridY: 8 | 207.23 | 255 | расхождение |
 | `BayerTwoDitheringFilter` | threshold: 200, grayScale: false | 118.20 | 255 | расхождение |
 | `BayerEightDitheringFilter` | threshold: 200, grayScale: false | 114.55 | 255 | расхождение |
 | `BayerFourDitheringFilter` | threshold: 200, grayScale: false | 110.57 | 255 | расхождение |
-| `VibranceFilter` | amount: 3 | 104.93 | 255 | расхождение |
 | `StuckiDitheringFilter` | threshold: 200, grayScale: false | 103.82 | 255 | расхождение |
 | `SierraLiteDitheringFilter` | threshold: 200, grayScale: false | 103.39 | 255 | расхождение |
 | `Clustered8x8DitheringFilter` | grayScale: false | 101.77 | 255 | расхождение |
@@ -297,34 +312,23 @@ adb pull /sdcard/Android/data/ru.tech.imageresizershrinker.debug/files/reference
 | `AtkinsonDitheringFilter` | threshold: 200, grayScale: false | 83.51 | 255 | расхождение |
 | `GlitchFilter` | amount: 20, seed: 15, iterations: 9 | 81.18 | 255 | расхождение |
 | `TwoRowSierraDitheringFilter` | threshold: 200, grayScale: false | 78.19 | 255 | расхождение |
-| `EqualizeHistogramPixelationFilter` | gridX: 50, gridY: 50 | 75.85 | 255 | расхождение |
 | `FloydSteinbergDitheringFilter` | threshold: 200, grayScale: false | 73.11 | 255 | расхождение |
 | `FalseFloydSteinbergDitheringFilter` | threshold: 200, grayScale: false | 59.48 | 255 | расхождение |
 | `LeftToRightDitheringFilter` | threshold: 200, grayScale: false | 8.093 | 255 | расхождение |
 | `RippleFilter` | xAmplitude: 5, xWavelength: 16, yAmplitude: 5, yWavelength: 16 | 22.00 | 252 | расхождение |
 | `BokehFilter` | size: 6, sides: 6 | 3.359 | 244 | расхождение |
-| `GammaFilter` | power: 1.5 | 140.26 | 237 | расхождение |
 | `OpeningFilter` | size: 25, circle: true | 3.314 | 220 | расхождение |
 | `ClosingFilter` | size: 25, circle: true | 3.301 | 216 | расхождение |
 | `MorphologicalGradientFilter` | size: 25, circle: true | 29.36 | 204 | расхождение |
 | `DilationFilter` | size: 25, circle: true | 16.17 | 204 | расхождение |
 | `ErodeFilter` | size: 25, circle: true | 16.10 | 200 | расхождение |
-| `EqualizeFilter` | нет параметров | 43.67 | 127 | расхождение |
 | `GaussianBlurFilter_r40` | radius: 40, sigma: 15, edge: .reflect101 | 3.396 | 125 | расхождение |
-| `EqualizeHistogramAdaptiveFilter` | gridX: 3, gridY: 3 | 31.92 | 121 | расхождение |
 | `CirclePixelationFilter` | size: 24 | 4.513 | 120 | расхождение |
 | `HighlightsAndShadowsFilter` | shadows: 0.25 | 21.75 | 110 | расхождение |
 | `MotionBlurFilter` | size: 25, degrees: 45, edge: .reflect101 | 7.421 | 103 | расхождение |
-| `HableFilmicToneMappingFilter` | exposure: 1 | 68.22 | 92 | расхождение |
 | `BilaterialBlurFilter` | radius: 12, spatialSigma: 10, rangeSigma: 3, edge: .reflect101 | 3.247 | 89 | расхождение |
-| `EqualizeHistogramHSVFilter` | bins: 128 | 29.96 | 68 | расхождение |
-| `DragoFilter` | scale: 1, whitePoint: 250 | 40.02 | 65 | расхождение |
-| `LogarithmicToneMappingFilter` | exposure: 1 | 36.95 | 62 | расхождение |
 | `FishEyeFilter` | radius: 70, amplitude: 1 | 8.189 | 62 | расхождение |
-| `AcesFilmicToneMappingFilter` | exposure: 1 | 34.76 | 51 | расхождение |
-| `HejlBurgessToneMappingFilter` | exposure: 1 | 37.37 | 50 | расхождение |
 | `FastBilaterialBlurFilter` | size: 11, spatialSigma: 10, rangeSigma: 3 | 14.09 | 50 | расхождение |
-| `EqualizeHistogramFilter` | нет параметров | 25.02 | 49 | расхождение |
 | `KaleidoscopeFilter` | angle: 0, secondaryAngle: 0, centreX: 0.5, centreY: 0.5, sides: 5, radius: 0 | 8.054 | 41 | расхождение |
 | `PinchFilter` | angle: 15, centreX: 0.5, centreY: 0.5, radius: 1, amount: 0.5 | 6.573 | 37 | расхождение |
 | `MedianBlurFilter` | radius: 10 | 8.188 | 32 | расхождение |
@@ -355,6 +359,19 @@ adb pull /sdcard/Android/data/ru.tech.imageresizershrinker.debug/files/reference
 | `TwirlFilter` | angle: 45, centreX: 0.5, centreY: 0.5, radius: 0.5 | 0 | 0 | проверено, точно (до 2026-10-13: 0.1001 и 3) |
 | `UchimuraFilter` | scale: 1 | 0.1771 | 1 | проверено (до 2026-10-13: 0.8854 и 1) |
 | `ContrastFilter` | gain: 2 | 0 | 0 | проверено, точно (до 2026-10-13: 0.6667 и 1) |
+| `ClaheFilter` | threshold: 0.5, gridX: 8, gridY: 8 | 0 | 0 | проверено, точно (до 2026-10-13: 207.23 и 255) |
+| `VibranceFilter` | amount: 3 | 0 | 0 | проверено, точно (до 2026-10-13: 104.93 и 255) |
+| `EqualizeHistogramPixelationFilter` | gridX: 50, gridY: 50 | 0 | 0 | проверено, точно (до 2026-10-13: 75.85 и 255) |
+| `GammaFilter` | power: 1.5 | 0 | 0 | проверено, точно (до 2026-10-13: 140.26 и 237) |
+| `EqualizeFilter` | нет параметров | 0 | 0 | проверено, точно (до 2026-10-13: 43.67 и 127) |
+| `EqualizeHistogramAdaptiveFilter` | gridX: 3, gridY: 3 | 0 | 0 | проверено, точно (до 2026-10-13: 31.92 и 121) |
+| `HableFilmicToneMappingFilter` | exposure: 1 | 0 | 0 | проверено, точно (до 2026-10-13: 68.22 и 92) |
+| `EqualizeHistogramHSVFilter` | bins: 128 | 0 | 0 | проверено, точно (до 2026-10-13: 29.96 и 68) |
+| `DragoFilter` | scale: 1, whitePoint: 250 | 0 | 0 | проверено, точно (до 2026-10-13: 40.02 и 65) |
+| `LogarithmicToneMappingFilter` | exposure: 1 | 0 | 0 | проверено, точно (до 2026-10-13: 36.95 и 62) |
+| `AcesFilmicToneMappingFilter` | exposure: 1 | 0 | 0 | проверено, точно (до 2026-10-13: 34.76 и 51) |
+| `HejlBurgessToneMappingFilter` | exposure: 1 | 0 | 0 | проверено, точно (до 2026-10-13: 37.37 и 50) |
+| `EqualizeHistogramFilter` | нет параметров | 0 | 0 | проверено, точно (до 2026-10-13: 25.02 и 49) |
 | `SimpleThresholdDitheringFilter` | threshold: 200, grayScale: false | 0 | 0 | проверено, точно |
 | `GaussianBlurFilter_r5` | radius: 5, sigma: 2, edge: .reflect101 | 0 | 0 | проверено, точно |
 | `ProtanopiaFilter` | нет параметров | 0.0009 | 1 | проверено |
@@ -366,7 +383,7 @@ adb pull /sdcard/Android/data/ru.tech.imageresizershrinker.debug/files/reference
 | `TritonomalyFilter` | нет параметров | 0 | 0 | проверено, точно |
 | `AchromatomalyFilter` | нет параметров | 0.0033 | 1 | проверено |
 
-Совпали с эталоном (28 из 85): `BrightnessFilter`, `SimpleThresholdDitheringFilter`, `GaussianBlurFilter_r5`, восемь фильтров дальтонизма (ниже) и 17 случаев пакета 2 (12 LUT-пресетов, `ContrastFilter`, `UchimuraFilter`, `UnsharpFilter`, `LevelsFilter_custom`, `TwirlFilter`; решение 14, значения «до» указаны в таблице). Первые два фильтра переведены из «приближения» в «проверено по эталону» (`GaussianBlurFilter` уже был проверен на ядре 51).
+Совпали с эталоном (41 из 85): `BrightnessFilter`, `SimpleThresholdDitheringFilter`, `GaussianBlurFilter_r5`, восемь фильтров дальтонизма (ниже), 17 случаев пакета 2 (12 LUT-пресетов, `ContrastFilter`, `UchimuraFilter`, `UnsharpFilter`, `LevelsFilter_custom`, `TwirlFilter`; решение 14, значения «до» указаны в таблице) и 13 случаев пакета 3a (`GammaFilter`, `VibranceFilter`, пять операторов тональной компрессии, `EqualizeFilter`, пять фильтров гистограмм; решение 15). Первые два фильтра переведены из «приближения» в «проверено по эталону» (`GaussianBlurFilter` уже был проверен на ядре 51).
 
 `GaussianBlurFilter` на других ядрах (допущение решения 13 про края libblur):
 - радиус 5, sigma 2, Reflect101 (ядро 11, меньше 29): среднее 0, наибольшее 0, совпадает точно. Допущение для ядер меньше 29 подтверждено.
@@ -378,12 +395,12 @@ adb pull /sdcard/Android/data/ru.tech.imageresizershrinker.debug/files/reference
 
 Границы этой сверки: вход один, 64x64, непрозрачный, без краёв прозрачности и больших размеров. Эталоны сняты на эмуляторе с программным GL, на устройстве с GPU не сверялись. Совпадение на этом входе проверяет формулу, но не гарантирует совпадение на всех картинках.
 
-## 11. Проверки (2026-10-11, `swift test`, lint и эталоны обновлены 2026-10-13)
+## 11. Проверки (2026-10-11, `swift test`, lint и эталоны обновлены 2026-10-13, пакет 3a)
 
 Строки ниже взяты из вывода команд, запущенных на текущем дереве, после последней правки кода.
 
-- `swift test` в `ios/ImageToolboxKit` (полный прогон после пакета 2, 2026-10-13): `Test run with 1513 tests in 180 suites passed after 96.910 seconds with 114 known issues.` (код выхода 0). Все 114 known issues — расхождения 56 приближённых случаев в `AndroidReferenceParityTests` (по одному или два условия на случай, раздел 10); было 144 на 73 случая. Тестов на один больше, чем в предыдущем прогоне (1512): в `LUTFilterTests` добавлен тест раскладки и убран тест разбора решётки.
-- `xcrun swift format lint --strict --recursive ImageToolboxKit/Sources ImageToolboxKit/Tests ImageToolbox/Sources ImageToolbox/UITests` в `ios` (после пакета 2, 2026-10-13): код выхода 0, замечаний нет.
+- `swift test` в `ios/ImageToolboxKit` (полный прогон после пакета 3a, 2026-10-13): `Test run with 1519 tests in 180 suites passed after 96.920 seconds with 88 known issues.` (код выхода 0). Все 88 known issues — расхождения 43 приближённых случаев в `AndroidReferenceParityTests` (по одному или два условия на случай, раздел 10); было 114 на 56 случаев. Тестов на шесть больше, чем после пакета 2 (1513): добавлены проверки хвоста строки Hejl–Burgess, линейного множителя `exposure`, оценок `FRECPE`, числа NEON-пикселей, YCgCo, клеток из одного пикселя и обнуления плиток CLAHE, убран тест «сетка 1x1 равна эквализации картинки» (у Android это разные алгоритмы).
+- `xcrun swift format lint --strict --recursive ImageToolboxKit/Sources ImageToolboxKit/Tests ImageToolbox/Sources ImageToolbox/UITests` в `ios` (после пакета 3a, 2026-10-13): код выхода 0, замечаний нет.
 - `xcodegen generate` в `ios`: код выхода 0. `git status` по `ios/ImageToolbox.xcodeproj` пуст: pbxproj вручную не правился и не изменился.
 - `xcodebuild -scheme ImageToolbox -sdk iphonesimulator build`: `** BUILD SUCCEEDED **`, строк `warning:` в логе 0.
 - UI-тест `xcodebuild test -scheme ImageToolbox -sdk iphonesimulator -destination 'platform=iOS Simulator,id=71D45EE4-8E8C-4A7E-88AD-369068B6DE68' -only-testing:ImageToolboxUITests/ImageToolboxUITests/testFiltersChainShowsAddedFilter`:

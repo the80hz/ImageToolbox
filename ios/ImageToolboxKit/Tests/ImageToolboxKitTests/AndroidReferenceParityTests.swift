@@ -138,11 +138,11 @@ struct AndroidReferenceCase: Sendable, CustomTestStringConvertible {
     AndroidReferenceCase(
       name: "GammaFilter",
       filter: GammaFilter(power: 1.5),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 140.26, наибольшее 237."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "VibranceFilter",
       filter: VibranceFilter(amount: 3),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 104.93, наибольшее 255."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "HighlightsAndShadowsFilter",
       filter: HighlightsAndShadowsFilter(shadows: 0.25),
@@ -388,19 +388,19 @@ struct AndroidReferenceCase: Sendable, CustomTestStringConvertible {
     AndroidReferenceCase(
       name: "AcesFilmicToneMappingFilter",
       filter: AcesFilmicFilter(exposure: 1),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 34.76, наибольшее 51."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "HableFilmicToneMappingFilter",
       filter: HableFilmicFilter(exposure: 1),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 68.22, наибольшее 92."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "HejlBurgessToneMappingFilter",
       filter: HejlBurgessFilter(exposure: 1),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 37.37, наибольшее 50."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "LogarithmicToneMappingFilter",
       filter: LogarithmicFilter(exposure: 1),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 36.95, наибольшее 62."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "UchimuraFilter",
       filter: UchimuraFilter(scale: 1),
@@ -408,31 +408,31 @@ struct AndroidReferenceCase: Sendable, CustomTestStringConvertible {
     AndroidReferenceCase(
       name: "DragoFilter",
       filter: DragoFilter(scale: 1, whitePoint: 250),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 40.02, наибольшее 65."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "EqualizeFilter",
       filter: EqualizeFilter(),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 43.67, наибольшее 127."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "EqualizeHistogramFilter",
       filter: EqualizeHistogramFilter(),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 25.02, наибольшее 49."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "EqualizeHistogramHSVFilter",
       filter: EqualizeHistogramHSVFilter(bins: 128),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 29.96, наибольшее 68."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "EqualizeHistogramPixelationFilter",
       filter: EqualizeHistogramPixelationFilter(gridX: 50, gridY: 50),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 75.85, наибольшее 255."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "ClaheFilter",
       filter: ClaheFilter(threshold: 0.5, gridX: 8, gridY: 8),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 207.23, наибольшее 255."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "EqualizeHistogramAdaptiveFilter",
       filter: EqualizeHistogramAdaptiveFilter(gridX: 3, gridY: 3),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 31.92, наибольшее 121."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "FishEyeFilter",
       filter: FishEyeFilter(radius: 70, amplitude: 1),

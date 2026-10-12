@@ -42,7 +42,7 @@ struct ToneMappingFilterTests {
       pixels += [UInt8(value), UInt8(value), UInt8(value), 255]
     }
     let ramp = RasterImage(width: pixels.count / 4, height: 1, pixels: pixels)
-    let output = try await AcesFilmicFilter(exposure: 0).apply(to: ramp)
+    let output = try await AcesFilmicFilter(exposure: 1).apply(to: ramp)
     let greens = stride(from: 1, to: output.pixels.count, by: 4).map { output.pixels[$0] }
     #expect(zip(greens, greens.dropFirst()).allSatisfy { $0 <= $1 })
   }
@@ -68,5 +68,37 @@ struct ToneMappingFilterTests {
         #expect(output.height == picture.height)
       }
     }
+  }
+
+  // Aire считает первые 4 * ((width - 1) / 4) пикселей строки SIMD-блоками, остальные скалярным кодом;
+  // у Hejl-Burgess там разное смещение (0.0004 и 0.004), поэтому одинаковые пиксели дают разный байт.
+  @Test("Hejl-Burgess treats the scalar tail of a row differently from the SIMD blocks")
+  func hejlBurgessTailDiffers() async throws {
+    let picture = FilterTestImages.solid(width: 8, height: 1, red: 20, green: 20, blue: 20)
+    let output = try await HejlBurgessFilter(exposure: 1).apply(to: picture)
+    #expect(output.pixels[0] != output.pixels[28])
+    #expect(output.pixels[0] == output.pixels[12])
+    #expect(output.pixels[16] == output.pixels[28])
+  }
+
+  @Test("exposure is a plain multiplier of the linear value, not a power of two")
+  func exposureIsLinearMultiplier() async throws {
+    let picture = FilterTestImages.solid(width: 2, height: 1, red: 100, green: 100, blue: 100)
+    let none = try await LogarithmicFilter(exposure: 1).apply(to: picture)
+    let doubled = try await LogarithmicFilter(exposure: 2).apply(to: picture)
+    let power = try await LogarithmicFilter(exposure: 4).apply(to: picture)
+    #expect(none.pixels[0] != doubled.pixels[0])
+    #expect(doubled.pixels[0] != power.pixels[0])
+    // Экспозиция 0 обнуляет вход оператора ACES: чёрная картинка.
+    let black = try await AcesFilmicFilter(exposure: 0).apply(to: picture)
+    #expect(black.pixels.prefix(3).allSatisfy { $0 == 0 })
+  }
+
+  @Test("NEON reciprocal estimates match the ARM FRECPE values Aire relies on")
+  func reciprocalEstimates() {
+    #expect(NEONEmulation.reciprocalEstimate(255) == 0.003921509)
+    #expect(NEONEmulation.reciprocalEstimate(12.92) == 0.07739258)
+    #expect(NEONEmulation.reciprocalEstimate(1.055) == 0.9472656)
+    #expect(NEONEmulation.reciprocalEstimate(0) == .infinity)
   }
 }

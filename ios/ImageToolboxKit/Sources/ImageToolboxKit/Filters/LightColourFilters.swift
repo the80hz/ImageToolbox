@@ -3,9 +3,9 @@ import Foundation
 
 /// Яркость, контраст, цвет и светотень. Android: пакет `data/model`, классы `*Filter`.
 ///
-/// Статус каждого фильтра и причина отличий от Android записаны рядом с его структурой.
-/// Алгоритмы Aire, GPUImage и Jh Labs в репозитории отсутствуют, поэтому везде, кроме сепии,
-/// это приближение на основе встроенных фильтров Core Image или стандартной формулы.
+/// Статус каждого фильтра и источник формулы записаны рядом с его структурой. Aire, GPUImage и
+/// Jh Labs в репозитории нет, формулы взяты из их публичных исходников; фильтры без пометки
+/// «проверено по эталону» остаются приближениями на встроенных фильтрах Core Image.
 enum LightColourFilters {
   static let descriptors: [FilterDescriptor] = [
     FilterDescriptor(
@@ -43,7 +43,7 @@ enum LightColourFilters {
       id: "GammaFilter",
       titleKey: "gamma",
       category: .lightAndColour,
-      engine: .coreImage,
+      engine: .cpu,
       parameters: [
         FilterParameter(
           key: "value", titleKey: "gamma",
@@ -100,7 +100,7 @@ enum LightColourFilters {
       id: "VibranceFilter",
       titleKey: "vibrance",
       category: .lightAndColour,
-      engine: .coreImage,
+      engine: .cpu,
       parameters: [
         FilterParameter(
           key: "value", titleKey: "vibrance",
@@ -288,16 +288,26 @@ struct NegativeFilter: Filter {
   }
 }
 
-/// Приближение. Android: `Aire.gamma`. Формула Aire в репозитории отсутствует. Принята
-/// `out = in ^ power` через `CIGammaAdjust`, направление параметра не сверено с Android.
+/// Android: `Aire.gamma` (Aire 0.18.1, `jni/Base.cpp`, `gammaImpl`). Таблица на 256 значений:
+/// `powf(i, power)` от самого байта `i` (0...255, не от доли 0...1), ограничение 0...255 и запись в
+/// байт усечением. Поэтому `power` = 1 тождество, больше 1 почти белая картинка (все значения от 41
+/// и выше дают 255), меньше 1 тёмная. Таблица применяется к сохранённым (premultiplied) R, G, B,
+/// альфа не меняется.
+/// Статус: проверено по эталону.
 struct GammaFilter: Filter {
   let power: Double
 
   func apply(to image: RasterImage) async throws -> RasterImage {
     let exponent = Float(power)
-    return try CoreImageBridge.render(image, filterID: "GammaFilter") { input in
-      input.applyingFilter("CIGammaAdjust", parameters: ["inputPower": exponent])
+    let table = (0..<256).map { byte -> UInt8 in
+      let value = powf(Float(byte), exponent)
+      return value.isNaN ? 0 : UInt8(min(max(value, 0), 255))
     }
+    var pixels = image.pixels
+    for index in pixels.indices where index % 4 != 3 {
+      pixels[index] = table[Int(pixels[index])]
+    }
+    return RasterImage(width: image.width, height: image.height, pixels: pixels)
   }
 }
 
@@ -426,16 +436,29 @@ struct SaturationFilter: Filter {
   }
 }
 
-/// Приближение. Android: `Aire.vibrance`. Масштаб значения Android неизвестен: принят
-/// `amount = value / 5`, чтобы диапазон -5...5 совпал с диапазоном `CIVibrance` -1...1.
+/// Android: `Aire.vibrance` (Aire 0.18.1, `base/Vibrance.cpp`). Не насыщенность, а сдвиг яркости:
+/// `boost = trunc(clamp((max(R, G, B) - (R + G + B) / 3) * amount, -255, 255))`, где среднее
+/// целочисленное, и `boost` прибавляется к R, G и B с ограничением 0...255. Считается по
+/// сохранённым (premultiplied) байтам, альфа не меняется.
+/// Статус: проверено по эталону.
 struct VibranceFilter: Filter {
   let amount: Double
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    let scaled = Float(amount / 5)
-    return try CoreImageBridge.render(image, filterID: "VibranceFilter") { input in
-      input.applyingFilter("CIVibrance", parameters: ["inputAmount": scaled])
+    let factor = Float(amount)
+    var pixels = image.pixels
+    for index in stride(from: 0, to: pixels.count, by: 4) {
+      let red = Int(pixels[index])
+      let green = Int(pixels[index + 1])
+      let blue = Int(pixels[index + 2])
+      let average = (red + green + blue) / 3
+      let spread = Float(max(red, green, blue) - average) * factor
+      let boost = Int(min(max(spread, -255), 255))
+      pixels[index] = UInt8(min(max(red + boost, 0), 255))
+      pixels[index + 1] = UInt8(min(max(green + boost, 0), 255))
+      pixels[index + 2] = UInt8(min(max(blue + boost, 0), 255))
     }
+    return RasterImage(width: image.width, height: image.height, pixels: pixels)
   }
 }
 

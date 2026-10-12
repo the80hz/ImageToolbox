@@ -1,16 +1,16 @@
 import Foundation
 
-/// CLAHE и адаптивная эквализация гистограммы по RGB.
+/// CLAHE и адаптивная эквализация гистограммы.
 ///
-/// Статус: приближение. В Android эти фильтры вызывают нативный Aire, а формулы в Kotlin-коде нет.
-/// Здесь алгоритм собран по стандартной схеме: изображение делится на плитки, для каждой плитки
-/// строится гистограмма канала, у CLAHE она обрезается по пределу, затем по CDF строится таблица
-/// замены, а значения пикселя интерполируются между четырьмя ближайшими плитками. Семантика
-/// `threshold` в Aire неизвестна: здесь предел обрезки равен `2^threshold` от средней высоты столбца.
-/// Альфа-канал не меняется. Фильтры работают с премультиплицированными значениями, как и `RasterImage`.
+/// Оба фильтра совпадают с эталоном Android. Android вызывает Aire 0.18.1
+/// (`aire-filters/src/hists.rs`, `claheImpl` и `equalizeHistAdaptiveImpl`), а тот крейт
+/// `histogram_equalization` 0.2.4 (`clahe_yuv_impl.rs`): картинка переводится в YCgCo (`yuv`
+/// 0.8.6), плитки выравниваются только по яркости Y, цветоразностные Cg и Co остаются, значения Y
+/// интерполируются между четырьмя плитками. Альфа не меняется, байты берутся как есть
+/// (premultiplied).
 ///
-/// Перевод в Lab, Luv, HSL, HSV, Oklab, Oklch и Jzazbz не перенесён: в репозитории нет формул
-/// этих преобразований, только вызовы Aire.
+/// Перевод в Lab, Luv, HSL, HSV, Oklab, Oklch и Jzazbz не перенесён: на Android это отдельные
+/// вызовы Aire (`claheLAB`, `equalizeHistAdaptiveHSV` и другие), в списке фильтров их нет.
 enum ClaheFilters {
   static let descriptors: [FilterDescriptor] = [
     FilterDescriptor(
@@ -56,7 +56,15 @@ enum ClaheFilters {
   ]
 }
 
-/// CLAHE по каналам R, G и B. Предел обрезки равен `2^threshold`, поэтому 0 даёт предел 1.
+/// Android: `Aire.clahe(threshold, gridSizeHorizontal, gridSizeVertical)` (Aire 0.18.1, `hists.rs`,
+/// `claheImpl`, `histogram_equalization` 0.2.4, `clahe_yuv_impl.rs` с `AheImplementation::Clahe`).
+///
+/// Обрезка гистограммы плитки (`clip_hist_clahe`) считает предел `trunc(threshold · w · h / 256)` и
+/// прибавляет ко всем корзинам `trunc(excess / 256)`, где `excess` — сумма корзин, превысивших
+/// предел (целиком, не только излишки). Из-за этого при `threshold` по умолчанию 0.5 и сетке 8x8 на
+/// плитке 8x8 предел равен 0 и плитка обнуляется, картинка становится почти чёрной. Так считает
+/// Android, это не ошибка переноса. Отрицательный `threshold` даёт предел 0.
+/// Статус: проверено по эталону.
 struct ClaheFilter: Filter {
   let threshold: Double
   let gridX: Int
@@ -64,145 +72,149 @@ struct ClaheFilter: Filter {
 
   func apply(to image: RasterImage) async throws -> RasterImage {
     TileHistogramEqualizer.apply(
-      image, gridX: gridX, gridY: gridY, clipLimit: pow(2, threshold))
+      image, gridX: gridX, gridY: gridY, clipThreshold: Float(threshold))
   }
 }
 
-/// Адаптивная эквализация гистограммы по RGB без обрезки. Однотонное изображение не меняется.
+/// Android: `Aire.equalizeHistAdaptive(gridSizeHorizontal, gridSizeVertical)` (Aire 0.18.1,
+/// `hists.rs`, `equalizeHistAdaptiveImpl`, `ahe_yuv_rgba`: тот же `clahe_yuv_impl.rs` без обрезки
+/// гистограммы).
+/// Статус: проверено по эталону.
 struct EqualizeHistogramAdaptiveFilter: Filter {
   let gridX: Int
   let gridY: Int
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    TileHistogramEqualizer.apply(image, gridX: gridX, gridY: gridY, clipLimit: nil)
+    TileHistogramEqualizer.apply(image, gridX: gridX, gridY: gridY, clipThreshold: nil)
   }
 }
 
-/// Общий расчёт для CLAHE и адаптивной эквализации. Работает с 8-битными каналами.
+/// Общий расчёт для CLAHE и адаптивной эквализации (`clahe_yuv_impl`).
+///
+/// Размер плитки `width / gridX` на `height / gridY` (целочисленное деление), плиток
+/// `width / размер` по горизонтали и `height / размер` по вертикали; последняя плитка ряда и
+/// столбца забирает остаток. Таблица плитки: `round(255 (cdf - cdfMin) / (w h - cdfMin))`. Пиксель
+/// получает значение из таблиц четырёх плиток по билинейной интерполяции во `Float`; усечение до
+/// байта.
+///
+/// Если сетка больше картинки, размер плитки в Rust оказывается нулевым и деление на него падает;
+/// здесь размер плитки не меньше одного пикселя.
 enum TileHistogramEqualizer {
-  /// `clipLimit` задаёт предел высоты столбца относительно средней высоты; `nil` отключает обрезку.
+  /// Положение пикселя вдоль одной оси: две плитки и доля второй.
+  private struct Axis {
+    let first: Int
+    let second: Int
+    let fraction: Float
+  }
+
+  /// `clipThreshold == nil` отключает обрезку гистограммы (адаптивная эквализация без CLAHE).
   static func apply(
-    _ image: RasterImage, gridX: Int, gridY: Int, clipLimit: Double?
+    _ image: RasterImage, gridX: Int, gridY: Int, clipThreshold: Float?
   ) -> RasterImage {
     let width = image.width
     let height = image.height
-    let columns = tileRanges(length: width, count: gridX)
-    let rows = tileRanges(length: height, count: gridY)
-    let columnCenters = centers(of: columns)
-    let rowCenters = centers(of: rows)
-    let columnWeights = interpolation(length: width, centers: columnCenters)
-    let rowWeights = interpolation(length: height, centers: rowCenters)
+    guard width > 0, height > 0 else { return image }
+    let tileWidth = max(1, width / max(1, gridX))
+    let tileHeight = max(1, height / max(1, gridY))
+    let columns = width / tileWidth
+    let rows = height / tileHeight
 
-    var output = image.pixels
-    for channel in 0..<3 {
-      let tables = lookupTables(
-        image, channel: channel, columns: columns, rows: rows, clipLimit: clipLimit)
-      for y in 0..<height {
-        let (top, bottom, wy) = rowWeights[y]
-        for x in 0..<width {
-          let (left, right, wx) = columnWeights[x]
-          let value = Int(image.pixels[(y * width + x) * 4 + channel])
-          let topLeft = tables[(top * gridX + left) * 256 + value]
-          let topRight = tables[(top * gridX + right) * 256 + value]
-          let bottomLeft = tables[(bottom * gridX + left) * 256 + value]
-          let bottomRight = tables[(bottom * gridX + right) * 256 + value]
-          let upper = topLeft + (topRight - topLeft) * wx
-          let lower = bottomLeft + (bottomRight - bottomLeft) * wx
-          let result = upper + (lower - upper) * wy
-          output[(y * width + x) * 4 + channel] = UInt8(min(255, max(0, result.rounded())))
-        }
-      }
+    var luma = [UInt8](repeating: 0, count: width * height)
+    for pixel in 0..<(width * height) {
+      let index = pixel * 4
+      luma[pixel] = UInt8(
+        AireYCgCo.components(
+          Int(image.pixels[index]), Int(image.pixels[index + 1]), Int(image.pixels[index + 2])
+        ).luma)
     }
-    return RasterImage(width: width, height: height, pixels: output)
-  }
 
-  /// Делит длину на `count` частей без пересечений. Части могут быть пустыми, если `count` больше длины.
-  private static func tileRanges(length: Int, count: Int) -> [Range<Int>] {
-    (0..<count).map { index in
-      (index * length / count)..<((index + 1) * length / count)
-    }
-  }
-
-  private static func centers(of ranges: [Range<Int>]) -> [Double] {
-    ranges.map { Double($0.lowerBound + $0.upperBound) / 2 }
-  }
-
-  /// Для каждой координаты пикселя: номера двух плиток по сторонам и доля второй из них.
-  private static func interpolation(length: Int, centers: [Double]) -> [(Int, Int, Double)] {
-    (0..<length).map { index in
-      let position = Double(index) + 0.5
-      var low = 0
-      while low + 1 < centers.count, centers[low + 1] <= position {
-        low += 1
-      }
-      guard low + 1 < centers.count, position > centers[low] else {
-        return (low, low, 0)
-      }
-      let high = low + 1
-      let share = (position - centers[low]) / (centers[high] - centers[low])
-      return (low, high, share)
-    }
-  }
-
-  /// Таблицы замены для одного канала: по 256 значений на каждую плитку, плитка за плиткой.
-  private static func lookupTables(
-    _ image: RasterImage, channel: Int, columns: [Range<Int>], rows: [Range<Int>],
-    clipLimit: Double?
-  ) -> [Double] {
-    let width = image.width
-    var tables = [Double](repeating: 0, count: columns.count * rows.count * 256)
-    for (row, rowRange) in rows.enumerated() {
-      for (column, columnRange) in columns.enumerated() {
+    var tables = [Float](repeating: 0, count: rows * columns * 256)
+    for tileRow in 0..<rows {
+      let top = tileRow * tileHeight
+      let bottom = tileRow + 1 == rows ? height : (tileRow + 1) * tileHeight
+      for tileColumn in 0..<columns {
+        let left = tileColumn * tileWidth
+        let right = tileColumn + 1 == columns ? width : (tileColumn + 1) * tileWidth
         var histogram = [Int](repeating: 0, count: 256)
-        for y in rowRange {
-          for x in columnRange {
-            histogram[Int(image.pixels[(y * width + x) * 4 + channel])] += 1
+        for y in top..<bottom {
+          for x in left..<right {
+            histogram[Int(luma[y * width + x])] += 1
           }
         }
-        let base = (row * columns.count + column) * 256
-        let table = lookupTable(histogram: histogram, clipLimit: clipLimit)
+        if let clipThreshold {
+          clip(&histogram, threshold: clipThreshold, width: right - left, height: bottom - top)
+        }
+        let table = AireHistogram.equalizationTable(
+          histogram, pixelCount: Double(bottom - top) * Double(right - left))
+        let base = (tileRow * columns + tileColumn) * 256
         for value in 0..<256 {
-          tables[base + value] = table[value]
+          tables[base + value] = Float(table[value])
         }
       }
     }
-    return tables
+
+    let horizontal = axes(length: width, tile: tileWidth, count: columns)
+    let vertical = axes(length: height, tile: tileHeight, count: rows)
+    var pixels = image.pixels
+    tables.withUnsafeBufferPointer { tables in
+      for y in 0..<height {
+        let row = vertical[y]
+        for x in 0..<width {
+          let column = horizontal[x]
+          let value = Int(luma[y * width + x])
+          let topLeft = tables[(row.first * columns + column.first) * 256 + value]
+          let topRight = tables[(row.first * columns + column.second) * 256 + value]
+          let bottomLeft = tables[(row.second * columns + column.first) * 256 + value]
+          let bottomRight = tables[(row.second * columns + column.second) * 256 + value]
+          let upper = lerp(topLeft, topRight, column.fraction)
+          let lower = lerp(bottomLeft, bottomRight, column.fraction)
+          let interpolated = lerp(upper, lower, row.fraction)
+
+          let index = (y * width + x) * 4
+          let source = AireYCgCo.components(
+            Int(pixels[index]), Int(pixels[index + 1]), Int(pixels[index + 2]))
+          let rgb = AireYCgCo.rgb(
+            luma: Int(min(max(interpolated, 0), 255)), cg: source.cg, co: source.co)
+          pixels[index] = UInt8(rgb.red)
+          pixels[index + 1] = UInt8(rgb.green)
+          pixels[index + 2] = UInt8(rgb.blue)
+        }
+      }
+    }
+    return RasterImage(width: width, height: height, pixels: pixels)
   }
 
-  /// Строит таблицу замены по гистограмме. Пустая плитка и однотонная плитка дают тождественную таблицу.
-  private static func lookupTable(histogram input: [Int], clipLimit: Double?) -> [Double] {
-    var histogram = input
-    let total = histogram.reduce(0, +)
-    let identity = (0..<256).map { Double($0) }
-    guard total > 0 else { return identity }
+  /// `a (1 - f) + b f` без слияния умножения со сложением, как `lerp` в `hist_support.rs`.
+  private static func lerp(_ first: Float, _ second: Float, _ fraction: Float) -> Float {
+    first * (1 - fraction) + second * fraction
+  }
 
-    if let clipLimit {
-      let average = Double(total) / 256
-      let limit = max(1, Int((clipLimit * average).rounded(.down)))
-      var excess = 0
-      for value in 0..<256 where histogram[value] > limit {
-        excess += histogram[value] - limit
-        histogram[value] = limit
-      }
-      let share = excess / 256
-      let remainder = excess % 256
-      for value in 0..<256 {
-        histogram[value] += share + (value < remainder ? 1 : 0)
-      }
+  /// `clip_hist_clahe`: предел `trunc(level w h / 256)` во `Double`; к корзинам выше предела
+  /// добавляется весь их счёт в `excess`, сами они срезаются до предела; ко всем корзинам
+  /// прибавляется `trunc(excess / 256)`.
+  private static func clip(_ histogram: inout [Int], threshold: Float, width: Int, height: Int) {
+    let limitValue = Double(threshold) * Double(width) * Double(height) / Double(histogram.count)
+    let limit = limitValue > 0 ? Int(min(limitValue, 1e15)) : 0
+    var excess = 0
+    for index in histogram.indices where histogram[index] > limit {
+      excess += histogram[index]
+      histogram[index] = limit
     }
+    let share = Int(Double(excess) / Double(histogram.count))
+    for index in histogram.indices {
+      histogram[index] += share
+    }
+  }
 
-    var cumulative = [Int](repeating: 0, count: 256)
-    var running = 0
-    for value in 0..<256 {
-      running += histogram[value]
-      cumulative[value] = running
-    }
-    let minimum = cumulative.first { $0 > 0 } ?? 0
-    let denominator = total - minimum
-    guard denominator > 0 else { return identity }
-    return (0..<256).map { value in
-      let scaled = Double(cumulative[value] - minimum) * 255 / Double(denominator)
-      return min(255, max(0, scaled.rounded()))
+  /// Для каждой координаты вдоль оси: плитки по сторонам и доля второй.
+  private static func axes(length: Int, tile: Int, count: Int) -> [Axis] {
+    let tileSize = Float(tile)
+    return (0..<length).map { position in
+      let coordinate = Float(position)
+      let tileFloat = (coordinate - tileSize / 2) / tileSize
+      let fraction = (coordinate - (tileFloat.rounded(.towardZero) + 0.5) * tileSize) / tileSize
+      let first = min(Int(max(tileFloat, 0)), count - 1)
+      return Axis(first: first, second: min(first + 1, count - 1), fraction: fraction)
     }
   }
 }

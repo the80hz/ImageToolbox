@@ -75,14 +75,16 @@ struct LightColourGroupTests {
     }
   }
 
-  @Test("gamma 1 changes nothing, gamma below 1 brightens midtones")
+  // Aire возводит в степень сам байт (0...255), а не долю 0...1: 64 ^ 0.5 = 8, 64 ^ 1.5 = 512 -> 255.
+  @Test("gamma 1 changes nothing, gamma below 1 darkens, gamma above 1 saturates (Aire byte power)")
   func gammaNeutralAndDirection() async throws {
     let picture = FilterTestImages.solid(width: 1, height: 1, red: 64, green: 64, blue: 64)
     let neutral = try await GammaFilter(power: 1).apply(to: picture)
-    #expect(maxColourDifference(neutral, picture) <= 1)
-    // 64/255 ^ 0.5 = 0.502 -> 128 после округления, значит значение выросло.
-    let brighter = try await GammaFilter(power: 0.5).apply(to: picture)
-    #expect(brighter.pixels[0] > 64)
+    #expect(neutral.pixels == picture.pixels)
+    let darker = try await GammaFilter(power: 0.5).apply(to: picture)
+    #expect(darker.pixels == [8, 8, 8, 255])
+    let saturated = try await GammaFilter(power: 1.5).apply(to: picture)
+    #expect(saturated.pixels == [255, 255, 255, 255])
   }
 
   @Test("gamma keeps 0 and 2 inside the picture and the size")
