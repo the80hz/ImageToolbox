@@ -208,35 +208,35 @@ struct AndroidReferenceCase: Sendable, CustomTestStringConvertible {
     AndroidReferenceCase(
       name: "ProtanopiaFilter",
       filter: ProtanopiaFilter(),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 32.54, наибольшее 130."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "DeuteranopiaFilter",
       filter: DeuteranopiaFilter(),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 27.99, наибольшее 101."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "TritanopiaFilter",
       filter: TritanopiaFilter(),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 21.05, наибольшее 72."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "AchromatopsiaFilter",
       filter: AchromatopsiaFilter(),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 0.501, наибольшее 1."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "ProtonomalyFilter",
       filter: ProtonomalyFilter(),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 18.85, наибольшее 74."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "DeutaromalyFilter",
       filter: DeutaromalyFilter(),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 10.95, наибольшее 44."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "TritonomalyFilter",
       filter: TritonomalyFilter(),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 11.80, наибольшее 35."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "AchromatomalyFilter",
       filter: AchromatomalyFilter(),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 1.962, наибольшее 8."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "AmatorkaFilter",
       filter: LUTPresetFilter(table: "lookup_amatorka", intensity: 1),

@@ -13,56 +13,56 @@ enum ColourMatrixFilters {
       id: "ProtanopiaFilter",
       titleKey: "protanopia",
       category: .colourMatrix,
-      engine: .coreImage,
+      engine: .cpu,
       make: { _ in ProtanopiaFilter() }
     ),
     FilterDescriptor(
       id: "DeuteranopiaFilter",
       titleKey: "deuteranopia",
       category: .colourMatrix,
-      engine: .coreImage,
+      engine: .cpu,
       make: { _ in DeuteranopiaFilter() }
     ),
     FilterDescriptor(
       id: "TritanopiaFilter",
       titleKey: "tritanopia",
       category: .colourMatrix,
-      engine: .coreImage,
+      engine: .cpu,
       make: { _ in TritanopiaFilter() }
     ),
     FilterDescriptor(
       id: "AchromatopsiaFilter",
       titleKey: "achromatopsia",
       category: .colourMatrix,
-      engine: .coreImage,
+      engine: .cpu,
       make: { _ in AchromatopsiaFilter() }
     ),
     FilterDescriptor(
       id: "ProtonomalyFilter",
       titleKey: "protonomaly",
       category: .colourMatrix,
-      engine: .coreImage,
+      engine: .cpu,
       make: { _ in ProtonomalyFilter() }
     ),
     FilterDescriptor(
       id: "DeutaromalyFilter",
       titleKey: "deutaromaly",
       category: .colourMatrix,
-      engine: .coreImage,
+      engine: .cpu,
       make: { _ in DeutaromalyFilter() }
     ),
     FilterDescriptor(
       id: "TritonomalyFilter",
       titleKey: "tritonomaly",
       category: .colourMatrix,
-      engine: .coreImage,
+      engine: .cpu,
       make: { _ in TritonomalyFilter() }
     ),
     FilterDescriptor(
       id: "AchromatomalyFilter",
       titleKey: "achromatomaly",
       category: .colourMatrix,
-      engine: .coreImage,
+      engine: .cpu,
       make: { _ in AchromatomalyFilter() }
     ),
     FilterDescriptor(
@@ -94,66 +94,58 @@ enum ColourMatrixFilters {
 
 /// Матрицы 3x3 в порядке строк: каждая строка — коэффициенты одного выходного канала (R, G, B).
 enum ColourMatrixMath {
-  static let identity: [CGFloat] = [1, 0, 0, 0, 1, 0, 0, 0, 1]
+  // Матрицы взяты из `ColorMatrices.Assistance` библиотеки Aire 0.18.1 (константы вынуты из
+  // classes.jar артефакта). Строка — выходной канал R, G, B; применяются через `apply3x3`.
 
-  /// Machado 2009, протанопия (severity 1.0).
-  static let protanopia: [CGFloat] = [
-    0.152286, 1.052583, -0.204868,
-    0.114503, 0.786281, 0.099216,
-    -0.003882, -0.048116, 1.051998,
+  static let protanopia: [Double] = [
+    0.567, 0.433, 0.0,
+    0.558, 0.442, 0.0,
+    0.0, 0.242, 0.758,
   ]
 
-  /// Machado 2009, дейтеранопия (severity 1.0).
-  static let deuteranopia: [CGFloat] = [
-    0.367322, 0.860646, -0.227968,
-    0.280085, 0.672501, 0.047413,
-    -0.011820, 0.042940, 0.968881,
+  /// В Aire константа называется `DEUTARONOPIA`.
+  static let deuteranopia: [Double] = [
+    0.625, 0.375, 0.0,
+    0.7, 0.3, 0.0,
+    0.0, 0.3, 0.7,
   ]
 
-  /// Machado 2009, тританопия (severity 1.0).
-  static let tritanopia: [CGFloat] = [
-    1.255528, -0.076749, -0.178779,
-    -0.078411, 0.930809, 0.147602,
-    0.004733, 0.691367, 0.303900,
+  static let tritanopia: [Double] = [
+    0.95, 0.05, 0.0,
+    0.0, 0.433, 0.567,
+    0.0, 0.475, 0.525,
   ]
 
-  /// Чистая яркость по коэффициентам Rec. 601: ахроматопсия без цвета.
-  static let achromatopsia: [CGFloat] = [
+  static let achromatopsia: [Double] = [
     0.299, 0.587, 0.114,
     0.299, 0.587, 0.114,
     0.299, 0.587, 0.114,
   ]
 
-  /// Аномалия приближена смесью 50% исходной матрицы и матрицы дихромазии.
-  /// Точная матрица аномалии в Aire недоступна.
-  static let anomalyWeight: CGFloat = 0.5
+  static let protonomaly: [Double] = [
+    0.817, 0.183, 0.0,
+    0.333, 0.667, 0.0,
+    0.0, 0.125, 0.875,
+  ]
 
-  static let protonomaly = blend(identity, protanopia, anomalyWeight)
-  static let deutaromaly = blend(identity, deuteranopia, anomalyWeight)
-  static let tritonomaly = blend(identity, tritanopia, anomalyWeight)
-  static let achromatomaly = blend(identity, achromatopsia, anomalyWeight)
+  /// В Aire константа называется `DEUTAROMALY`.
+  static let deutaromaly: [Double] = [
+    0.8, 0.2, 0.0,
+    0.258, 0.742, 0.0,
+    0.0, 0.142, 0.858,
+  ]
 
-  /// Поэлементная смесь: `weight` задаёт долю матрицы `second`.
-  static func blend(_ first: [CGFloat], _ second: [CGFloat], _ weight: CGFloat) -> [CGFloat] {
-    zip(first, second).map { $0 * (1 - weight) + $1 * weight }
-  }
+  static let tritonomaly: [Double] = [
+    0.967, 0.033, 0.0,
+    0.0, 0.733, 0.267,
+    0.0, 0.183, 0.817,
+  ]
 
-  /// Применяет матрицу к RGB через `CIColorMatrix`. Альфа-канал не меняется.
-  static func apply(_ image: RasterImage, filterID: String, matrix m: [CGFloat]) throws
-    -> RasterImage
-  {
-    try CoreImageBridge.render(image, filterID: filterID) { input in
-      input.applyingFilter(
-        "CIColorMatrix",
-        parameters: [
-          "inputRVector": CIVector(x: m[0], y: m[1], z: m[2], w: 0),
-          "inputGVector": CIVector(x: m[3], y: m[4], z: m[5], w: 0),
-          "inputBVector": CIVector(x: m[6], y: m[7], z: m[8], w: 0),
-          "inputAVector": CIVector(x: 0, y: 0, z: 0, w: 1),
-          "inputBiasVector": CIVector(x: 0, y: 0, z: 0, w: 0),
-        ])
-    }
-  }
+  static let achromatomaly: [Double] = [
+    0.618, 0.32, 0.062,
+    0.163, 0.775, 0.062,
+    0.163, 0.32, 0.516,
+  ]
 
   /// Единичная матрица `size` x `size`, строками.
   static func identityRows(size: Int) -> [Double] {
@@ -225,66 +217,74 @@ struct ColorMatrix4x4Filter: Filter {
   }
 }
 
-/// Протанопия: отсутствие красных колбочек. Приближение.
+/// Протанопия: отсутствие красных колбочек.
+/// Матрица `ColorMatrices.Assistance.PROTANOPIA` из Aire 0.18.1.
+/// Статус: проверено по эталону.
 struct ProtanopiaFilter: Filter {
   func apply(to image: RasterImage) async throws -> RasterImage {
-    try ColourMatrixMath.apply(
-      image, filterID: "ProtanopiaFilter", matrix: ColourMatrixMath.protanopia)
+    ColourMatrixMath.apply3x3(image, rows: ColourMatrixMath.protanopia)
   }
 }
 
-/// Дейтеранопия: отсутствие зелёных колбочек. Приближение.
+/// Дейтеранопия: отсутствие зелёных колбочек.
+/// Матрица `ColorMatrices.Assistance.DEUTARONOPIA` из Aire 0.18.1.
+/// Статус: проверено по эталону.
 struct DeuteranopiaFilter: Filter {
   func apply(to image: RasterImage) async throws -> RasterImage {
-    try ColourMatrixMath.apply(
-      image, filterID: "DeuteranopiaFilter", matrix: ColourMatrixMath.deuteranopia)
+    ColourMatrixMath.apply3x3(image, rows: ColourMatrixMath.deuteranopia)
   }
 }
 
-/// Тританопия: отсутствие синих колбочек. Приближение.
+/// Тританопия: отсутствие синих колбочек.
+/// Матрица `ColorMatrices.Assistance.TRITANOPIA` из Aire 0.18.1.
+/// Статус: проверено по эталону.
 struct TritanopiaFilter: Filter {
   func apply(to image: RasterImage) async throws -> RasterImage {
-    try ColourMatrixMath.apply(
-      image, filterID: "TritanopiaFilter", matrix: ColourMatrixMath.tritanopia)
+    ColourMatrixMath.apply3x3(image, rows: ColourMatrixMath.tritanopia)
   }
 }
 
-/// Ахроматопсия: только яркость, без цвета. Приближение: в Android матрица из Aire.
+/// Ахроматопсия: только яркость, без цвета.
+/// Матрица `ColorMatrices.Assistance.ACHROMATOPSIA` из Aire 0.18.1.
+/// Статус: проверено по эталону.
 struct AchromatopsiaFilter: Filter {
   func apply(to image: RasterImage) async throws -> RasterImage {
-    try ColourMatrixMath.apply(
-      image, filterID: "AchromatopsiaFilter", matrix: ColourMatrixMath.achromatopsia)
+    ColourMatrixMath.apply3x3(image, rows: ColourMatrixMath.achromatopsia)
   }
 }
 
-/// Протаномалия: аномальное зрение с красными колбочками. Приближение (смесь 50%).
+/// Протаномалия: аномальное зрение с красными колбочками.
+/// Матрица `ColorMatrices.Assistance.PROTANOMALY` из Aire 0.18.1.
+/// Статус: проверено по эталону.
 struct ProtonomalyFilter: Filter {
   func apply(to image: RasterImage) async throws -> RasterImage {
-    try ColourMatrixMath.apply(
-      image, filterID: "ProtonomalyFilter", matrix: ColourMatrixMath.protonomaly)
+    ColourMatrixMath.apply3x3(image, rows: ColourMatrixMath.protonomaly)
   }
 }
 
-/// Дейтераномалия: аномальное зрение с зелёными колбочками. Приближение (смесь 50%).
+/// Дейтераномалия: аномальное зрение с зелёными колбочками.
+/// Матрица `ColorMatrices.Assistance.DEUTAROMALY` из Aire 0.18.1.
+/// Статус: проверено по эталону.
 struct DeutaromalyFilter: Filter {
   func apply(to image: RasterImage) async throws -> RasterImage {
-    try ColourMatrixMath.apply(
-      image, filterID: "DeutaromalyFilter", matrix: ColourMatrixMath.deutaromaly)
+    ColourMatrixMath.apply3x3(image, rows: ColourMatrixMath.deutaromaly)
   }
 }
 
-/// Тританомалия: аномальное зрение с синими колбочками. Приближение (смесь 50%).
+/// Тританомалия: аномальное зрение с синими колбочками.
+/// Матрица `ColorMatrices.Assistance.TRITONOMALY` из Aire 0.18.1.
+/// Статус: проверено по эталону.
 struct TritonomalyFilter: Filter {
   func apply(to image: RasterImage) async throws -> RasterImage {
-    try ColourMatrixMath.apply(
-      image, filterID: "TritonomalyFilter", matrix: ColourMatrixMath.tritonomaly)
+    ColourMatrixMath.apply3x3(image, rows: ColourMatrixMath.tritonomaly)
   }
 }
 
-/// Ахромаломия: частичная потеря цвета. Приближение (смесь 50% с ахроматопсией).
+/// Ахроматомалия: частичная потеря цвета.
+/// Матрица `ColorMatrices.Assistance.ACHROMATOMALY` из Aire 0.18.1.
+/// Статус: проверено по эталону.
 struct AchromatomalyFilter: Filter {
   func apply(to image: RasterImage) async throws -> RasterImage {
-    try ColourMatrixMath.apply(
-      image, filterID: "AchromatomalyFilter", matrix: ColourMatrixMath.achromatomaly)
+    ColourMatrixMath.apply3x3(image, rows: ColourMatrixMath.achromatomaly)
   }
 }
