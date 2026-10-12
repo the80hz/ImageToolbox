@@ -237,6 +237,8 @@ enum LightColourFilters {
 }
 
 /// Adds `bias` to every colour channel, clamped to the range of the picture.
+///
+/// Статус: проверено по эталону (`BrightnessFilter`, раздел 10: среднее 0.010, наибольшее 1).
 struct BrightnessFilter: Filter {
   let bias: Double
 

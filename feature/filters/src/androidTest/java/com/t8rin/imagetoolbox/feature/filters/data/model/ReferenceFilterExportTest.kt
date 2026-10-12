@@ -23,6 +23,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.t8rin.imagetoolbox.core.domain.model.IntegerSize
 import com.t8rin.imagetoolbox.core.domain.transformation.Transformation
+import com.t8rin.imagetoolbox.core.domain.utils.qto
+import com.t8rin.imagetoolbox.core.filters.domain.model.enums.BlurEdgeMode
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -39,6 +41,10 @@ import java.io.File
  * к `reference/ui-sample.png` (64x64) через `transform`.
  * Результат пишется PNG в `getExternalFilesDir(null)/reference`.
  * Вход пишется туда же как `input.png` (байты совпадают с ассетом). Файлы забираются через adb pull.
+ *
+ * Не снимаются недетерминированные фильтры: `GrainFilter` и `RandomDitheringFilter` (два прогона дают
+ * разные PNG). `LevelsFilter` по умолчанию тождественен, поэтому снят вариант `LevelsFilter_custom`.
+ * `GaussianBlurFilter_r5` и `GaussianBlurFilter_r40` проверяют размеры ядра 11 и 81 (края libblur).
  *
  * Размер не меняется: `IntegerSize.Undefined` даёт `Size.ORIGINAL` в `GPUFilterTransformation`.
  */
@@ -104,6 +110,93 @@ class ReferenceFilterExportTest {
         "LogarithmicSpiralFilter" to LogarithmicSpiralFilter(),
         "SpiralDrosteFilter" to SpiralDrosteFilter(),
         "GradientMapFilter" to GradientMapFilter(),
+        "BrightnessFilter" to BrightnessFilter(),
+        "ContrastFilter" to ContrastFilter(),
+        "GammaFilter" to GammaFilter(),
+        "VibranceFilter" to VibranceFilter(),
+        "HighlightsAndShadowsFilter" to HighlightsAndShadowsFilter(),
+        "BoxBlurFilter" to BoxBlurFilter(),
+        "MotionBlurFilter" to MotionBlurFilter(),
+        "BokehFilter" to BokehFilter(),
+        "LinearTiltShiftFilter" to LinearTiltShiftFilter(),
+        "RadialTiltShiftFilter" to RadialTiltShiftFilter(),
+        "FastBlurFilter" to FastBlurFilter(),
+        "NativeStackBlurFilter" to NativeStackBlurFilter(),
+        "MedianBlurFilter" to MedianBlurFilter(),
+        "TentBlurFilter" to TentBlurFilter(),
+        "BilaterialBlurFilter" to BilaterialBlurFilter(),
+        "FastBilaterialBlurFilter" to FastBilaterialBlurFilter(),
+        "UnsharpFilter" to UnsharpFilter(),
+        "CirclePixelationFilter" to CirclePixelationFilter(),
+        "DiamondPixelationFilter" to DiamondPixelationFilter(),
+        "ProtanopiaFilter" to ProtanopiaFilter(),
+        "DeuteranopiaFilter" to DeuteranopiaFilter(),
+        "TritanopiaFilter" to TritanopiaFilter(),
+        "AchromatopsiaFilter" to AchromatopsiaFilter(),
+        "ProtonomalyFilter" to ProtonomalyFilter(),
+        "DeutaromalyFilter" to DeutaromalyFilter(),
+        "TritonomalyFilter" to TritonomalyFilter(),
+        "AchromatomalyFilter" to AchromatomalyFilter(),
+        "AmatorkaFilter" to AmatorkaFilter(),
+        "KodakFilter" to KodakFilter(),
+        "BleachBypassFilter" to BleachBypassFilter(),
+        "CandlelightFilter" to CandlelightFilter(),
+        "CelluloidFilter" to CelluloidFilter(),
+        "CoffeeFilter" to CoffeeFilter(),
+        "DropBluesFilter" to DropBluesFilter(),
+        "EdgyAmberFilter" to EdgyAmberFilter(),
+        "FallColorsFilter" to FallColorsFilter(),
+        "FilmStock50Filter" to FilmStock50Filter(),
+        "FoggyNightFilter" to FoggyNightFilter(),
+        "GoldenForestFilter" to GoldenForestFilter(),
+        "FloydSteinbergDitheringFilter" to FloydSteinbergDitheringFilter(),
+        "FalseFloydSteinbergDitheringFilter" to FalseFloydSteinbergDitheringFilter(),
+        "JarvisJudiceNinkeDitheringFilter" to JarvisJudiceNinkeDitheringFilter(),
+        "SierraDitheringFilter" to SierraDitheringFilter(),
+        "TwoRowSierraDitheringFilter" to TwoRowSierraDitheringFilter(),
+        "SierraLiteDitheringFilter" to SierraLiteDitheringFilter(),
+        "AtkinsonDitheringFilter" to AtkinsonDitheringFilter(),
+        "StuckiDitheringFilter" to StuckiDitheringFilter(),
+        "BurkesDitheringFilter" to BurkesDitheringFilter(),
+        "LeftToRightDitheringFilter" to LeftToRightDitheringFilter(),
+        "BayerTwoDitheringFilter" to BayerTwoDitheringFilter(),
+        "BayerThreeDitheringFilter" to BayerThreeDitheringFilter(),
+        "BayerFourDitheringFilter" to BayerFourDitheringFilter(),
+        "BayerEightDitheringFilter" to BayerEightDitheringFilter(),
+        "Clustered2x2DitheringFilter" to Clustered2x2DitheringFilter(),
+        "Clustered4x4DitheringFilter" to Clustered4x4DitheringFilter(),
+        "Clustered8x8DitheringFilter" to Clustered8x8DitheringFilter(),
+        "SimpleThresholdDitheringFilter" to SimpleThresholdDitheringFilter(),
+        "DilationFilter" to DilationFilter(),
+        "ErodeFilter" to ErodeFilter(),
+        "OpeningFilter" to OpeningFilter(),
+        "ClosingFilter" to ClosingFilter(),
+        "TopHatFilter" to TopHatFilter(),
+        "BlackHatFilter" to BlackHatFilter(),
+        "MorphologicalGradientFilter" to MorphologicalGradientFilter(),
+        "AcesFilmicToneMappingFilter" to AcesFilmicToneMappingFilter(),
+        "HableFilmicToneMappingFilter" to HableFilmicToneMappingFilter(),
+        "HejlBurgessToneMappingFilter" to HejlBurgessToneMappingFilter(),
+        "LogarithmicToneMappingFilter" to LogarithmicToneMappingFilter(),
+        "UchimuraFilter" to UchimuraFilter(),
+        "DragoFilter" to DragoFilter(),
+        "EqualizeFilter" to EqualizeFilter(),
+        "EqualizeHistogramFilter" to EqualizeHistogramFilter(),
+        "EqualizeHistogramHSVFilter" to EqualizeHistogramHSVFilter(),
+        "EqualizeHistogramPixelationFilter" to EqualizeHistogramPixelationFilter(),
+        "ClaheFilter" to ClaheFilter(),
+        "EqualizeHistogramAdaptiveFilter" to EqualizeHistogramAdaptiveFilter(),
+        "FishEyeFilter" to FishEyeFilter(),
+        "TwirlFilter" to TwirlFilter(),
+        "PinchFilter" to PinchFilter(),
+        "KaleidoscopeFilter" to KaleidoscopeFilter(),
+        "RippleFilter" to RippleFilter(),
+        "GlitchFilter" to GlitchFilter(),
+        // Размер ядра 11 и 81 вместо 51: проверка краёв libblur (sigma 2 и 15).
+        "GaussianBlurFilter_r5" to GaussianBlurFilter(Triple(5f, 2f, BlurEdgeMode.Reflect101)),
+        "GaussianBlurFilter_r40" to GaussianBlurFilter(Triple(40f, 15f, BlurEdgeMode.Reflect101)),
+        // По умолчанию Levels тождественен (0..1 в 0..1), поэтому берём нестандартные уровни.
+        "LevelsFilter_custom" to LevelsFilter(0.1f to 0.9f qto (0.2f to 0.8f)),
         // Нестандартные матрицы: строки записаны подряд, по строке на выходной канал.
         "ColorMatrix3x3Filter_custom" to ColorMatrix3x3Filter(
             floatArrayOf(
