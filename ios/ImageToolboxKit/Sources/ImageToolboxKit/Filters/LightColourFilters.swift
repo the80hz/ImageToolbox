@@ -82,7 +82,7 @@ enum LightColourFilters {
       id: "SaturationFilter",
       titleKey: "saturation",
       category: .lightAndColour,
-      engine: .coreImage,
+      engine: .cpu,
       parameters: [
         FilterParameter(
           key: "strength", titleKey: "strength",
@@ -355,18 +355,72 @@ struct HueFilter: Filter {
   }
 }
 
-/// Приближение. Android: `Aire.saturation` (нативный код, в репозитории его нет). Флаг `tonemapping`
-/// сохраняется в настройках, но не применяется. Сверка с эталоном (насыщенность 2, tonemap включён):
-/// среднее отличие 35.5, максимум 111. Известное расхождение, см. `AndroidReferenceParityTests`.
+/// Повторяет `Aire.saturation` (Rust, `aire-filters/src/palette.rs`): sRGB переводится в линейный
+/// RGB и в Oklab, компоненты `a` и `b` умножаются на `strength`, затем обратно в линейный RGB.
+/// При включённом `tonemapping` линейный RGB дополнительно проходит через кривую ACES (Hill), после
+/// чего значения ограничиваются диапазоном 0...1. В sRGB результат записывается с отбрасыванием
+/// дробной части (не округлением): с округлением эталон Android не совпадает. Альфа не меняется.
+///
+/// Статус: проверено по эталону (`SaturationFilter`, разделы 7 и 10).
 struct SaturationFilter: Filter {
   let strength: Double
   let tonemapping: Bool
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    let saturation = Float(strength)
-    return try CoreImageBridge.render(image, filterID: "SaturationFilter") { input in
-      input.applyingFilter("CIColorControls", parameters: ["inputSaturation": saturation])
+    var pixels = image.pixels
+    let decode = (0...255).map { srgbToLinear(Double($0) / 255) }
+    for index in stride(from: 0, to: pixels.count, by: 4) {
+      let red = decode[Int(pixels[index])]
+      let green = decode[Int(pixels[index + 1])]
+      let blue = decode[Int(pixels[index + 2])]
+      let l = cbrt(0.4122214708 * red + 0.5363325363 * green + 0.0514459929 * blue)
+      let m = cbrt(0.2119034982 * red + 0.6806995451 * green + 0.1073969566 * blue)
+      let s = cbrt(0.0883024619 * red + 0.2817188376 * green + 0.6299787005 * blue)
+      let lightness = 0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s
+      let a = (1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s) * strength
+      let b = (0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s) * strength
+      let l3 = pow(lightness + 0.3963377774 * a + 0.2158037573 * b, 3)
+      let m3 = pow(lightness - 0.1055613458 * a - 0.0638541728 * b, 3)
+      let s3 = pow(lightness - 0.0894841775 * a - 1.2914855480 * b, 3)
+      var linear = [
+        4.0767416621 * l3 - 3.3077115913 * m3 + 0.2309699292 * s3,
+        -1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3,
+        -0.0041960863 * l3 - 0.7034186147 * m3 + 1.7076147010 * s3,
+      ]
+      if tonemapping {
+        linear = acesHill(linear)
+      }
+      for channel in 0..<3 {
+        let encoded = linearToSRGB(min(max(linear[channel], 0), 1))
+        pixels[index + channel] = UInt8(min(max(encoded * 255, 0), 255))
+      }
     }
+    return RasterImage(width: image.width, height: image.height, pixels: pixels)
+  }
+
+  /// Аппроксимация ACES по Hill: входная матрица, рациональная кривая, выходная матрица.
+  private func acesHill(_ c: [Double]) -> [Double] {
+    let input = [
+      0.59719 * c[0] + 0.35458 * c[1] + 0.04823 * c[2],
+      0.07600 * c[0] + 0.90834 * c[1] + 0.01566 * c[2],
+      0.02840 * c[0] + 0.13383 * c[1] + 0.83777 * c[2],
+    ]
+    let v = input.map { x in
+      (x * (x + 0.0245786) - 0.000090537) / (x * (0.983729 * x + 0.4329510) + 0.238081)
+    }
+    return [
+      1.60475 * v[0] - 0.53108 * v[1] - 0.07367 * v[2],
+      -0.10208 * v[0] + 1.10813 * v[1] - 0.00605 * v[2],
+      -0.00327 * v[0] - 0.07276 * v[1] + 1.07602 * v[2],
+    ]
+  }
+
+  private func srgbToLinear(_ value: Double) -> Double {
+    value <= 0.04045 ? value / 12.92 : pow((value + 0.055) / 1.055, 2.4)
+  }
+
+  private func linearToSRGB(_ value: Double) -> Double {
+    value <= 0.0031308 ? value * 12.92 : 1.055 * pow(value, 1 / 2.4) - 0.055
   }
 }
 

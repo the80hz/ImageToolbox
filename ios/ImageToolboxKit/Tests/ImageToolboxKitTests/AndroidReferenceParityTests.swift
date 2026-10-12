@@ -64,9 +64,7 @@ struct AndroidReferenceCase: Sendable, CustomTestStringConvertible {
     AndroidReferenceCase(
       name: "GaussianBlurFilter",
       filter: GaussianBlurFilter(radius: 25, sigma: 10, edge: .reflect101),
-      knownIssue:
-        "GaussianBlurFilter: Android вызывает Aire.gaussianBlur (нативный код, формул в репозитории нет); "
-        + "среднее отличие 1.63, наибольшее 19"),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "PixelationFilter", filter: PixelationFilter(size: 25), knownIssue: nil),
     AndroidReferenceCase(
@@ -76,9 +74,7 @@ struct AndroidReferenceCase: Sendable, CustomTestStringConvertible {
     AndroidReferenceCase(
       name: "SaturationFilter",
       filter: SaturationFilter(strength: 2, tonemapping: true),
-      knownIssue:
-        "SaturationFilter: Android вызывает Aire.saturation с tonemap (нативный код, формул в репозитории нет); "
-        + "среднее отличие 35.5, наибольшее 111"),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "SimpleSolarizeFilter", filter: SimpleSolarizeFilter(), knownIssue: nil),
     AndroidReferenceCase(name: "ExposureFilter", filter: ExposureFilter(stops: 1), knownIssue: nil),

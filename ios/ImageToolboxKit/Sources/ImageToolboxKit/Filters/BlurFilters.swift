@@ -390,14 +390,15 @@ private func nearestOdd(_ value: Double) -> Int {
 
 /// Одномерная свёртка вдоль строк (`horizontal`) или столбцов. Веса нечётной длины, центр посередине.
 private func convolve(
-  _ plane: BlurPlane, weights: [Float], horizontal: Bool, edge: BlurBorderMode
+  _ plane: BlurPlane, weights: [Float], horizontal: Bool, edge: BlurBorderMode,
+  table customTable: [Int]? = nil
 ) -> BlurPlane {
   let taps = weights.count
   let offsets = (0..<taps).map { $0 - taps / 2 }
   let width = plane.width
   let length = horizontal ? plane.width : plane.height
   let lines = horizontal ? plane.height : plane.width
-  let table = edgeTable(length: length, offsets: offsets, edge: edge)
+  let table = customTable ?? edgeTable(length: length, offsets: offsets, edge: edge)
   var values = [Float](repeating: 0, count: plane.values.count)
   for line in 0..<lines {
     for position in 0..<length {
@@ -422,6 +423,64 @@ private func convolve(
 private func separable(_ plane: BlurPlane, weights: [Float], edge: BlurBorderMode) -> BlurPlane {
   let rows = convolve(plane, weights: weights, horizontal: true, edge: edge)
   return convolve(rows, weights: weights, horizontal: false, edge: edge)
+}
+
+/// Веса `exp(-x^2 / (2 sigma^2))` в `taps` точках, нормированные на сумму 1: ядро `gaussian_kernel_1d`
+/// из libblur (его вызывает `Aire.gaussianBlur`). Центр ядра стоит в `taps / 2`.
+private func pointGaussianWeights(taps: Int, sigma: Double) -> [Float] {
+  let s = max(sigma, 1e-6)
+  let mean = taps / 2
+  return normalized(
+    (0..<taps).map { index -> Double in
+      let d = Double(index - mean) / s
+      return exp(-0.5 * d * d)
+    })
+}
+
+/// Таблица отсчётов с краевыми особенностями libblur 0.19.
+/// - `reversedRight`: справа от строки отражённые пиксели записаны в обратном порядке
+///   (`row.chunks_exact_mut(CN).rev()` в `write_arena_row`). Этот путь строки берут при ядре от 29.
+/// - `clampedTop`: над первой строкой вместо краевого режима стоит копия строки 0 (предзагрузка
+///   верхнего края в `filter_1d_approx_sliding_buffer`). Этот путь берётся при ядре до 61.
+private func aireEdgeTable(
+  length: Int, taps: Int, edge: BlurBorderMode, reversedRight: Bool, clampedTop: Bool
+) -> [Int] {
+  let pad = taps / 2
+  var table = [Int](repeating: 0, count: length * taps)
+  for position in 0..<length {
+    for tap in 0..<taps {
+      let index = position + tap - pad
+      let source: Int
+      if index < 0 {
+        source = clampedTop ? 0 : edge.index(index, count: length)
+      } else if index >= length {
+        let slot = index - length
+        source = edge.index(reversedRight ? length + pad - 1 - slot : index, count: length)
+      } else {
+        source = index
+      }
+      table[position * taps + tap] = source
+    }
+  }
+  return table
+}
+
+/// Гауссово размытие как `libblur::gaussian_blur` (режим `FixedPoint`) с ядром `taps` и `sigma`.
+/// Строки при ядре до 28 идут через `binter` с обычными краями, от 29 через `write_arena_row`.
+/// Столбцы при ядре до 61 идут через скользящий буфер с копией строки 0 сверху, больше 61 через
+/// `make_arena_columns` с обычными краями.
+private func aireGaussian(
+  _ plane: BlurPlane, taps: Int, sigma: Double, edge: BlurBorderMode
+) -> BlurPlane {
+  let weights = pointGaussianWeights(taps: taps, sigma: sigma)
+  let rows = convolve(
+    plane, weights: weights, horizontal: true, edge: edge,
+    table: aireEdgeTable(
+      length: plane.width, taps: taps, edge: edge, reversedRight: taps >= 29, clampedTop: false))
+  return convolve(
+    rows, weights: weights, horizontal: false, edge: edge,
+    table: aireEdgeTable(
+      length: plane.height, taps: taps, edge: edge, reversedRight: false, clampedTop: taps <= 61))
 }
 
 /// Медиана по квадрату `(2r+1) x (2r+1)` отдельно для каждого канала.
@@ -627,11 +686,16 @@ struct BoxBlurFilter: Filter {
   }
 }
 
-/// Гауссово размытие, ядро `2r+1` с интегралом по пикселю, sigma и краевой режим из Kotlin.
+/// Гауссово размытие как `Aire.gaussianBlur` -> `libblur::gaussian_blur` (режим `FixedPoint`): ядро
+/// `2r+1` с весами `exp(-x^2 / (2 sigma^2))` в целых точках (не интегралом по пикселю), sigma и краевой
+/// режим из Kotlin. Библиотека libblur ведёт себя нестандартно у границ: при ядре от 29 справа от
+/// строки отражённые пиксели стоят в обратном порядке, при ядре до 61 над первой строкой стоит копия
+/// строки 0 вместо краевого режима. Это воспроизведено, иначе эталон не совпадает у правого и
+/// верхнего краёв.
 ///
-/// Статус: приближение. Android вызывает `Aire.gaussianBlur` (нативный код, в репозитории его нет).
-/// Сверка с эталоном (по умолчанию: радиус 25, sigma 10, Reflect101): среднее отличие 1.63, максимум 19.
-/// Известное расхождение, см. `AndroidReferenceParityTests`.
+/// Статус: проверено по эталону (`GaussianBlurFilter`, разделы 7 и 10; радиус 25, sigma 10, Reflect101).
+/// Эталон есть только для ядра 51. Для ядер меньше 29 и больше 61 границы взяты по исходникам libblur
+/// 0.19.4, на эталонах не проверены.
 struct GaussianBlurFilter: Filter {
   let radius: Int
   let sigma: Double
@@ -639,7 +703,7 @@ struct GaussianBlurFilter: Filter {
 
   func apply(to image: RasterImage) async throws -> RasterImage {
     filtered(image) {
-      separable($0, weights: gaussianWeights(radius: radius, sigma: sigma), edge: edge)
+      aireGaussian($0, taps: 2 * max(0, radius) + 1, sigma: sigma, edge: edge)
     }
   }
 }
