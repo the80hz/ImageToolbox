@@ -100,15 +100,18 @@ struct MorphologyFilterTests {
     }
   }
 
-  @Test("a circle kernel of size 5 leaves out its corners, a box kernel does not")
+  @Test("a circle kernel of size 5 is the 3×3 block (radius 5/3), a box kernel is 5×5")
   func circleDiffersFromBox() async throws {
-    // Центр пикселя (0, 0) ядра 5×5 отстоит от спота (2, 2) на (2, 2): угол диска не входит (8 > 6.25).
+    // Aire: точки ядра-диска отстоят от центра не больше чем на size / 3 = 1.67.
     let box = try await DilationFilter(size: 5, circle: false).apply(to: Self.spot())
     let circle = try await DilationFilter(size: 5, circle: true).apply(to: Self.spot())
     #expect(Self.red(box, 0, 0) == 255)
     #expect(Self.red(circle, 0, 0) == 0)
-    // Ближайший сосед по строке: (0, 1) — расстояние² = 4 + 1 = 5 ≤ 6.25, входит в диск.
-    #expect(Self.red(circle, 0, 1) == 255)
+    // (0, 1) отстоит от спота (2, 2) на (2, 1): корень из 5 > 1.67, не входит.
+    #expect(Self.red(circle, 0, 1) == 0)
+    // (1, 1) отстоит на (1, 1): корень из 2 < 1.67, входит.
+    #expect(Self.red(circle, 1, 1) == 255)
+    #expect(Self.red(circle, 2, 1) == 255)
   }
 
   @Test("every operation on a 1×1 and a 5×3 picture keeps the size at both extremes")
@@ -135,14 +138,24 @@ struct MorphologyFilterTests {
     }
   }
 
-  @Test("top-hat and black-hat keep the alpha channel of an opaque picture")
-  func alphaIsKeptForDerivedOperations() async throws {
-    let picture = FilterTestImages.gradient(width: 6, height: 4)
-    let topHat = try await TopHatFilter(size: 3, circle: false).apply(to: picture)
-    let gradient = try await MorphologicalGradientFilter(size: 3, circle: true).apply(to: picture)
+  @Test("an opaque picture gets alpha 255, a picture with transparency morphs alpha too")
+  func alphaFollowsAire() async throws {
+    let opaque = FilterTestImages.gradient(width: 6, height: 4)
+    let topHat = try await TopHatFilter(size: 3, circle: false).apply(to: opaque)
+    let gradient = try await MorphologicalGradientFilter(size: 3, circle: true).apply(to: opaque)
     for index in stride(from: 3, to: topHat.pixels.count, by: 4) {
       #expect(topHat.pixels[index] == 255)
       #expect(gradient.pixels[index] == 255)
     }
+    // Один прозрачный пиксель: режим RGBA, альфа считается как обычный канал.
+    var pixels = opaque.pixels
+    pixels[(1 * 6 + 2) * 4 + 3] = 0
+    let holed = RasterImage(width: 6, height: 4, pixels: pixels)
+    let dilated = try await DilationFilter(size: 3, circle: false).apply(to: holed)
+    #expect(dilated.pixels[(1 * 6 + 2) * 4 + 3] == 255)
+    let eroded = try await ErodeFilter(size: 3, circle: false).apply(to: holed)
+    #expect(eroded.pixels[(1 * 6 + 3) * 4 + 3] == 0)
+    let edge = try await MorphologicalGradientFilter(size: 3, circle: false).apply(to: holed)
+    #expect(edge.pixels[(1 * 6 + 3) * 4 + 3] == 255)
   }
 }

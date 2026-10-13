@@ -150,49 +150,49 @@ struct AndroidReferenceCase: Sendable, CustomTestStringConvertible {
     AndroidReferenceCase(
       name: "BoxBlurFilter",
       filter: BoxBlurFilter(radius: 10),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 0.875, наибольшее 11."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "MotionBlurFilter",
       filter: MotionBlurFilter(size: 25, degrees: 45, edge: .reflect101),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 7.421, наибольшее 103."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "BokehFilter",
       filter: BokehFilter(size: 6, sides: 6),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 3.359, наибольшее 244."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "LinearTiltShiftFilter",
       filter: LinearTiltShiftFilter(
         blurRadius: 25, sigma: 10, anchorX: 0.5, anchorY: 0.5, hole: 0.2, degrees: 45),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 1.505, наибольшее 20."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "RadialTiltShiftFilter",
       filter: RadialTiltShiftFilter(
         blurRadius: 25, sigma: 10, anchorX: 0.5, anchorY: 0.5, hole: 0.2),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 2.992, наибольшее 20."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "FastBlurFilter",
       filter: FastBlurFilter(scale: 0.5, radius: 5),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 2.115, наибольшее 14."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "NativeStackBlurFilter",
       filter: NativeStackBlurFilter(radius: 25),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 2.521, наибольшее 18."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "MedianBlurFilter",
       filter: MedianBlurFilter(radius: 10),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 8.188, наибольшее 32."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "TentBlurFilter",
       filter: TentBlurFilter(size: 15),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 6.094, наибольшее 24."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "BilaterialBlurFilter",
       filter: BilaterialBlurFilter(radius: 12, spatialSigma: 10, rangeSigma: 3, edge: .reflect101),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 3.247, наибольшее 89."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "FastBilaterialBlurFilter",
       filter: FastBilaterialBlurFilter(size: 11, spatialSigma: 10, rangeSigma: 3),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 14.09, наибольшее 50."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "UnsharpFilter",
       filter: UnsharpFilter(intensity: 0.5),
@@ -360,31 +360,31 @@ struct AndroidReferenceCase: Sendable, CustomTestStringConvertible {
     AndroidReferenceCase(
       name: "DilationFilter",
       filter: DilationFilter(size: 25, circle: true),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 16.17, наибольшее 204."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "ErodeFilter",
       filter: ErodeFilter(size: 25, circle: true),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 16.10, наибольшее 200."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "OpeningFilter",
       filter: OpeningFilter(size: 25, circle: true),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 3.314, наибольшее 220."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "ClosingFilter",
       filter: ClosingFilter(size: 25, circle: true),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 3.301, наибольшее 216."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "TopHatFilter",
       filter: TopHatFilter(size: 25, circle: true),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 2.214, наибольшее 24."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "BlackHatFilter",
       filter: BlackHatFilter(size: 25, circle: true),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 2.214, наибольшее 24."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "MorphologicalGradientFilter",
       filter: MorphologicalGradientFilter(size: 25, circle: true),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 29.36, наибольшее 204."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "AcesFilmicToneMappingFilter",
       filter: AcesFilmicFilter(exposure: 1),
@@ -465,8 +465,7 @@ struct AndroidReferenceCase: Sendable, CustomTestStringConvertible {
     AndroidReferenceCase(
       name: "GaussianBlurFilter_r40",
       filter: GaussianBlurFilter(radius: 40, sigma: 15, edge: .reflect101),
-      knownIssue:
-        "Ядро 81 (радиус 40, sigma 15) не совпало с эталоном Android: среднее 3.396, наибольшее 125. Допущение о краях libblur для ядер больше 61 не подтвердилось."
+      knownIssue: nil
     ),
     AndroidReferenceCase(
       name: "LevelsFilter_custom",

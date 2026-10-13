@@ -2,9 +2,11 @@ import Foundation
 
 /// Размытия: гауссово, box, motion, zoom, bokeh, tilt-shift и прочие из Android.
 ///
-/// Нативные алгоритмы Aire, Trickle и GPUImage в репозитории не лежат, поэтому каждый фильтр
-/// считает операцию по видимым в Kotlin параметрам и значениям по умолчанию. Там, где точная
-/// формула неизвестна, фильтр помечен как приближение (см. комментарий у структуры).
+/// Размытия Aire, Trickle и GPUImage перенесены по исходникам (Aire 0.18.1, libblur 0.19.4, Trickle
+/// 1.9.3, шейдеры GPUImage) и проверены по эталонам Android; ссылки на файлы и статус каждого
+/// фильтра — в комментарии у его структуры. Тяжёлые вычисления лежат в `LibblurBlurs`,
+/// `LibblurGaussian`, `LibblurBilateral`, `LibblurMotion`, `AireTiltShift`, `TrickleFastBlur` и
+/// `MorphologyEngine` (боке).
 ///
 /// Each filter is a struct conforming to `Filter` in this file, with its descriptor listed below.
 enum BlurFilters {
@@ -339,20 +341,10 @@ private struct BlurPlane {
   }
 }
 
-/// Прогоняет картинку через `body` в виде `BlurPlane` и возвращает результат того же размера.
-private func filtered(_ image: RasterImage, _ body: (BlurPlane) -> BlurPlane) -> RasterImage {
-  body(BlurPlane(image)).raster()
-}
-
-/// Индексы отсчётов: для позиции `i` и смещения `offsets[k]` элемент `i * offsets.count + k`.
-private func edgeTable(length: Int, offsets: [Int], edge: BlurBorderMode) -> [Int] {
-  var table = [Int](repeating: 0, count: length * offsets.count)
-  for i in 0..<length {
-    for (k, offset) in offsets.enumerated() {
-      table[i * offsets.count + k] = edge.index(i + offset, count: length)
-    }
-  }
-  return table
+/// Ближайшее нечётное число; как `roundToNearestOdd` в Kotlin.
+private func nearestOdd(_ value: Double) -> Int {
+  let n = max(0, Int(value.rounded()))
+  return n % 2 == 0 ? n + 1 : n
 }
 
 /// Нормирует веса так, чтобы их сумма была 1.
@@ -361,44 +353,15 @@ private func normalized(_ raw: [Double]) -> [Float] {
   return raw.map { Float($0 / total) }
 }
 
-/// Одинаковые веса на `2r+1` отсчётов.
-private func boxWeights(radius: Int) -> [Float] {
-  normalized(Array(repeating: 1.0, count: 2 * max(0, radius) + 1))
-}
-
-/// Треугольные веса `r + 1 - |k|`: свёртка двух box-фильтров (stack blur).
-private func triangleWeights(radius: Int) -> [Float] {
-  let r = max(0, radius)
-  return normalized((-r...r).map { Double(r + 1 - abs($0)) })
-}
-
-/// Гауссово ядро, каждый вес - интеграл плотности по отрезку пикселя (как `GaussianPreciseLevel.INTEGRAL`).
-private func gaussianWeights(radius: Int, sigma: Double) -> [Float] {
-  let s = max(sigma, 1e-6) * 2.0.squareRoot()
-  return normalized(
-    (-max(0, radius)...max(0, radius)).map { offset -> Double in
-      let k = Double(offset)
-      return 0.5 * (erf((k + 0.5) / s) - erf((k - 0.5) / s))
-    })
-}
-
-/// Ближайшее нечётное число; как `roundToNearestOdd` в Kotlin.
-private func nearestOdd(_ value: Double) -> Int {
-  let n = max(0, Int(value.rounded()))
-  return n % 2 == 0 ? n + 1 : n
-}
-
-/// Одномерная свёртка вдоль строк (`horizontal`) или столбцов. Веса нечётной длины, центр посередине.
+/// Одномерная свёртка вдоль строк (`horizontal`) или столбцов по таблице отсчётов `table` (элемент
+/// `позиция * taps + k` — индекс источника для отсчёта `k`).
 private func convolve(
-  _ plane: BlurPlane, weights: [Float], horizontal: Bool, edge: BlurBorderMode,
-  table customTable: [Int]? = nil
+  _ plane: BlurPlane, weights: [Float], horizontal: Bool, table: [Int]
 ) -> BlurPlane {
   let taps = weights.count
-  let offsets = (0..<taps).map { $0 - taps / 2 }
   let width = plane.width
   let length = horizontal ? plane.width : plane.height
   let lines = horizontal ? plane.height : plane.width
-  let table = customTable ?? edgeTable(length: length, offsets: offsets, edge: edge)
   var values = [Float](repeating: 0, count: plane.values.count)
   for line in 0..<lines {
     for position in 0..<length {
@@ -419,14 +382,8 @@ private func convolve(
   return BlurPlane(width: plane.width, height: plane.height, values: values)
 }
 
-/// Два прохода свёртки: по строкам, затем по столбцам.
-private func separable(_ plane: BlurPlane, weights: [Float], edge: BlurBorderMode) -> BlurPlane {
-  let rows = convolve(plane, weights: weights, horizontal: true, edge: edge)
-  return convolve(rows, weights: weights, horizontal: false, edge: edge)
-}
-
-/// Веса `exp(-x^2 / (2 sigma^2))` в `taps` точках, нормированные на сумму 1: ядро `gaussian_kernel_1d`
-/// из libblur (его вызывает `Aire.gaussianBlur`). Центр ядра стоит в `taps / 2`.
+/// Веса `exp(-x^2 / (2 sigma^2))` в `taps` точках, нормированные на сумму 1: ядро
+/// `gaussian_kernel_1d` из libblur. Центр ядра стоит в `taps / 2`.
 private func pointGaussianWeights(taps: Int, sigma: Double) -> [Float] {
   let s = max(sigma, 1e-6)
   let mean = taps / 2
@@ -437,316 +394,160 @@ private func pointGaussianWeights(taps: Int, sigma: Double) -> [Float] {
     })
 }
 
-/// Таблица отсчётов с краевыми особенностями libblur 0.19.
-/// - `reversedRight`: справа от строки отражённые пиксели записаны в обратном порядке
-///   (`row.chunks_exact_mut(CN).rev()` в `write_arena_row`). Этот путь строки берут при ядре от 29.
-/// - `clampedTop`: над первой строкой вместо краевого режима стоит копия строки 0 (предзагрузка
-///   верхнего края в `filter_1d_approx_sliding_buffer`). Этот путь берётся при ядре до 61.
-private func aireEdgeTable(
-  length: Int, taps: Int, edge: BlurBorderMode, reversedRight: Bool, clampedTop: Bool
+/// Таблица отсчётов для коротких ядер (до 28 отсчётов) libblur 0.19.4: над первой строкой стоит
+/// копия строки 0 (предзагрузка верхнего края в `filter_1d_approx_sliding_buffer`), остальные края
+/// ведут себя по режиму. Обработчик строк `binter` берёт обычные края.
+private func shortKernelEdgeTable(
+  length: Int, taps: Int, edge: BlurBorderMode, clampedTop: Bool
 ) -> [Int] {
   let pad = taps / 2
   var table = [Int](repeating: 0, count: length * taps)
   for position in 0..<length {
     for tap in 0..<taps {
       let index = position + tap - pad
-      let source: Int
-      if index < 0 {
-        source = clampedTop ? 0 : edge.index(index, count: length)
-      } else if index >= length {
-        let slot = index - length
-        source = edge.index(reversedRight ? length + pad - 1 - slot : index, count: length)
-      } else {
-        source = index
-      }
+      let source = index < 0 && clampedTop ? 0 : edge.index(index, count: length)
       table[position * taps + tap] = source
     }
   }
   return table
 }
 
-/// Гауссово размытие как `libblur::gaussian_blur` (режим `FixedPoint`) с ядром `taps` и `sigma`.
-/// Строки при ядре до 28 идут через `binter` с обычными краями, от 29 через `write_arena_row`.
-/// Столбцы при ядре до 61 идут через скользящий буфер с копией строки 0 сверху, больше 61 через
-/// `make_arena_columns` с обычными краями.
-private func aireGaussian(
+/// Гауссово размытие с ядром до 28 отсчётов как `libblur::gaussian_blur` (`FixedPoint`) на Android.
+/// Строки идут через `binter` с обычными краями, столбцы через скользящий буфер (над первой строкой
+/// копия строки 0). Веса считаются с плавающей точкой; целочисленная арифметика обработчиков
+/// Android воспроизведена только для ядер от 29 (`LibblurGaussian`), поэтому здесь возможна разница
+/// в один уровень.
+private func shortKernelGaussian(
   _ plane: BlurPlane, taps: Int, sigma: Double, edge: BlurBorderMode
 ) -> BlurPlane {
   let weights = pointGaussianWeights(taps: taps, sigma: sigma)
   let rows = convolve(
-    plane, weights: weights, horizontal: true, edge: edge,
-    table: aireEdgeTable(
-      length: plane.width, taps: taps, edge: edge, reversedRight: taps >= 29, clampedTop: false))
+    plane, weights: weights, horizontal: true,
+    table: shortKernelEdgeTable(length: plane.width, taps: taps, edge: edge, clampedTop: false))
   return convolve(
-    rows, weights: weights, horizontal: false, edge: edge,
-    table: aireEdgeTable(
-      length: plane.height, taps: taps, edge: edge, reversedRight: false, clampedTop: taps <= 61))
+    rows, weights: weights, horizontal: false,
+    table: shortKernelEdgeTable(length: plane.height, taps: taps, edge: edge, clampedTop: true))
 }
 
-/// Медиана по квадрату `(2r+1) x (2r+1)` отдельно для каждого канала.
-private func medianBlur(_ plane: BlurPlane, radius: Int, edge: BlurBorderMode) -> BlurPlane {
-  let r = max(0, radius)
-  let offsets = Array(-r...r)
-  let taps = offsets.count
-  let columns = edgeTable(length: plane.width, offsets: offsets, edge: edge)
-  let rows = edgeTable(length: plane.height, offsets: offsets, edge: edge)
-  var values = [Float](repeating: 0, count: plane.values.count)
-  var window: [Float] = []
-  window.reserveCapacity(taps * taps)
-  for y in 0..<plane.height {
-    for x in 0..<plane.width {
-      for c in 0..<4 {
-        window.removeAll(keepingCapacity: true)
-        for ky in 0..<taps {
-          let row = rows[y * taps + ky]
-          for kx in 0..<taps {
-            let column = columns[x * taps + kx]
-            window.append(plane.values[(row * plane.width + column) * 4 + c])
-          }
-        }
-        window.sort()
-        values[(y * plane.width + x) * 4 + c] = window[window.count / 2]
+/// Ядро боке `Aire.getBokehKernel` (`algo/EigenUtils.h`, `getBokehEffect`): контур правильного
+/// многоугольника с `sides` вершинами на окружности радиуса `0.85 * size / 2` вокруг `(size / 2,
+/// size / 2)`, ломаная линиями Брезенхэма (координаты вершин усечены до целых, `Float`), затем
+/// заливка изнутри от центра. Возвращает ядро для морфологии (дилатации).
+func bokehMorphologyKernel(size: Int, sides: Int) -> MorphologyEngine.Kernel {
+  var mask = [Bool](repeating: false, count: size * size)
+  let centre = Float(Double(size) / 2)
+  let radius = centre * 0.85
+  let tau = 2 * Float.pi
+  for side in 0..<sides {
+    let angle1 = tau * Float(side) / Float(sides)
+    let angle2 = tau * Float(side + 1) / Float(sides)
+    var x1 = Int(centre + radius * cos(angle1))
+    var y1 = Int(centre + radius * sin(angle1))
+    let x2 = Int(centre + radius * cos(angle2))
+    let y2 = Int(centre + radius * sin(angle2))
+    let dx = abs(x2 - x1)
+    let dy = -abs(y2 - y1)
+    let stepX = x1 < x2 ? 1 : -1
+    let stepY = y1 < y2 ? 1 : -1
+    var error = dx + dy
+    while true {
+      if x1 >= 0, x1 < size, y1 >= 0, y1 < size { mask[y1 * size + x1] = true }
+      if x1 == x2, y1 == y2 { break }
+      let doubled = 2 * error
+      if doubled >= dy {
+        error += dy
+        x1 += stepX
+      }
+      if doubled <= dx {
+        error += dx
+        y1 += stepY
       }
     }
   }
-  return BlurPlane(width: plane.width, height: plane.height, values: values)
+  // Заливка по четырём соседям от центра, как `floodFill` в Aire.
+  var queue = [size / 2 * size + size / 2]
+  var head = 0
+  while head < queue.count {
+    let cell = queue[head]
+    head += 1
+    guard !mask[cell] else { continue }
+    mask[cell] = true
+    let x = cell % size
+    let y = cell / size
+    if x + 1 < size { queue.append(cell + 1) }
+    if x > 0 { queue.append(cell - 1) }
+    if y + 1 < size { queue.append(cell + size) }
+    if y > 0 { queue.append(cell - size) }
+  }
+  return MorphologyEngine.Kernel(width: size, height: size, mask: mask)
 }
 
-/// Билатеральный фильтр: веса по расстоянию и по разнице цветов RGB (шкала 0...255).
-/// Точная сумма по окну, без быстрой сеточной аппроксимации.
-private func bilateral(
-  _ plane: BlurPlane, radius: Int, spatialSigma: Double, rangeSigma: Double, edge: BlurBorderMode
-) -> BlurPlane {
-  let r = max(0, radius)
-  let offsets = Array(-r...r)
-  let taps = offsets.count
-  let columns = edgeTable(length: plane.width, offsets: offsets, edge: edge)
-  let rows = edgeTable(length: plane.height, offsets: offsets, edge: edge)
-  var spatial = [Double](repeating: 0, count: taps * taps)
-  let spatialDenominator = 2 * spatialSigma * spatialSigma
-  for ky in 0..<taps {
-    for kx in 0..<taps {
-      let dx = Double(offsets[kx])
-      let dy = Double(offsets[ky])
-      spatial[ky * taps + kx] = exp(-(dx * dx + dy * dy) / spatialDenominator)
-    }
-  }
-  let rangeDenominator = 2 * rangeSigma * rangeSigma
-  var values = [Float](repeating: 0, count: plane.values.count)
-  var sums = [Double](repeating: 0, count: 4)
-  for y in 0..<plane.height {
-    for x in 0..<plane.width {
-      let centre = (y * plane.width + x) * 4
-      for c in 0..<4 { sums[c] = 0 }
-      var total = 0.0
-      for ky in 0..<taps {
-        for kx in 0..<taps {
-          let source = (rows[y * taps + ky] * plane.width + columns[x * taps + kx]) * 4
-          var difference = 0.0
-          for c in 0..<3 {
-            let delta = Double(plane.values[source + c] - plane.values[centre + c])
-            difference += delta * delta
-          }
-          let weight = spatial[ky * taps + kx] * exp(-difference / rangeDenominator)
-          total += weight
-          for c in 0..<4 {
-            sums[c] += weight * Double(plane.values[source + c])
-          }
-        }
-      }
-      for c in 0..<4 {
-        values[centre + c] = Float(sums[c] / total)
-      }
-    }
-  }
-  return BlurPlane(width: plane.width, height: plane.height, values: values)
-}
-
-/// Точки ядра `size x size` внутри правильного многоугольника с `sides` сторонами (индексы в квадрате).
-private func bokehKernel(size: Int, sides: Int) -> [(Int, Int)] {
-  let half = size / 2
-  let radius = Double(size) / 2
-  let apothem = radius * cos(Double.pi / Double(sides))
-  var points: [(Int, Int)] = []
-  for iy in 0..<size {
-    for ix in 0..<size {
-      let dx = Double(ix - half)
-      let dy = Double(iy - half)
-      let inside = (0..<sides).allSatisfy { i -> Bool in
-        let normal = -Double.pi / 2 + (2 * Double(i) + 1) * Double.pi / Double(sides)
-        return dx * cos(normal) + dy * sin(normal) <= apothem + 1e-9
-      }
-      if inside { points.append((ix, iy)) }
-    }
-  }
-  return points
-}
-
-/// Морфологическая дилатация (максимум по ядру) с границей reflect101.
-private func dilate(_ plane: BlurPlane, size: Int, points: [(Int, Int)]) -> BlurPlane {
-  let offsets = (0..<size).map { $0 - size / 2 }
-  let columns = edgeTable(length: plane.width, offsets: offsets, edge: .reflect101)
-  let rows = edgeTable(length: plane.height, offsets: offsets, edge: .reflect101)
-  var values = [Float](repeating: 0, count: plane.values.count)
-  for y in 0..<plane.height {
-    for x in 0..<plane.width {
-      let target = (y * plane.width + x) * 4
-      for (ix, iy) in points {
-        let source = (rows[y * size + iy] * plane.width + columns[x * size + ix]) * 4
-        for c in 0..<4 {
-          values[target + c] = max(values[target + c], plane.values[source + c])
-        }
-      }
-    }
-  }
-  return BlurPlane(width: plane.width, height: plane.height, values: values)
-}
-
-/// Ближайший сосед: передискретизация картинки в `width x height`.
-private func resampleNearest(_ plane: BlurPlane, width: Int, height: Int) -> BlurPlane {
-  var values = [Float](repeating: 0, count: width * height * 4)
-  for y in 0..<height {
-    let sy = min(plane.height - 1, Int((Double(y) + 0.5) * Double(plane.height) / Double(height)))
-    for x in 0..<width {
-      let sx = min(plane.width - 1, Int((Double(x) + 0.5) * Double(plane.width) / Double(width)))
-      let source = (sy * plane.width + sx) * 4
-      let target = (y * width + x) * 4
-      for c in 0..<4 {
-        values[target + c] = plane.values[source + c]
-      }
-    }
-  }
-  return BlurPlane(width: width, height: height, values: values)
-}
-
-/// Доля размытия в точке: 0 в зоне фокуса, 1 за зоной перехода. Ширина перехода равна `hole`.
-/// `degrees` задаёт линию фокуса (линейный режим); `nil` - круговой фокус вокруг якоря.
-private func focusMask(
-  _ plane: BlurPlane, anchorX: Double, anchorY: Double, hole: Double, degrees: Double?
-) -> [Float] {
-  // Расстояния меряем в долях большей стороны, чтобы не искажать форму при не квадратной картинке.
-  let size = Double(max(plane.width, plane.height))
-  let ax = anchorX * Double(plane.width) / size
-  let ay = anchorY * Double(plane.height) / size
-  let normal = degrees.map { angle -> (Double, Double) in
-    let radians = angle * Double.pi / 180
-    return (-sin(radians), cos(radians))
-  }
-  var mask = [Float](repeating: 0, count: plane.width * plane.height)
-  for y in 0..<plane.height {
-    for x in 0..<plane.width {
-      let dx = (Double(x) + 0.5) / size - ax
-      let dy = (Double(y) + 0.5) / size - ay
-      let distance: Double
-      if let normal {
-        distance = abs(dx * normal.0 + dy * normal.1)
-      } else {
-        distance = hypot(dx, dy)
-      }
-      let share: Double
-      if hole > 0 {
-        share = min(max((distance - hole) / hole, 0), 1)
-      } else {
-        share = distance > 0 ? 1 : 0
-      }
-      mask[y * plane.width + x] = Float(share)
-    }
-  }
-  return mask
-}
-
-/// Смешивает резкую картинку с размытой по маске фокуса.
-private func tiltShift(
-  _ plane: BlurPlane, radius: Int, sigma: Double, anchorX: Double, anchorY: Double,
-  hole: Double, degrees: Double?
-) -> BlurPlane {
-  let blurred = separable(
-    plane, weights: gaussianWeights(radius: radius, sigma: sigma), edge: .reflect101)
-  let mask = focusMask(
-    plane, anchorX: anchorX, anchorY: anchorY, hole: hole, degrees: degrees)
-  var values = plane.values
-  for pixel in 0..<mask.count {
-    let share = mask[pixel]
-    for c in 0..<4 {
-      let index = pixel * 4 + c
-      values[index] = plane.values[index] * (1 - share) + blurred.values[index] * share
-    }
-  }
-  return BlurPlane(width: plane.width, height: plane.height, values: values)
-}
-
-/// Box blur: среднее по квадрату `(2r+1) x (2r+1)`, два прохода.
+/// Box blur как `Aire.boxBlur` -> `libblur::box_blur` (Aire 0.18.1 `aire-filters/src/blur.rs`,
+/// libblur 0.19.4 `box_filter/box_blur.rs`): ядро `2 * Int(value) + 1`, пиксели за краем повторяют
+/// крайний, проход по строкам, затем по столбцам, после каждого `round(сумма / ядро)` во `Float`.
+/// При `radius = 0` ядро 1 и картинка не меняется. Края не настраиваются.
 ///
-/// Статус: приближение. Краевой режим Aire по умолчанию в вызове не виден, взят reflect101.
+/// Статус: проверено по эталону.
 struct BoxBlurFilter: Filter {
   let radius: Int
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    filtered(image) { separable($0, weights: boxWeights(radius: radius), edge: .reflect101) }
+    guard radius >= 1 else { return image }
+    let pixels = LibblurBlurs.box(
+      image.pixels, width: image.width, height: image.height, radius: radius)
+    return RasterImage(width: image.width, height: image.height, pixels: pixels)
   }
 }
 
-/// Гауссово размытие как `Aire.gaussianBlur` -> `libblur::gaussian_blur` (режим `FixedPoint`): ядро
-/// `2r+1` с весами `exp(-x^2 / (2 sigma^2))` в целых точках (не интегралом по пикселю), sigma и краевой
-/// режим из Kotlin. Библиотека libblur ведёт себя нестандартно у границ: при ядре от 29 справа от
-/// строки отражённые пиксели стоят в обратном порядке, при ядре до 61 над первой строкой стоит копия
-/// строки 0 вместо краевого режима. Это воспроизведено, иначе эталон не совпадает у правого и
-/// верхнего краёв.
+/// Гауссово размытие как `Aire.gaussianBlur` -> `libblur::gaussian_blur` (режим `FixedPoint`, Aire
+/// 0.18.1, libblur 0.19.4): ядро `2r+1` с весами `exp(-x^2 / (2 sigma^2))` в целых точках, sigma и
+/// краевой режим из Kotlin. Для ядер от 29 отсчётов арифметика целая, как у обработчиков arm64 с
+/// RDM (`LibblurGaussian`), с особенностями libblur у границ: справа от строки отражённые пиксели
+/// записаны в обратном порядке, над первой строкой при ядре до 61 стоит копия строки 0, а при ядре
+/// больше 61 столбцы берут строки подушек по смещённым индексам и последние `высота mod 3` строк
+/// повторяют первые. Для ядер короче 29 (строки через `binter`) расчёт в `Float`: эталон для ядра 11
+/// совпал побитово, на других коротких ядрах возможна разница в один уровень. Эталоны: радиусы 5,
+/// 25 и 40 (ядра 11, 51, 81), Reflect101.
 ///
-/// Статус: проверено по эталону (`GaussianBlurFilter`, разделы 7 и 10; радиус 25, sigma 10, Reflect101).
-/// Эталон есть только для ядра 51. Для ядер меньше 29 и больше 61 границы взяты по исходникам libblur
-/// 0.19.4, на эталонах не проверены.
+/// Статус: проверено по эталону.
 struct GaussianBlurFilter: Filter {
   let radius: Int
   let sigma: Double
   let edge: BlurBorderMode
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    filtered(image) {
-      aireGaussian($0, taps: 2 * max(0, radius) + 1, sigma: sigma, edge: edge)
+    let taps = 2 * max(0, radius) + 1
+    if taps >= LibblurGaussian.minimumTaps {
+      let pixels = LibblurGaussian.blur(
+        image.pixels, width: image.width, height: image.height, taps: taps,
+        sigma: Float(sigma), edge: edge)
+      return RasterImage(width: image.width, height: image.height, pixels: pixels)
     }
+    return shortKernelGaussian(BlurPlane(image), taps: taps, sigma: sigma, edge: edge).raster()
   }
 }
 
-/// Линейное размытие длиной `size` (нечётная) под углом `degrees`, среднее по отрезку.
+/// Линейное размытие как `Aire.motionBlur` -> `libblur::motion_blur` (Aire 0.18.1, libblur 0.19.4
+/// `motion_blur.rs`): ядро размера `nearestOdd(size)` с линией Брезенхэма под углом `degrees`,
+/// двумерная свёртка в фиксированной точке (`LibblurMotion`), края по режиму с дефектом
+/// `AireArena`.
 ///
-/// Статус: приближение. Направление и округление координат выбраны сами (Aire нативный).
+/// Статус: проверено по эталону.
 struct MotionBlurFilter: Filter {
   let size: Double
   let degrees: Double
   let edge: BlurBorderMode
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    let length = nearestOdd(size)
-    let half = length / 2
-    let radians = degrees * Double.pi / 180
-    let dx = cos(radians)
-    let dy = sin(radians)
-    return filtered(image) { plane in
-      var values = [Float](repeating: 0, count: plane.values.count)
-      for y in 0..<plane.height {
-        for x in 0..<plane.width {
-          let target = (y * plane.width + x) * 4
-          for t in -half...half {
-            let sx = edge.index(Int((Double(x) + Double(t) * dx).rounded()), count: plane.width)
-            let sy = edge.index(Int((Double(y) + Double(t) * dy).rounded()), count: plane.height)
-            let source = (sy * plane.width + sx) * 4
-            for c in 0..<4 {
-              values[target + c] += plane.values[source + c]
-            }
-          }
-          for c in 0..<4 {
-            values[target + c] /= Float(length)
-          }
-        }
-      }
-      return BlurPlane(width: plane.width, height: plane.height, values: values)
-    }
+    let pixels = LibblurMotion.blur(
+      image.pixels, width: image.width, height: image.height, size: nearestOdd(size),
+      degrees: Float(degrees), edge: edge)
+    return RasterImage(width: image.width, height: image.height, pixels: pixels)
   }
 }
 
-/// Размытие к центру по шейдеру GPUImage `ZOOM_BLUR_FRAGMENT_SHADER`: девять отсчётов вдоль луча
-/// к центру. Шаг равен `0.01 * (центр - пиксель) * size`, веса 0.18, 0.15, 0.12, 0.09, 0.05
+/// Размытие к центру по шейдеру GPUImage `ZOOM_BLUR_FRAGMENT_SHADER`: девять отсчётов вдоль луча к
+/// центру. Шаг равен `0.01 * (центр - пиксель) * size`, веса 0.18, 0.15, 0.12, 0.09, 0.05
 /// симметрично относительно центрального отсчёта.
 ///
 /// Статус: проверено по эталону (`ZoomBlurFilter`, раздел 10).
@@ -772,24 +573,31 @@ struct ZoomBlurFilter: Filter {
   }
 }
 
-/// Размытие по ядру-многоугольнику: максимум по форме боке (дилатация).
+/// Размытие по ядру-многоугольнику: дилатация (максимум) по форме боке.
 ///
-/// Статус: приближение. Форму ядра Aire.getBokehKernel строим сами. Для больших ядер работает
-/// медленно: O(пикселей x точек ядра).
+/// Android: `Aire.morphology` с ядром `Aire.getBokehKernel(size, sides)` (aire 0.18.1,
+/// `EigenUtils.h` и `fast_morphology` 0.3.1), операция `DILATE`, `REFLECT_101`; размер и число
+/// сторон округляются `roundToInt`. Границы рамки у `fast_morphology` нестандартные (см.
+/// `MorphologyEngine`). Android бросает исключение при размере или числе сторон меньше 3; здесь
+/// ядро строится и для них.
+///
+/// Статус: проверено по эталону.
 struct BokehFilter: Filter {
   let size: Double
   let sides: Double
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    let kernelSize = max(1, Int(size.rounded()))
-    let points = bokehKernel(size: kernelSize, sides: max(3, Int(sides.rounded())))
-    return filtered(image) { dilate($0, size: kernelSize, points: points) }
+    let kernel = bokehMorphologyKernel(
+      size: max(1, Int(size.rounded())), sides: max(1, Int(sides.rounded())))
+    return MorphologyEngine.run(.dilate, on: image, kernel: kernel)
   }
 }
 
-/// Линейный tilt-shift: резкая полоса вдоль линии под углом `degrees`, по краям размытие.
+/// Линейный tilt-shift как `Aire.horizontalTiltShift` (Aire 0.18.1, `jni/ShiftPipelines.cpp`,
+/// `shift/TiltShift.cpp`): размытие `gaussBlurU8` с ядром длиной `blurRadius` и смешивание по кубу
+/// расстояния до линии фокуса, повёрнутой на `degrees` (`AireTiltShift`).
 ///
-/// Статус: приближение. Нативный Aire.horizontalTiltShift не виден; переход и масштаб выбраны сами.
+/// Статус: проверено по эталону.
 struct LinearTiltShiftFilter: Filter {
   let blurRadius: Int
   let sigma: Double
@@ -799,17 +607,19 @@ struct LinearTiltShiftFilter: Filter {
   let degrees: Double
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    let plane = BlurPlane(image)
-    let result = tiltShift(
-      plane, radius: blurRadius, sigma: sigma, anchorX: anchorX, anchorY: anchorY,
-      hole: hole, degrees: degrees)
-    return result.raster()
+    let pixels = AireTiltShift.linear(
+      image.pixels, width: image.width, height: image.height, radius: blurRadius,
+      sigma: Float(sigma), anchorX: Float(anchorX), anchorY: Float(anchorY), hole: Float(hole),
+      angle: Float(degrees) * Float.pi / 180)
+    return RasterImage(width: image.width, height: image.height, pixels: pixels)
   }
 }
 
-/// Круговой tilt-shift: резкий круг вокруг якоря, размытие снаружи.
+/// Круговой tilt-shift как `Aire.tiltShift` (Aire 0.18.1, `jni/ShiftPipelines.cpp`,
+/// `shift/TiltShift.cpp`): размытие `gaussBlurU8` с ядром длиной `blurRadius` и смешивание по кубу
+/// расстояния до якоря (`AireTiltShift`).
 ///
-/// Статус: приближение. Нативный Aire.tiltShift не виден; переход и масштаб выбраны сами.
+/// Статус: проверено по эталону.
 struct RadialTiltShiftFilter: Filter {
   let blurRadius: Int
   let sigma: Double
@@ -818,77 +628,84 @@ struct RadialTiltShiftFilter: Filter {
   let hole: Double
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    let plane = BlurPlane(image)
-    let result = tiltShift(
-      plane, radius: blurRadius, sigma: sigma, anchorX: anchorX, anchorY: anchorY,
-      hole: hole, degrees: nil)
-    return result.raster()
+    let pixels = AireTiltShift.radial(
+      image.pixels, width: image.width, height: image.height, radius: blurRadius,
+      sigma: Float(sigma), anchorX: Float(anchorX), anchorY: Float(anchorY), hole: Float(hole))
+    return RasterImage(width: image.width, height: image.height, pixels: pixels)
   }
 }
 
-/// Быстрое размытие: уменьшить до `scale`, box-размытие радиусом `radius`, растянуть обратно.
+/// Быстрое размытие как `Trickle.fastBlur` (Trickle 1.9.3, `Utils.cpp`, `fastBlurImpl`): уменьшение
+/// до `scale` билинейным фильтром Skia, box-размытие радиусом `radius`, увеличение обратно
+/// (`TrickleFastBlur`). Альфа результата 255, при `radius < 1` картинка не меняется. Android
+/// возвращает размер `Int(w / scale)` на `Int(h / scale)`, который может отличаться от исходного;
+/// здесь размер сохраняется. Эталон снят для масштаба 0.5; билинейная выборка Skia для других
+/// масштабов воспроизведена по устройству `SkBitmapProcState` и на эталоне не проверена.
 ///
-/// Статус: приближение. Нативный Trickle.fastBlur не виден, порядок шагов и передискретизация
-/// выбраны сами.
+/// Статус: проверено по эталону.
 struct FastBlurFilter: Filter {
   let scale: Double
   let radius: Int
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    filtered(image) { plane in
-      let small = resampleNearest(
-        plane,
-        width: max(1, Int((Double(plane.width) * scale).rounded())),
-        height: max(1, Int((Double(plane.height) * scale).rounded())))
-      let blurred = separable(small, weights: boxWeights(radius: radius), edge: .reflect101)
-      return resampleNearest(blurred, width: plane.width, height: plane.height)
-    }
+    TrickleFastBlur.apply(image, scale: Float(scale), radius: radius)
   }
 }
 
-/// Stack blur: треугольное ядро радиуса `radius` (не меньше 1), два прохода.
+/// Stack blur как `Aire.stackBlur` -> `libblur::stack_blur` (Aire 0.18.1, libblur 0.19.4
+/// `stackblur/`): треугольное ядро `radius + 1 - |k|` радиусом не меньше 1, делитель `(radius +
+/// 1)^2`, край повторяет крайний пиксель, строки, затем столбцы, `round` после каждого прохода.
 ///
-/// Статус: приближение. Нативный Aire.stackBlur не виден, краевой режим reflect101 выбран сами.
+/// Статус: проверено по эталону.
 struct NativeStackBlurFilter: Filter {
   let radius: Int
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    filtered(image) {
-      separable($0, weights: triangleWeights(radius: max(1, radius)), edge: .reflect101)
-    }
+    let pixels = LibblurBlurs.stack(
+      image.pixels, width: image.width, height: image.height, radius: max(1, radius))
+    return RasterImage(width: image.width, height: image.height, pixels: pixels)
   }
 }
 
-/// Медианный фильтр по квадрату `(2r+1)`.
+/// Медианный фильтр как `Aire.medianBlur` -> `libblur::median_blur` (Aire 0.18.1, libblur 0.19.4
+/// `median_blur.rs`). Aire передаёт в libblur радиус `2 * round(value) + 1`. Алгоритм гистограммы
+/// libblur воспроизведён вместе с его особенностями (см. `LibblurBlurs.median`): окно по столбцам
+/// несимметрично, один столбец выпадает, «медиана» на единицу ниже середины.
 ///
-/// Статус: приближение. Определение медианы точное, краевой режим Aire не виден: reflect101.
+/// Статус: проверено по эталону.
 struct MedianBlurFilter: Filter {
   let radius: Int
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    filtered(image) { medianBlur($0, radius: radius, edge: .reflect101) }
+    let pixels = LibblurBlurs.median(
+      image.pixels, width: image.width, height: image.height, radius: 2 * max(0, radius) + 1)
+    return RasterImage(width: image.width, height: image.height, pixels: pixels)
   }
 }
 
-/// Tent blur: треугольное ядро размера `size`, округлённого до нечётного.
+/// Tent blur как `Aire.tentBlur` -> `libblur::tent_blur` (Aire 0.18.1, libblur 0.19.4
+/// `box_filter/box_blur.rs`): два box-размытия с окнами из `create_box_gauss`, sigma — `size`,
+/// округлённый до нечётного. Край повторяет крайний пиксель.
 ///
-/// Статус: приближение. Нативный Aire.tentBlur не виден; трактовка `sigma` как размера ядра
-/// выбрана сама.
+/// Статус: проверено по эталону.
 struct TentBlurFilter: Filter {
   let size: Double
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    let radius = (nearestOdd(size) - 1) / 2
-    return filtered(image) {
-      separable($0, weights: triangleWeights(radius: radius), edge: .reflect101)
-    }
+    let pixels = LibblurBlurs.tent(
+      image.pixels, width: image.width, height: image.height, sigma: Float(nearestOdd(size)))
+    return RasterImage(width: image.width, height: image.height, pixels: pixels)
   }
 }
 
-/// Билатеральное размытие: ядро `2r+1`, веса по расстоянию и по цвету.
+/// Билатеральное размытие как `Aire.bilateralBlur` -> `libblur::bilateral_filter` (Aire 0.18.1,
+/// libblur 0.19.4 `bilateral/bp8.rs`, `bilateral/neon/bp8.rs`): окно `2r+1`, каналы отдельно
+/// (`LibblurBilateral.filter`). Aire передаёт в libblur сигмы в другом порядке, чем называет их
+/// Kotlin: пространственной сигмой (в пикселях) служит `rangeSigma` фильтра, цветовой (в долях 1)
+/// `spatialSigma`. По умолчанию это 3 и 10, поэтому цветовой вес почти не влияет. Поля структуры
+/// названы как в Kotlin.
 ///
-/// Статус: приближение. Шкала цветового сигма 0...255 и краевой режим выбраны сами (Aire нативный).
-/// Порядок sigma/spatialSigma в Ui не совпадает с полями Kotlin, см. описание дескриптора.
+/// Статус: проверено по эталону.
 struct BilaterialBlurFilter: Filter {
   let radius: Int
   let spatialSigma: Double
@@ -896,28 +713,28 @@ struct BilaterialBlurFilter: Filter {
   let edge: BlurBorderMode
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    filtered(image) {
-      bilateral(
-        $0, radius: radius, spatialSigma: spatialSigma, rangeSigma: rangeSigma, edge: edge)
-    }
+    let pixels = LibblurBilateral.filter(
+      image.pixels, width: image.width, height: image.height, kernel: 2 * max(0, radius) + 1,
+      spatialSigma: Float(rangeSigma), rangeSigma: Float(spatialSigma), edge: edge)
+    return RasterImage(width: image.width, height: image.height, pixels: pixels)
   }
 }
 
-/// Быстрый билатеральный фильтр: та же формула, что и `BilaterialBlurFilter`, с ядром `size`.
+/// Быстрый билатеральный фильтр как `Aire.fastBilateralBlur` -> `libblur::fast_bilateral_filter`
+/// (Aire 0.18.1, libblur 0.19.4 `fast_bilateral_filter.rs`): билатеральная сетка по каждому каналу
+/// и гауссово ядро `size`, округлённое до нечётного (`LibblurBilateral.fast`). Сигмы идут в libblur
+/// в том же порядке, что и в Kotlin (`spatialSigma`, `rangeSigma`).
 ///
-/// Статус: приближение. Aire.fastBilateralBlur сеточный и нативный; здесь точная сумма по окну,
-/// поэтому результат близок по формуле, но не побитово. Медленно при больших ядрах.
+/// Статус: проверено по эталону.
 struct FastBilaterialBlurFilter: Filter {
   let size: Double
   let spatialSigma: Double
   let rangeSigma: Double
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    let radius = nearestOdd(size) / 2
-    return filtered(image) {
-      bilateral(
-        $0, radius: radius, spatialSigma: spatialSigma, rangeSigma: rangeSigma,
-        edge: .reflect101)
-    }
+    let pixels = LibblurBilateral.fast(
+      image.pixels, width: image.width, height: image.height, kernelSize: nearestOdd(size),
+      spatialSigma: Float(spatialSigma), rangeSigma: Float(rangeSigma))
+    return RasterImage(width: image.width, height: image.height, pixels: pixels)
   }
 }

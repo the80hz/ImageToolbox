@@ -1,13 +1,18 @@
 import Foundation
 
-/// Морфология из Android: дилатация, эрозия, открытие, закрытие, top-hat, black-hat и морфологический градиент.
+/// Морфология из Android: дилатация, эрозия, открытие, закрытие, top-hat, black-hat и
+/// морфологический градиент.
 ///
-/// Android вызывает `Aire.morphology` с ядром `MorphKernels.box(size)` или `MorphKernels.circle(size)`,
-/// границей `REFLECT_101` и размером `size × size`. Здесь ядро — квадрат `size × size` (или диск в нём),
-/// якорь в центре, индекс `size / 2`. Реализация Aire в репозитории не видна, поэтому:
-/// - форма круга — диск, вписанный в квадрат, с центром пикселя; точная форма Aire не проверена (приближение);
-/// - для top-hat, black-hat и градиента альфа-канал сохраняется, чтобы непрозрачная картинка не стала
-///   прозрачной (поведение Aire для RGBA здесь не видно, приближение).
+/// Android вызывает `Aire.morphology` (Aire 0.18.1, `aire-filters/src/morph.rs`, крейт
+/// `fast_morphology` 0.3.1) с ядром `MorphKernels.box(size)` или `MorphKernels.circle(size)`,
+/// границей `REFLECT_101` и размером `size x size`. Ядро-круг (`ConvolveKernels.circle`): точки,
+/// чьё расстояние до центра `(size / 2, size / 2)` не больше `Float(size) / 3`; ядро-квадрат: все
+/// точки. Границы у `fast_morphology` нестандартные (см. `MorphologyEngine`). Если у картинки есть
+/// пиксель с альфой не 255, Aire обрабатывает и альфу как обычный канал (режим RGBA), иначе только
+/// RGB, а альфа результата 255. Android не принимает круг размером меньше 5 (бросает исключение),
+/// здесь формула применяется и к таким размерам.
+///
+/// Статус: проверено по эталону (разделы 7 и 10 FILTERS.md; размер 25, круг).
 enum MorphologyFilters {
   static let descriptors: [FilterDescriptor] = [
     descriptor(id: "DilationFilter", titleKey: "dilation") { size, circle in
@@ -61,7 +66,10 @@ enum MorphologyFilters {
   }
 }
 
-/// Дилатация: максимум по окрестности каждого канала.
+/// Дилатация: максимум по окрестности каждого канала (`MorphOp.DILATE`).
+///
+/// Источник: Aire 0.18.1, `Aire.morphology`, `fast_morphology` 0.3.1.
+/// Статус: проверено по эталону.
 struct DilationFilter: Filter {
   let size: Int
   let circle: Bool
@@ -71,7 +79,10 @@ struct DilationFilter: Filter {
   }
 }
 
-/// Эрозия: минимум по окрестности каждого канала.
+/// Эрозия: минимум по окрестности каждого канала (`MorphOp.ERODE`).
+///
+/// Источник: Aire 0.18.1, `Aire.morphology`, `fast_morphology` 0.3.1.
+/// Статус: проверено по эталону.
 struct ErodeFilter: Filter {
   let size: Int
   let circle: Bool
@@ -82,6 +93,9 @@ struct ErodeFilter: Filter {
 }
 
 /// Открытие: эрозия, затем дилатация. Убирает светлые детали меньше ядра.
+///
+/// Источник: Aire 0.18.1, `Aire.morphology`, `fast_morphology` 0.3.1.
+/// Статус: проверено по эталону.
 struct OpeningFilter: Filter {
   let size: Int
   let circle: Bool
@@ -92,6 +106,9 @@ struct OpeningFilter: Filter {
 }
 
 /// Закрытие: дилатация, затем эрозия. Заполняет тёмные детали меньше ядра.
+///
+/// Источник: Aire 0.18.1, `Aire.morphology`, `fast_morphology` 0.3.1.
+/// Статус: проверено по эталону.
 struct ClosingFilter: Filter {
   let size: Int
   let circle: Bool
@@ -102,6 +119,9 @@ struct ClosingFilter: Filter {
 }
 
 /// Top-hat: исходное изображение минус открытие. Выделяет светлые детали меньше ядра.
+///
+/// Источник: Aire 0.18.1, `Aire.morphology`, `fast_morphology` 0.3.1.
+/// Статус: проверено по эталону.
 struct TopHatFilter: Filter {
   let size: Int
   let circle: Bool
@@ -112,6 +132,9 @@ struct TopHatFilter: Filter {
 }
 
 /// Black-hat: закрытие минус исходное изображение. Выделяет тёмные детали меньше ядра.
+///
+/// Источник: Aire 0.18.1, `Aire.morphology`, `fast_morphology` 0.3.1.
+/// Статус: проверено по эталону.
 struct BlackHatFilter: Filter {
   let size: Int
   let circle: Bool
@@ -122,6 +145,9 @@ struct BlackHatFilter: Filter {
 }
 
 /// Морфологический градиент: дилатация минус эрозия. Подсвечивает границы.
+///
+/// Источник: Aire 0.18.1, `Aire.morphology`, `fast_morphology` 0.3.1.
+/// Статус: проверено по эталону.
 struct MorphologicalGradientFilter: Filter {
   let size: Int
   let circle: Bool
@@ -131,11 +157,14 @@ struct MorphologicalGradientFilter: Filter {
   }
 }
 
-/// Считает морфологические операции по плоскостям каналов RGBA.
+/// Морфология как в `fast_morphology` 0.3.1 (Aire 0.18.1): те же ядра, та же рамка вокруг картинки
+/// (`AireArena`, режим `REFLECT_101` с её дефектом у границ).
 ///
-/// Минимум и максимум прямоугольного ядра разделяются на проход по строкам и по столбцам.
-/// Для ядра-диска каждая строка ядра даёт свой отрезок, и результат берётся по строкам ядра.
-/// Вне картинки значения берутся отражением без повтора края (`REFLECT_101`).
+/// Вычисление: для каждой строки ядра берётся отрезок подряд идущих точек. Максимум (минимум) по
+/// отрезку длины `n` даёт два перекрывающихся окна степени двойки из пирамиды `M(j)[x] =
+/// op(M(j-1)[x], M(j-1)[x + 2^(j-1)])`, которая строится по каждой строке рамки один раз. Время
+/// растёт линейно с числом строк ядра, не с числом его точек; байты обрабатываются по 16 штук
+/// (`SIMD16`).
 enum MorphologyEngine {
   enum Operation: Sendable {
     case erode
@@ -145,205 +174,295 @@ enum MorphologyEngine {
     case topHat
     case blackHat
     case gradient
-
-    /// Top-hat, black-hat и градиент не трогают альфа-канал (см. комментарий в файле).
-    var preservesAlpha: Bool {
-      switch self {
-      case .topHat, .blackHat, .gradient: true
-      case .erode, .dilate, .opening, .closing: false
-      }
-    }
   }
 
-  /// Отрезок по горизонтали относительно якоря: от `lo` до `hi` включительно.
-  struct Span: Hashable {
+  /// Подряд идущие точки одной строки ядра: столбцы `lo...hi` строки `row` (индексы в ядре).
+  struct Run: Hashable {
+    let row: Int
     let lo: Int
     let hi: Int
   }
 
-  /// Строки ядра сверху вниз. Строка `i` имеет смещение `i - anchor` по вертикали.
+  /// Структурный элемент `width x height`; якорь в `(width / 2, height / 2)`.
   struct Kernel {
-    let anchor: Int
-    let rows: [Span]
+    let width: Int
+    let height: Int
+    let runs: [Run]
 
-    /// Квадрат `size × size` или диск в нём. Центр диска — центр пикселя ядра.
-    static func make(size: Int, circle: Bool) -> Kernel {
-      let anchor = size / 2
-      let centre = Double(size - 1) / 2
-      let radius2 = Double(size * size) / 4
-      let rows: [Span] = (0..<size).map { row in
-        let dy = Double(row) - centre
-        var first = 0
-        var last = size - 1
-        if circle {
-          let inside = (0..<size).filter { column in
-            let dx = Double(column) - centre
-            return dx * dx + dy * dy <= radius2
+    /// Ядро по маске строк сверху вниз (`true` — точка ядра), как массив `IntArray` в Aire.
+    init(width: Int, height: Int, mask: [Bool]) {
+      precondition(mask.count == width * height, "kernel mask size mismatch")
+      var runs: [Run] = []
+      for row in 0..<height {
+        var column = 0
+        while column < width {
+          guard mask[row * width + column] else {
+            column += 1
+            continue
           }
-          first = inside.first ?? anchor
-          last = inside.last ?? anchor
+          let start = column
+          while column < width, mask[row * width + column] { column += 1 }
+          runs.append(Run(row: row, lo: start, hi: column - 1))
         }
-        return Span(lo: first - anchor, hi: last - anchor)
       }
-      return Kernel(anchor: anchor, rows: rows)
+      self.width = width
+      self.height = height
+      self.runs = runs
+    }
+
+    /// `MorphKernels.box(size)`: все точки квадрата.
+    static func box(size: Int) -> Kernel {
+      Kernel(width: size, height: size, mask: [Bool](repeating: true, count: size * size))
+    }
+
+    /// `MorphKernels.circle(size)` (`ConvolveKernels.circle`): точки, чьё расстояние до `(size / 2,
+    /// size / 2)` не больше `Float(size) / 3`. Android принимает такое ядро только от размера 5, на
+    /// меньших размерах бросает исключение; здесь формула применяется и к ним.
+    static func circle(size: Int) -> Kernel {
+      let centre = size / 2
+      let radius = Double(Float(size) / 3)
+      var mask = [Bool](repeating: false, count: size * size)
+      for row in 0..<size {
+        for column in 0..<size {
+          let dy = Double(row - centre)
+          let dx = Double(column - centre)
+          mask[row * size + column] = (dy * dy + dx * dx).squareRoot() <= radius
+        }
+      }
+      return Kernel(width: size, height: size, mask: mask)
     }
   }
 
-  /// Применяет операцию ко всем каналам. Альфа сохраняется, если операция этого требует.
+  /// Применяет операцию к RGBA-картинке (premultiplied, как хранит Android).
   static func run(
     _ operation: Operation, on image: RasterImage, size: Int, circle: Bool
   ) -> RasterImage {
-    let kernel = Kernel.make(size: max(1, size), circle: circle)
+    let side = max(1, size)
+    return run(operation, on: image, kernel: circle ? .circle(size: side) : .box(size: side))
+  }
+
+  /// Применяет операцию с произвольным ядром. Если у всех пикселей альфа 255 (`checkHasAlpha` в
+  /// Trickle ложно), Aire работает в режиме RGB: альфа результата 255. Иначе все четыре канала
+  /// обрабатываются одинаково, включая альфу.
+  static func run(_ operation: Operation, on image: RasterImage, kernel: Kernel) -> RasterImage {
+    guard !kernel.runs.isEmpty else { return image }
     let width = image.width
     let height = image.height
-    var pixels = image.pixels
-    let channels = operation.preservesAlpha ? 3 : 4
-    for channel in 0..<channels {
-      var plane = [UInt8](repeating: 0, count: width * height)
-      for index in 0..<(width * height) {
-        plane[index] = image.pixels[index * 4 + channel]
-      }
-      let result = transform(operation, plane, width: width, height: height, kernel: kernel)
-      for index in 0..<(width * height) {
-        pixels[index * 4 + channel] = result[index]
-      }
-    }
-    return RasterImage(width: width, height: height, pixels: pixels)
-  }
-
-  private static func transform(
-    _ operation: Operation, _ plane: [UInt8], width: Int, height: Int, kernel: Kernel
-  ) -> [UInt8] {
-    func erode(_ values: [UInt8]) -> [UInt8] {
-      extreme(values, width: width, height: height, kernel: kernel, isMax: false)
-    }
-    func dilate(_ values: [UInt8]) -> [UInt8] {
-      extreme(values, width: width, height: height, kernel: kernel, isMax: true)
-    }
+    let source = image.pixels
+    var result: [UInt8]
     switch operation {
     case .erode:
-      return erode(plane)
+      result = extremum(source, width: width, height: height, kernel: kernel, isMax: false)
     case .dilate:
-      return dilate(plane)
+      result = extremum(source, width: width, height: height, kernel: kernel, isMax: true)
     case .opening:
-      return dilate(erode(plane))
+      let eroded = extremum(source, width: width, height: height, kernel: kernel, isMax: false)
+      result = extremum(eroded, width: width, height: height, kernel: kernel, isMax: true)
     case .closing:
-      return erode(dilate(plane))
-    case .topHat:
-      let opened = dilate(erode(plane))
-      return zip(plane, opened).map { UInt8(clamping: Int($0.0) - Int($0.1)) }
-    case .blackHat:
-      let closed = erode(dilate(plane))
-      return zip(closed, plane).map { UInt8(clamping: Int($0.0) - Int($0.1)) }
+      let dilated = extremum(source, width: width, height: height, kernel: kernel, isMax: true)
+      result = extremum(dilated, width: width, height: height, kernel: kernel, isMax: false)
     case .gradient:
-      let grown = dilate(plane)
-      let shrunk = erode(plane)
-      return zip(grown, shrunk).map { UInt8(clamping: Int($0.0) - Int($0.1)) }
+      let dilated = extremum(source, width: width, height: height, kernel: kernel, isMax: true)
+      let eroded = extremum(source, width: width, height: height, kernel: kernel, isMax: false)
+      result = saturatingDifference(dilated, eroded)
+    case .topHat:
+      let eroded = extremum(source, width: width, height: height, kernel: kernel, isMax: false)
+      let opened = extremum(eroded, width: width, height: height, kernel: kernel, isMax: true)
+      result = saturatingDifference(source, opened)
+    case .blackHat:
+      let dilated = extremum(source, width: width, height: height, kernel: kernel, isMax: true)
+      let closed = extremum(dilated, width: width, height: height, kernel: kernel, isMax: false)
+      result = saturatingDifference(closed, source)
     }
+    if !hasTransparency(source) {
+      for index in stride(from: 3, to: result.count, by: 4) { result[index] = 255 }
+    }
+    return RasterImage(width: width, height: height, pixels: result)
   }
 
-  /// Максимум (или минимум) плоскости по ядру. Размер плоскости `width × height`, строки сверху.
-  private static func extreme(
-    _ plane: [UInt8], width: Int, height: Int, kernel: Kernel, isMax: Bool
+  /// Есть ли пиксель с альфой не 255 (`isImageHasAlpha` в Trickle).
+  private static func hasTransparency(_ pixels: [UInt8]) -> Bool {
+    for index in stride(from: 3, to: pixels.count, by: 4) where pixels[index] != 255 {
+      return true
+    }
+    return false
+  }
+
+  /// `max(a - b, 0)` по байтам (`morph_gradient` с насыщением).
+  private static func saturatingDifference(_ a: [UInt8], _ b: [UInt8]) -> [UInt8] {
+    var output = [UInt8](repeating: 0, count: a.count)
+    for index in 0..<a.count {
+      output[index] = a[index] > b[index] ? a[index] - b[index] : 0
+    }
+    return output
+  }
+
+  /// Максимум или минимум пикселей под ядром для каждой позиции. Размер результата как у входа.
+  private static func extremum(
+    _ pixels: [UInt8], width: Int, height: Int, kernel: Kernel, isMax: Bool
   ) -> [UInt8] {
-    if Set(kernel.rows).count == 1, let span = kernel.rows.first {
-      // Прямоугольное ядро: сначала по строкам, потом по столбцам.
-      let verticalSpan = Span(lo: -kernel.anchor, hi: kernel.rows.count - 1 - kernel.anchor)
-      var rowPass = [UInt8](repeating: 0, count: width * height)
-      for y in 0..<height {
-        let row = Array(plane[(y * width)..<(y * width + width)])
-        rowPass.replaceSubrange(
-          (y * width)..<(y * width + width),
-          with: slidingExtreme(row, span: span, isMax: isMax))
-      }
-      var output = [UInt8](repeating: 0, count: width * height)
-      for x in 0..<width {
-        var column = [UInt8](repeating: 0, count: height)
-        for y in 0..<height {
-          column[y] = rowPass[y * width + x]
-        }
-        let result = slidingExtreme(column, span: verticalSpan, isMax: isMax)
-        for y in 0..<height {
-          output[y * width + x] = result[y]
-        }
-      }
-      return output
-    }
-
-    // Ядро-диск: горизонтальный проход для каждого отрезка, затем сбор по строкам ядра.
-    var cache: [Span: [UInt8]] = [:]
-    var rowPlanes: [[UInt8]] = []
-    for span in kernel.rows {
-      if let cached = cache[span] {
-        rowPlanes.append(cached)
-        continue
-      }
-      var pass = [UInt8](repeating: 0, count: width * height)
-      for y in 0..<height {
-        let row = Array(plane[(y * width)..<(y * width + width)])
-        pass.replaceSubrange(
-          (y * width)..<(y * width + width),
-          with: slidingExtreme(row, span: span, isMax: isMax))
-      }
-      cache[span] = pass
-      rowPlanes.append(pass)
-    }
-
-    var output = [UInt8](repeating: isMax ? 0 : 255, count: width * height)
-    for y in 0..<height {
-      for (index, pass) in rowPlanes.enumerated() {
-        let source = reflect101(y + index - kernel.anchor, height) * width
-        for x in 0..<width {
-          output[y * width + x] = pick(output[y * width + x], pass[source + x], isMax: isMax)
+    var output = [UInt8](repeating: 0, count: pixels.count)
+    guard !pixels.isEmpty else { return output }
+    pixels.withUnsafeBufferPointer { source in
+      output.withUnsafeMutableBufferPointer { destination in
+        guard let target = destination.baseAddress else { return }
+        if isMax {
+          extremum(MaxOperation.self, source, target, width, height, kernel)
+        } else {
+          extremum(MinOperation.self, source, target, width, height, kernel)
         }
       }
     }
     return output
   }
 
-  /// Для каждой позиции `i` возвращает экстремум значений `values[i + k]` при `k` из `span`.
-  /// Граница — `REFLECT_101`. Алгоритм van Herk / Gil-Werman, время линейно от длины.
-  private static func slidingExtreme(_ values: [UInt8], span: Span, isMax: Bool) -> [UInt8] {
-    let count = values.count
-    let length = span.hi - span.lo + 1
-    let leftPad = max(0, -span.lo)
-    let rightPad = max(0, span.hi)
-    let total = count + leftPad + rightPad
-
-    var padded = [UInt8](repeating: 0, count: total)
-    for index in 0..<total {
-      padded[index] = values[reflect101(index - leftPad, count)]
-    }
-
-    // Префиксы и суффиксы внутри блоков длины `length`.
-    var prefix = padded
-    var suffix = padded
-    for index in 0..<total where index % length != 0 {
-      prefix[index] = pick(prefix[index - 1], padded[index], isMax: isMax)
-    }
-    for index in stride(from: total - 2, through: 0, by: -1) where (index + 1) % length != 0 {
-      suffix[index] = pick(suffix[index + 1], padded[index], isMax: isMax)
-    }
-
-    var output = [UInt8](repeating: 0, count: count)
-    for x in 0..<count {
-      let start = x + span.lo + leftPad
-      output[x] = pick(suffix[start], prefix[start + length - 1], isMax: isMax)
-    }
-    return output
+  /// Геометрия рамки и пирамиды окон для одного вызова.
+  private struct Layout: Sendable {
+    let width: Int
+    let height: Int
+    let arenaWidth: Int
+    let rowBytes: Int
+    let rowStride: Int
+    let levels: Int
+    let kernelRows: Int
+    let runs: [Run]
   }
 
+  private static func extremum<Operation: ExtremumOperation>(
+    _: Operation.Type, _ source: UnsafeBufferPointer<UInt8>, _ target: UnsafeMutablePointer<UInt8>,
+    _ width: Int, _ height: Int, _ kernel: Kernel
+  ) {
+    let padX = kernel.width / 2
+    let padY = kernel.height / 2
+    let arena = AireArena.make(
+      source, width: width, height: height, padX: padX, padY: padY, mode: .reflect101, tail: 64)
+    let longest = kernel.runs.map { $0.hi - $0.lo + 1 }.max() ?? 1
+    let rowBytes = (width + 2 * padX) * 4
+    let layout = Layout(
+      width: width, height: height, arenaWidth: width + 2 * padX, rowBytes: rowBytes,
+      rowStride: rowBytes + 64, levels: Int.bitWidth - 1 - longest.leadingZeroBitCount,
+      kernelRows: kernel.height, runs: kernel.runs)
+    let shared = SharedBuffer(base: target)
+    arena.withUnsafeBufferPointer { arenaBuffer in
+      guard let arenaBase = arenaBuffer.baseAddress else { return }
+      let arenaPointer = SharedConstBuffer(base: arenaBase)
+      ParallelBands.run(rows: height, minimumRows: 32) { band in
+        process(Operation.self, band, layout, arenaPointer.base, shared.base)
+      }
+    }
+  }
+
+  /// Строит пирамиду окон строки рамки `row` в слоте кольца `row % kernelRows`.
+  private static func buildPyramid<Operation: ExtremumOperation>(
+    _: Operation.Type, row: Int, _ layout: Layout, arena: UnsafePointer<UInt8>,
+    ring: UnsafeMutablePointer<UInt8>
+  ) {
+    guard layout.levels > 0 else { return }
+    let slot = ring + (row % layout.kernelRows) * layout.levels * layout.rowStride
+    var previous = arena + row * layout.rowBytes
+    for level in 1...layout.levels {
+      let current = slot + (level - 1) * layout.rowStride
+      let valid = (layout.arenaWidth - (1 << level) + 1) * 4
+      let shift = 4 << (level - 1)
+      var offset = 0
+      while offset + 16 <= valid {
+        let a = UnsafeRawPointer(previous + offset).loadUnaligned(as: SIMD16<UInt8>.self)
+        let b = UnsafeRawPointer(previous + offset + shift).loadUnaligned(as: SIMD16<UInt8>.self)
+        UnsafeMutableRawPointer(current + offset).storeBytes(
+          of: Operation.combine(a, b), as: SIMD16<UInt8>.self)
+        offset += 16
+      }
+      while offset < valid {
+        current[offset] = Operation.combine(previous[offset], previous[offset + shift])
+        offset += 1
+      }
+      previous = UnsafePointer(current)
+    }
+  }
+
+  /// Считает строки `band` результата. Кольцо хранит пирамиды `kernelRows` последних строк рамки.
+  private static func process<Operation: ExtremumOperation>(
+    _: Operation.Type, _ band: Range<Int>, _ layout: Layout, _ arena: UnsafePointer<UInt8>,
+    _ target: UnsafeMutablePointer<UInt8>
+  ) {
+    let runs = layout.runs
+    let ring = UnsafeMutablePointer<UInt8>.allocate(
+      capacity: max(1, layout.kernelRows * layout.levels * layout.rowStride))
+    let starts = UnsafeMutablePointer<UnsafePointer<UInt8>>.allocate(capacity: runs.count)
+    let ends = UnsafeMutablePointer<UnsafePointer<UInt8>>.allocate(capacity: runs.count)
+    defer {
+      ring.deallocate()
+      starts.deallocate()
+      ends.deallocate()
+    }
+    for row in band.lowerBound..<(band.lowerBound + layout.kernelRows - 1) {
+      buildPyramid(Operation.self, row: row, layout, arena: arena, ring: ring)
+    }
+    let total = layout.width * 4
+    for y in band {
+      buildPyramid(Operation.self, row: y + layout.kernelRows - 1, layout, arena: arena, ring: ring)
+      for (index, run) in runs.enumerated() {
+        let row = y + run.row
+        let level = Int.bitWidth - 1 - (run.hi - run.lo + 1).leadingZeroBitCount
+        var base = arena + row * layout.rowBytes
+        if level > 0 {
+          let slot = (row % layout.kernelRows) * layout.levels + (level - 1)
+          base = UnsafePointer(ring + slot * layout.rowStride)
+        }
+        starts[index] = base + run.lo * 4
+        ends[index] = base + (run.hi - (1 << level) + 1) * 4
+      }
+      let line = target + y * total
+      var offset = 0
+      while offset + 16 <= total {
+        var best = Operation.identityVector
+        for index in 0..<runs.count {
+          let a = UnsafeRawPointer(starts[index] + offset).loadUnaligned(as: SIMD16<UInt8>.self)
+          let b = UnsafeRawPointer(ends[index] + offset).loadUnaligned(as: SIMD16<UInt8>.self)
+          best = Operation.combine(best, Operation.combine(a, b))
+        }
+        UnsafeMutableRawPointer(line + offset).storeBytes(of: best, as: SIMD16<UInt8>.self)
+        offset += 16
+      }
+      while offset < total {
+        var best = Operation.identityScalar
+        for index in 0..<runs.count {
+          best = Operation.combine(
+            best, Operation.combine(starts[index][offset], ends[index][offset]))
+        }
+        line[offset] = best
+        offset += 1
+      }
+    }
+  }
+}
+
+/// Максимум или минимум: единственное, что отличает дилатацию от эрозии.
+private protocol ExtremumOperation: Sendable {
+  static var identityVector: SIMD16<UInt8> { get }
+  static var identityScalar: UInt8 { get }
+  static func combine(_ a: SIMD16<UInt8>, _ b: SIMD16<UInt8>) -> SIMD16<UInt8>
+  static func combine(_ a: UInt8, _ b: UInt8) -> UInt8
+}
+
+private enum MaxOperation: ExtremumOperation {
+  static var identityVector: SIMD16<UInt8> { SIMD16(repeating: 0) }
+  static var identityScalar: UInt8 { 0 }
   @inline(__always)
-  private static func pick(_ a: UInt8, _ b: UInt8, isMax: Bool) -> UInt8 {
-    isMax ? max(a, b) : min(a, b)
+  static func combine(_ a: SIMD16<UInt8>, _ b: SIMD16<UInt8>) -> SIMD16<UInt8> {
+    a.replacing(with: b, where: b .> a)
   }
+  @inline(__always)
+  static func combine(_ a: UInt8, _ b: UInt8) -> UInt8 { max(a, b) }
+}
 
-  /// Индекс отражения без повтора края: -1 даёт 1, `count` даёт `count - 2`.
-  private static func reflect101(_ index: Int, _ count: Int) -> Int {
-    guard count > 1 else { return 0 }
-    let period = 2 * (count - 1)
-    var wrapped = index % period
-    if wrapped < 0 { wrapped += period }
-    return wrapped < count ? wrapped : period - wrapped
+private enum MinOperation: ExtremumOperation {
+  static var identityVector: SIMD16<UInt8> { SIMD16(repeating: 255) }
+  static var identityScalar: UInt8 { 255 }
+  @inline(__always)
+  static func combine(_ a: SIMD16<UInt8>, _ b: SIMD16<UInt8>) -> SIMD16<UInt8> {
+    a.replacing(with: b, where: b .< a)
   }
+  @inline(__always)
+  static func combine(_ a: UInt8, _ b: UInt8) -> UInt8 { min(a, b) }
 }

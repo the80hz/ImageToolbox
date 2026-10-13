@@ -164,7 +164,7 @@ struct BlurFilterTests {
     try await keepsSolid(NativeStackBlurFilter(radius: 3))
   }
 
-  @Test("median blur changes a single bright pixel; radius 0 changes nothing")
+  @Test("median blur removes a single bright pixel; radius 0 is window radius 1, as in Aire")
   func medianBlur() async throws {
     var picture = FilterTestImages.solid(width: 5, height: 3, red: 10, green: 10, blue: 10)
     picture = RasterImage(
@@ -175,20 +175,22 @@ struct BlurFilterTests {
       })
     let filtered = try await MedianBlurFilter(radius: 1).apply(to: picture)
     #expect(filtered.pixels[(1 * 5 + 2) * 4] == 10)
-    let same = try await MedianBlurFilter(radius: 0).apply(to: picture)
-    #expect(same.pixels == picture.pixels)
+    // Aire передаёт в libblur радиус 2 * round(value) + 1, поэтому радиус 0 — окно радиуса 1.
+    let smallest = try await MedianBlurFilter(radius: 0).apply(to: picture)
+    #expect(smallest.pixels[(1 * 5 + 2) * 4] == 10)
     try await runsOnExtremes(MedianBlurFilter(radius: 0))
     try await runsOnExtremes(MedianBlurFilter(radius: 100))
     try await keepsSolid(MedianBlurFilter(radius: 2))
   }
 
-  @Test("tent blur changes stripes; size 1 changes nothing")
+  @Test("tent blur changes stripes; size 1 still blurs, as in Aire")
   func tentBlur() async throws {
     let picture = stripes(width: 6, height: 4, low: 0, high: 255)
     let blurred = try await TentBlurFilter(size: 5).apply(to: picture)
     #expect(blurred.pixels != picture.pixels)
-    let same = try await TentBlurFilter(size: 1).apply(to: picture)
-    #expect(same.pixels == picture.pixels)
+    // Sigma 1 даёт у libblur два прохода box с ядром 3, это не тождество.
+    let smallest = try await TentBlurFilter(size: 1).apply(to: picture)
+    #expect(smallest.pixels != picture.pixels)
     try await runsOnExtremes(TentBlurFilter(size: 1))
     try await runsOnExtremes(TentBlurFilter(size: 300))
     try await keepsSolid(TentBlurFilter(size: 7))
@@ -213,16 +215,20 @@ struct BlurFilterTests {
       BilaterialBlurFilter(radius: 2, spatialSigma: 10, rangeSigma: 3, edge: .clamp))
   }
 
-  @Test("fast bilateral blur smooths a faint difference; size 1 changes nothing")
+  @Test("fast bilateral blur smooths a faint difference; size 1 stays inside the value range")
   func fastBilateralBlur() async throws {
     let picture = stripes(width: 6, height: 4, low: 100, high: 110)
     let smoothed = try await FastBilaterialBlurFilter(
       size: 5, spatialSigma: 3, rangeSigma: 50
     ).apply(to: picture)
     #expect(smoothed.pixels != picture.pixels)
-    let same = try await FastBilaterialBlurFilter(size: 1, spatialSigma: 10, rangeSigma: 3)
+    // Ядро 1 не размывает сетку, но сама сетка огрубляет картинку, так что тождества нет.
+    let smallest = try await FastBilaterialBlurFilter(size: 1, spatialSigma: 10, rangeSigma: 3)
       .apply(to: picture)
-    #expect(same.pixels == picture.pixels)
+    #expect(
+      smallest.pixels.enumerated().allSatisfy {
+        $0.offset % 4 == 3 || (100...110).contains($0.element)
+      })
     try await runsOnExtremes(FastBilaterialBlurFilter(size: 1, spatialSigma: 1, rangeSigma: 1))
     try await runsOnExtremes(
       FastBilaterialBlurFilter(size: 200, spatialSigma: 100, rangeSigma: 100))
