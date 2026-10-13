@@ -110,20 +110,26 @@ struct SharpenNoiseFilterTests {
     #expect(output.pixels == picture.pixels)
   }
 
-  @Test("circle pixelation of a flat picture only paints the same colour or leaves a pixel empty")
+  @Test("circle pixelation of a flat picture keeps one colour; edges only differ in coverage")
   func circlePixelationFlat() async throws {
     let picture = FilterTestImages.solid(width: 20, height: 12, red: 30, green: 90, blue: 150)
     let output = try await CirclePixelationFilter(size: 12).apply(to: picture)
     #expect(output.pixels != picture.pixels)
+    var fullyCovered = 0
     for index in stride(from: 0, to: output.pixels.count, by: 4) {
-      let alpha = output.pixels[index + 3]
+      let alpha = Int(output.pixels[index + 3])
       if alpha == 0 {
         #expect(output.pixels[index] == 0)
-      } else {
-        #expect(alpha == 255)
-        #expect(Array(output.pixels[index..<index + 3]) == [30, 90, 150])
+        continue
       }
+      // Сглаженный край: цвет premultiplied, то есть канал равен цвету, умноженному на альфу.
+      let expected = [30, 90, 150].map { ($0 * alpha + 127) / 255 }
+      for channel in 0..<3 {
+        #expect(abs(Int(output.pixels[index + channel]) - expected[channel]) <= 2)
+      }
+      if alpha == 255 { fullyCovered += 1 }
     }
+    #expect(fullyCovered > 0)
   }
 
   @Test("pixelation changes a gradient and keeps size at both ends of each range")

@@ -3,7 +3,7 @@ import Foundation
 /// Резкость, зерно и пикселизация из групп резкости и шума.
 ///
 /// Перенесено: SharpenFilter, UnsharpFilter, GrainFilter (приближение), PixelationFilter,
-/// CirclePixelationFilter, DiamondPixelationFilter (приближение).
+/// CirclePixelationFilter, DiamondPixelationFilter (приближение: сглаживание края Skia не повторено).
 /// Не перенесено: ConstrainedSharpenFilter и AlphaSharpenFilter (G'MIC), NoiseFilter (Trickle),
 /// ReduceNoiseFilter и DespeckleFilter (Jh Labs). Их алгоритмы есть только в нативных или
 /// внешних библиотеках, которых нет в репозитории.
@@ -255,8 +255,14 @@ private struct PixelLayer {
 
 /// Рисует слои по порядку, как `PixelationTool` на Android. Каждая ячейка берёт цвет пикселя в своём центре.
 ///
-/// Приближение: Canvas на Android рисует фигуры со сглаживанием, здесь края жёсткие.
+/// Приближение: Canvas на Android рисует круги и ромбы со сглаживанием Skia (аналитический AA,
+/// кривые круга заменены ломаной с привязкой по y к четверти пикселя). Здесь покрытие края считается
+/// выборкой 8 на 8 точек внутри пикселя; квадраты остаются с жёсткими краями. Полный разбор в
+/// FILTERS.md, решение 18.
 private enum Pixelation {
+  /// Число точек выборки покрытия по каждой оси внутри пикселя на краю фигуры.
+  private static let samples = 8
+
   static func render(_ image: RasterImage, layers: [PixelLayer]) -> RasterImage {
     let width = image.width
     let height = image.height
@@ -289,7 +295,8 @@ private enum Pixelation {
     return RasterImage(width: width, height: height, pixels: output)
   }
 
-  /// Накладывает фигуру цвета `colour` с альфой `alpha` (0...255) методом source-over.
+  /// Накладывает фигуру цвета `colour` с альфой `alpha` (0...255) методом source-over; на краю круга и
+  /// ромба доля покрытия пикселя умножается на альфу.
   private static func paint(
     into output: inout [UInt8], width: Int, height: Int,
     shape: PixelShape, centreX: Double, centreY: Double, half: Double,
@@ -301,29 +308,63 @@ private enum Pixelation {
     let maxY = min(height - 1, Int((centreY + half).rounded(.up)) + 1)
     guard minX <= maxX, minY <= maxY else { return }
 
-    let coverage = alpha / 255
-    let source = [Double(colour.red), Double(colour.green), Double(colour.blue)]
+    let opacity = alpha / 255
+    let red = Double(colour.red)
+    let green = Double(colour.green)
+    let blue = Double(colour.blue)
     for y in minY...maxY {
       for x in minX...maxX {
         let dx = Double(x) + 0.5 - centreX
         let dy = Double(y) + 0.5 - centreY
-        let inside: Bool
-        switch shape {
-        case .square: inside = abs(dx) <= half && abs(dy) <= half
-        case .circle: inside = dx * dx + dy * dy <= half * half
-        case .diamond: inside = abs(dx) + abs(dy) <= half
-        }
-        guard inside else { continue }
+        let share = coverage(shape: shape, dx: dx, dy: dy, half: half)
+        guard share > 0 else { continue }
 
+        let weight = share * opacity
         let index = (y * width + x) * 4
-        for channel in 0..<3 {
-          let value = source[channel] * coverage + Double(output[index + channel]) * (1 - coverage)
-          output[index + channel] = UInt8(min(value.rounded(), 255))
-        }
-        let alphaValue = alpha + Double(output[index + 3]) * (1 - coverage)
-        output[index + 3] = UInt8(min(alphaValue.rounded(), 255))
+        output[index] = UInt8(
+          min((red * weight + Double(output[index]) * (1 - weight)).rounded(), 255))
+        output[index + 1] = UInt8(
+          min((green * weight + Double(output[index + 1]) * (1 - weight)).rounded(), 255))
+        output[index + 2] = UInt8(
+          min((blue * weight + Double(output[index + 2]) * (1 - weight)).rounded(), 255))
+        output[index + 3] = UInt8(
+          min((255 * weight + Double(output[index + 3]) * (1 - weight)).rounded(), 255))
       }
     }
+  }
+
+  /// Доля пикселя с центром на расстоянии `(dx, dy)` от центра фигуры, закрытая фигурой.
+  private static func coverage(shape: PixelShape, dx: Double, dy: Double, half: Double) -> Double {
+    switch shape {
+    case .square:
+      return abs(dx) <= half && abs(dy) <= half ? 1 : 0
+    case .circle:
+      // Диагональ пикселя 0.71 от центра до угла: дальше края фигура целиком внутри или снаружи.
+      let distance = (dx * dx + dy * dy).squareRoot()
+      if distance <= half - 0.7072 { return 1 }
+      if distance >= half + 0.7072 { return 0 }
+      return sampled(dx: dx, dy: dy) { u, v in u * u + v * v <= half * half }
+    case .diamond:
+      // Сумма модулей меняется внутри пикселя не больше чем на 1.
+      let norm = abs(dx) + abs(dy)
+      if norm <= half - 1 { return 1 }
+      if norm >= half + 1 { return 0 }
+      return sampled(dx: dx, dy: dy) { u, v in abs(u) + abs(v) <= half }
+    }
+  }
+
+  /// Равномерная выборка `samples` на `samples` точек в пикселе; `inside` получает смещение от центра фигуры.
+  private static func sampled(dx: Double, dy: Double, inside: (Double, Double) -> Bool) -> Double {
+    var count = 0
+    let step = 1 / Double(samples)
+    for row in 0..<samples {
+      let v = dy - 0.5 + (Double(row) + 0.5) * step
+      for column in 0..<samples {
+        let u = dx - 0.5 + (Double(column) + 0.5) * step
+        if inside(u, v) { count += 1 }
+      }
+    }
+    return Double(count) / Double(samples * samples)
   }
 }
 
@@ -343,7 +384,7 @@ struct PixelationFilter: Filter {
 
 /// Круглая пикселизация: два слоя кругов, второй смещён на половину шага.
 ///
-/// Приближение: края без сглаживания, см. `Pixelation`.
+/// Приближение: сглаживание края своё, не Skia, см. `Pixelation`.
 struct CirclePixelationFilter: Filter {
   let size: Double
 
@@ -359,7 +400,7 @@ struct CirclePixelationFilter: Filter {
 
 /// Ромбовидная пикселизация: два слоя ромбов и квадратный слой с альфой 0.6, как `PixelationCommands.diamond`.
 ///
-/// Приближение: края без сглаживания, см. `Pixelation`.
+/// Приближение: сглаживание края своё, не Skia, см. `Pixelation`.
 struct DiamondPixelationFilter: Filter {
   let size: Double
 

@@ -155,13 +155,15 @@ enum LightColourFilters {
       id: "HighlightsAndShadowsFilter",
       titleKey: "highlights_shadows",
       category: .lightAndColour,
-      engine: .coreImage,
+      engine: .cpu,
       parameters: [
         FilterParameter(
           key: "value", titleKey: "highlights_shadows",
           kind: .number(range: 0...2, step: 0.01, defaultValue: 0.25))
       ],
       keywords: ["shadows", "highlights"],
+      // Света в Android всегда 1 и в интерфейсе не выводятся, параметр `highlights` остаётся
+      // значением по умолчанию структуры.
       make: { HighlightsAndShadowsFilter(shadows: $0.number("value")) }
     ),
     FilterDescriptor(
@@ -537,22 +539,72 @@ struct LevelsFilter: Filter {
   }
 }
 
-/// Приближение. Android: `GPUImageHighlightShadowWideRangeFilter(value, 1)`, где `value` задаёт
-/// тени. Алгоритм GPUImage в репозитории отсутствует. Используется `CIHighlightShadowAdjust` с
-/// тенями `value` и светами 1 (без изменения). Ноль не меняет картинку.
+/// Тени и света по шейдеру `HIGHLIGHT_SHADOW_FRAGMENT_SHADER` из
+/// `feature/filters/.../data/utils/gpu/GPUImageHighlightShadowWideRangeFilter.kt` (в этом репозитории).
+/// Android создаёт `GPUImageHighlightShadowWideRangeFilter(value, 1f)`: `value` задаёт тени, света
+/// всегда 1 (без отдельного параметра в интерфейсе, поэтому `highlights` в реестре не выведен).
+/// Яркость `0.3 (r + g + b)`, тени и света поднимают её степенными кривыми, цвет масштабируется
+/// отношением новой яркости к старой; затем примесь белого (при `highlights` больше 1) и чёрного
+/// (при `shadows` меньше 1). Расчёт во `Float` (эталон снят на программном GL, где точность
+/// `lowp`/`mediump` не снижается), байт — округление, как запись во фреймбуфер. Чёрный пиксель
+/// (деление на ноль в шейдере) даёт NaN, он записывается как 0. Альфа не меняется.
+/// Статус: проверено по эталону.
 struct HighlightsAndShadowsFilter: Filter {
   let shadows: Double
+  /// Света. В Android всегда 1: то есть без изменения.
+  var highlights: Double = 1
 
   func apply(to image: RasterImage) async throws -> RasterImage {
-    let shadowAmount = Float(shadows)
-    return try CoreImageBridge.render(image, filterID: "HighlightsAndShadowsFilter") { input in
-      input.applyingFilter(
-        "CIHighlightShadowAdjust",
-        parameters: [
-          "inputShadowAmount": shadowAmount,
-          "inputHighlightAmount": Float(1),
-        ])
+    let shadows = Float(shadows)
+    let highlights = Float(highlights)
+    let shadowPower = 1 / shadows
+    let shadowPowerSquared = 2 / shadows
+    let highlightPower = 1 / (2 - highlights)
+    let highlightPowerSquared = 2 / (2 - highlights)
+    let whiteTarget = min(max(highlights, 1), 2) - 1
+    let blackTarget = 1 - min(max(shadows, 0), 1)
+    @Sendable func clamp(_ value: Float, _ low: Float, _ high: Float) -> Float {
+      min(max(value, low), high)
     }
+    @Sendable func byte(_ value: Float) -> UInt8 {
+      // NaN даёт 0, как и любое значение ниже нуля.
+      guard value > 0 else { return 0 }
+      return UInt8(min(value, 1) * 255 + 0.5)
+    }
+    var output = image.pixels
+    let width = image.width
+    output.withUnsafeMutableBufferPointer { target in
+      let shared = SharedBuffer(base: target.baseAddress!)
+      ParallelBands.run(rows: image.height) { rows in
+        for pixel in (rows.lowerBound * width)..<(rows.upperBound * width) {
+          let base = shared.base + pixel * 4
+          let red = Float(base[0]) / 255
+          let green = Float(base[1]) / 255
+          let blue = Float(base[2]) / 255
+          let luminance = red * 0.3 + green * 0.3 + blue * 0.3
+          let shadow = clamp(
+            powf(luminance, shadowPower) + -0.76 * powf(luminance, shadowPowerSquared)
+              - luminance, 0, 1)
+          let inverse = 1 - luminance
+          let highlight = clamp(
+            1 - (powf(inverse, highlightPower) + -0.8 * powf(inverse, highlightPowerSquared))
+              - luminance, -1, 0)
+          let scale = (luminance + shadow + highlight) / luminance
+          var channels = SIMD3<Float>(red, green, blue) * scale
+          let contrasted = (luminance - 0.5) * 1.5 + 0.5
+          let whiteMix = contrasted * contrasted * contrasted * whiteTarget
+          channels = channels * (1 - whiteMix) + SIMD3<Float>(repeating: 1) * whiteMix
+          let inverseContrasted = 1 - contrasted
+          let blackMix = inverseContrasted * inverseContrasted * inverseContrasted * blackTarget
+          channels = channels * (1 - blackMix)
+          let alpha = base[3]
+          base[0] = min(byte(channels[0]), alpha)
+          base[1] = min(byte(channels[1]), alpha)
+          base[2] = min(byte(channels[2]), alpha)
+        }
+      }
+    }
+    return RasterImage(width: image.width, height: image.height, pixels: output)
   }
 }
 

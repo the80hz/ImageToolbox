@@ -5,11 +5,13 @@ import Foundation
 /// Все фильтры работают на CPU: для каждого пикселя результата ищется точка источника и берётся
 /// билинейная выборка с краевым зажимом. Центры, радиусы и диапазоны взяты из `Ui*Filter.kt`.
 /// Плитки и спирали повторяют GLSL из `ProceduralShaders.kt`. Остальные фильтры в Android сделаны
-/// нативным кодом (GPUImage, JHLabs, G'MIC), которого в репозитории нет, поэтому их формулы
-/// приближённые. Каждый такой фильтр помечен в своём doc-комментарии как `status: приближение`.
+/// нативным кодом (GPUImage, Jh Labs, G'MIC); их формулы перенесены по публичным исходникам и
+/// сверены с эталонами (раздел 10 FILTERS.md). Рябь, щипок и калейдоскоп лежат в
+/// `JhLabsDistortionFilters.swift`, `FishEyeFilter` в `GmicFishEyeFilter.swift`. Статус каждого
+/// фильтра записан в его doc-комментарии.
 enum DistortionFilters {
   static let descriptors: [FilterDescriptor] = [
-    // status: приближение (G'MIC FishEye не в репозитории, радиус берётся от короткой стороны)
+    // status: проверено по эталону (G'MIC fisheye, GmicFishEyeFilter.swift)
     FilterDescriptor(
       id: "FishEyeFilter",
       titleKey: "gmic_filter_fish_eye",
@@ -51,7 +53,7 @@ enum DistortionFilters {
           centreX: $0.number("centerX"), centreY: $0.number("centerY"))
       }
     ),
-    // status: приближение (JHLabs не в репозитории)
+    // status: проверено по эталону (Jh Labs 8.1.0)
     FilterDescriptor(
       id: "TwirlFilter",
       titleKey: "twirl",
@@ -69,7 +71,7 @@ enum DistortionFilters {
           centreY: $0.number("centerY"), radius: $0.number("radius"))
       }
     ),
-    // status: приближение (JHLabs не в репозитории)
+    // status: проверено по эталону (Jh Labs 8.1.0, JhLabsDistortionFilters.swift)
     FilterDescriptor(
       id: "PinchFilter",
       titleKey: "whirl_and_pinch",
@@ -88,7 +90,7 @@ enum DistortionFilters {
           centreY: $0.number("centerY"), radius: $0.number("radius"), amount: $0.number("amount"))
       }
     ),
-    // status: приближение (JHLabs не в репозитории)
+    // status: проверено по эталону (Jh Labs 8.1.0, JhLabsDistortionFilters.swift)
     FilterDescriptor(
       id: "KaleidoscopeFilter",
       titleKey: "kaleidoscope",
@@ -189,7 +191,7 @@ enum DistortionFilters {
         SpiralDrosteFilter(intensity: $0.number("intensity"), distortion: $0.number("distortion"))
       }
     ),
-    // status: приближение (JHLabs не в репозитории)
+    // status: проверено по эталону (Jh Labs 8.1.0, JhLabsDistortionFilters.swift)
     FilterDescriptor(
       id: "RippleFilter",
       titleKey: "ripple",
@@ -351,31 +353,6 @@ enum DistortionSampling {
   }
 }
 
-/// Лупа «рыбий глаз»: внутри радиуса точки притягиваются к центру степенной функцией.
-///
-/// status: приближение. G'MIC `FishEye` не в репозитории. Радиус задан в процентах от половины
-/// короткой стороны, степень — `amplitude`. При `amplitude` 0 картинка не меняется.
-struct FishEyeFilter: Filter {
-  let radius: Double
-  let amplitude: Double
-
-  func apply(to image: RasterImage) async throws -> RasterImage {
-    let w = Double(image.width)
-    let h = Double(image.height)
-    let cx = w / 2
-    let cy = h / 2
-    let limit = radius / 100 * min(w, h) / 2
-    return DistortionSampling.warp(image) { x, y in
-      let dx = x - cx
-      let dy = y - cy
-      let distance = (dx * dx + dy * dy).squareRoot()
-      guard limit > 0, distance < limit else { return (x, y) }
-      let scale = pow(distance / limit, amplitude)
-      return (cx + dx * scale, cy + dy * scale)
-    }
-  }
-}
-
 /// Выпуклость: внутри круга картинка растягивается от центра.
 ///
 /// Статус: проверено по эталону (`BulgeDistortionFilter`, раздел 10): совпадение в допуске на
@@ -490,75 +467,6 @@ struct TwirlFilter: Filter {
     let north = value(0, 0) * (1 - xWeight) + value(1, 0) * xWeight
     let south = value(0, 1) * (1 - xWeight) + value(1, 1) * xWeight
     return UInt8(min(max(Int(north * (1 - yWeight) + south * yWeight), 0), 255))
-  }
-}
-
-/// Щипок и поворот внутри круга.
-///
-/// status: приближение. Формула JHLabs `PinchFilter` не в репозитории. Радиус, центр и угол
-/// переданы как в `UiPinchFilter`: радиус в долях половины длинной стороны. При `angle` 0 и
-/// `amount` 0 картинка не меняется.
-struct PinchFilter: Filter {
-  let angle: Double
-  let centreX: Double
-  let centreY: Double
-  let radius: Double
-  let amount: Double
-
-  func apply(to image: RasterImage) async throws -> RasterImage {
-    let w = Double(image.width)
-    let h = Double(image.height)
-    let cx = centreX * w
-    let cy = centreY * h
-    let limit = radius * max(w, h) / 2
-    let turn = angle * .pi / 180
-    return DistortionSampling.warp(image) { x, y in
-      let dx = x - cx
-      let dy = y - cy
-      let distance = (dx * dx + dy * dy).squareRoot()
-      guard limit > 0, distance < limit else { return (x, y) }
-      let ratio = distance / limit
-      let scale = pow(max(ratio, 1e-6), amount)
-      let theta = turn * (1 - ratio)
-      let ex = dx * scale
-      let ey = dy * scale
-      let c = cos(theta)
-      let s = sin(theta)
-      return (cx + ex * c - ey * s, cy + ex * s + ey * c)
-    }
-  }
-}
-
-/// Калейдоскоп: сектор с `sides` зеркальными копиями вокруг центра.
-///
-/// status: приближение. Формула JHLabs `KaleidoscopeFilter` не в репозитории. Углы в градусах,
-/// `radius` в пикселях: внутри него картинка не меняется.
-struct KaleidoscopeFilter: Filter {
-  let angle: Double
-  let secondaryAngle: Double
-  let centreX: Double
-  let centreY: Double
-  let sides: Double
-  let radius: Double
-
-  func apply(to image: RasterImage) async throws -> RasterImage {
-    let w = Double(image.width)
-    let h = Double(image.height)
-    let cx = centreX * w
-    let cy = centreY * h
-    let start = angle * .pi / 180
-    let shift = secondaryAngle * .pi / 180
-    let sector = 2 * Double.pi / sides
-    return DistortionSampling.warp(image) { x, y in
-      let dx = x - cx
-      let dy = y - cy
-      let distance = (dx * dx + dy * dy).squareRoot()
-      guard distance > radius, distance > 0 else { return (x, y) }
-      var phi = DistortionSampling.mod(atan2(dy, dx) - start, sector)
-      if phi > sector / 2 { phi = sector - phi }
-      phi += shift
-      return (cx + distance * cos(phi), cy + distance * sin(phi))
-    }
   }
 }
 
@@ -758,27 +666,6 @@ struct SpiralDrosteFilter: Filter {
       let turn = angle + distortion * layer * tau
       let q = (radius * cos(turn), radius * sin(turn))
       return DistortionSampling.pixel(fromField: q, width: w, height: h)
-    }
-  }
-}
-
-/// Рябь: синусоидальный сдвиг строк и столбцов.
-///
-/// status: приближение. Формула JHLabs `RippleFilter` не в репозитории. Амплитуды и длины волн
-/// в пикселях, как передаются в `UiRippleFilter`. При нулевых амплитудах картинка не меняется.
-struct RippleFilter: Filter {
-  let xAmplitude: Double
-  let xWavelength: Double
-  let yAmplitude: Double
-  let yWavelength: Double
-
-  func apply(to image: RasterImage) async throws -> RasterImage {
-    let twoPi = 2 * Double.pi
-    return DistortionSampling.warp(image) { x, y in
-      (
-        x + xAmplitude * sin(twoPi * y / xWavelength),
-        y + yAmplitude * sin(twoPi * x / yWavelength)
-      )
     }
   }
 }

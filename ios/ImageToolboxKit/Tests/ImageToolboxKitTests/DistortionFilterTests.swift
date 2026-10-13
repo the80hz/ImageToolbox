@@ -13,11 +13,15 @@ struct DistortionFilterTests {
     #expect(output.pixels != picture.pixels)
   }
 
-  @Test("fish eye with amplitude 0 changes nothing")
-  func fishEyeNeutral() async throws {
+  @Test("fish eye takes its two arguments as the centre, as Android does")
+  func fishEyeCentreArguments() async throws {
+    // В Android `fisheye radius,amplitude` попадает в center_x и center_y G'MIC (раздел 9 FILTERS.md),
+    // поэтому фильтр меняет картинку при любых значениях, а центр сдвигается вместе с ними.
     let picture = FilterTestImages.gradient(width: 16, height: 16)
-    let output = try await FishEyeFilter(radius: 70, amplitude: 0).apply(to: picture)
-    #expect(output.pixels == picture.pixels)
+    let left = try await FishEyeFilter(radius: 20, amplitude: 50).apply(to: picture)
+    let right = try await FishEyeFilter(radius: 80, amplitude: 50).apply(to: picture)
+    #expect(left.pixels != picture.pixels)
+    #expect(left.pixels != right.pixels)
   }
 
   @Test("fish eye keeps the size at the extremes")

@@ -146,7 +146,7 @@ struct AndroidReferenceCase: Sendable, CustomTestStringConvertible {
     AndroidReferenceCase(
       name: "HighlightsAndShadowsFilter",
       filter: HighlightsAndShadowsFilter(shadows: 0.25),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 21.75, наибольшее 110."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "BoxBlurFilter",
       filter: BoxBlurFilter(radius: 10),
@@ -200,11 +200,11 @@ struct AndroidReferenceCase: Sendable, CustomTestStringConvertible {
     AndroidReferenceCase(
       name: "CirclePixelationFilter",
       filter: CirclePixelationFilter(size: 24),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 4.513, наибольшее 120."),
+      knownIssue: "Приближение, AA Skia не повторено: среднее 1.202, наибольшее 35."),
     AndroidReferenceCase(
       name: "DiamondPixelationFilter",
       filter: DiamondPixelationFilter(size: 24),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 0.708, наибольшее 15."),
+      knownIssue: "Приближение, AA Skia не повторено: среднее 0.2973, наибольшее 9."),
     AndroidReferenceCase(
       name: "ProtanopiaFilter",
       filter: ProtanopiaFilter(),
@@ -436,7 +436,7 @@ struct AndroidReferenceCase: Sendable, CustomTestStringConvertible {
     AndroidReferenceCase(
       name: "FishEyeFilter",
       filter: FishEyeFilter(radius: 70, amplitude: 1),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 8.189, наибольшее 62."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "TwirlFilter",
       filter: TwirlFilter(angle: 45, centreX: 0.5, centreY: 0.5, radius: 0.5),
@@ -444,16 +444,16 @@ struct AndroidReferenceCase: Sendable, CustomTestStringConvertible {
     AndroidReferenceCase(
       name: "PinchFilter",
       filter: PinchFilter(angle: 15, centreX: 0.5, centreY: 0.5, radius: 1, amount: 0.5),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 6.573, наибольшее 37."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "KaleidoscopeFilter",
       filter: KaleidoscopeFilter(
         angle: 0, secondaryAngle: 0, centreX: 0.5, centreY: 0.5, sides: 5, radius: 0),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 8.054, наибольшее 41."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "RippleFilter",
       filter: RippleFilter(xAmplitude: 5, xWavelength: 16, yAmplitude: 5, yWavelength: 16),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 22.00, наибольшее 252."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "GlitchFilter",
       filter: GlitchFilter(amount: 20, seed: 15, iterations: 9),

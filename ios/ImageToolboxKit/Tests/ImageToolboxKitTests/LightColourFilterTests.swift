@@ -204,13 +204,25 @@ struct LightColourGroupTests {
     #expect(full.width == 1)
   }
 
-  @Test("highlights and shadows 0 changes nothing, a positive value lifts the shadows")
+  @Test("highlights and shadows 1 changes nothing, a larger value lifts and a smaller darkens")
   func highlightsNeutralAndLift() async throws {
+    // Шейдер GPUImage: при shadows 1 и highlights 1 кривые тождественны; больше 1 тёмное
+    // поднимается, меньше 1 примешивается чёрный (значение по умолчанию Android 0.25 затемняет).
     let picture = FilterTestImages.solid(width: 2, height: 2, red: 30, green: 30, blue: 30)
-    let neutral = try await HighlightsAndShadowsFilter(shadows: 0).apply(to: picture)
-    #expect(maxColourDifference(neutral, picture) <= 2)
-    let lifted = try await HighlightsAndShadowsFilter(shadows: 1).apply(to: picture)
+    let neutral = try await HighlightsAndShadowsFilter(shadows: 1).apply(to: picture)
+    #expect(maxColourDifference(neutral, picture) <= 1)
+    let lifted = try await HighlightsAndShadowsFilter(shadows: 2).apply(to: picture)
     #expect(lifted.pixels[0] > 30)
+    let darkened = try await HighlightsAndShadowsFilter(shadows: 0.25).apply(to: picture)
+    #expect(darkened.pixels[0] < 30)
+  }
+
+  @Test("highlights and shadows: highlights above 1 mix white into bright pixels")
+  func highlightsMixWhite() async throws {
+    let picture = FilterTestImages.solid(width: 2, height: 2, red: 220, green: 220, blue: 220)
+    let plain = try await HighlightsAndShadowsFilter(shadows: 1).apply(to: picture)
+    let boosted = try await HighlightsAndShadowsFilter(shadows: 1, highlights: 2).apply(to: picture)
+    #expect(boosted.pixels[0] > plain.pixels[0])
   }
 
   @Test("highlights and shadows keep 0 and 2 valid on 1x1 and 5x3")
