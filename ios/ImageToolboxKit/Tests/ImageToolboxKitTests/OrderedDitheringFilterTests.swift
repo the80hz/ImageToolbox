@@ -13,15 +13,38 @@ struct OrderedDitheringFilterTests {
     }
   }
 
-  @Test("Bayer 2x2 matrix is the classic one, Bayer 4x4 and 8x8 keep every rank once")
-  func bayerMatrices() {
-    #expect(DitherMatrix.bayer(2) == [0, 2, 3, 1])
-    #expect(DitherMatrix.bayer(4) == [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5])
-    for size in [2, 4, 8] {
-      #expect(Set(DitherMatrix.bayer(size)) == Set(0..<(size * size)))
-    }
-    #expect(Set(DitherMatrix.dispersed(3)) == Set(0..<9))
-    #expect(Set(DitherMatrix.clustered(4)) == Set(0..<16))
+  @Test("Trickle matrices hold every rank once")
+  func trickleMatrices() {
+    #expect(Set(TrickleMatrix.bayer2) == Set(1...4))
+    #expect(Set(TrickleMatrix.bayer3) == Set(1...9))
+    #expect(Set(TrickleMatrix.bayer4) == Set(1...16))
+    #expect(Set(TrickleMatrix.bayer8) == Set(1...64))
+    #expect(Set(TrickleMatrix.clustered2) == Set(0..<4))
+    #expect(Set(TrickleMatrix.clustered4) == Set(0..<16))
+    #expect(Set(TrickleMatrix.clustered8) == Set(0..<64))
+  }
+
+  @Test("Bayer 2x2 indexes the matrix as (column, row) and adds value * cell / 5")
+  func bayerTwoIndexing() async throws {
+    // Matrix [[1, 3], [4, 2]] read as matrix[x % 2][y % 2]: (x,y) = (0,0) gives 1, (1,0) gives 4,
+    // (0,1) gives 3, (1,1) gives 2. With value 90 and threshold 150 the result is
+    // 108 (off), 162 (on), 144 (off), 126 (off). A non-transposed matrix would turn (0,1) on.
+    let picture = FilterTestImages.solid(width: 2, height: 2, red: 90, green: 90, blue: 90)
+    let output = try await BayerTwoDitheringFilter(threshold: 150, grayScale: false)
+      .apply(to: picture)
+    let red = stride(from: 0, to: 16, by: 4).map { output.pixels[$0] }
+    #expect(red == [0, 255, 0, 0])
+  }
+
+  @Test("clustered compares strictly: a value equal to the cell threshold stays off")
+  func clusteredIsStrict() async throws {
+    // Clustered 2x2, cell (0,0) is 0, so the threshold is 0 and value 0 stays off, 1 turns on.
+    let zero = FilterTestImages.solid(width: 1, height: 1, red: 0, green: 0, blue: 0)
+    let one = FilterTestImages.solid(width: 1, height: 1, red: 1, green: 1, blue: 1)
+    let off = try await Clustered2x2DitheringFilter(grayScale: false).apply(to: zero)
+    let on = try await Clustered2x2DitheringFilter(grayScale: false).apply(to: one)
+    #expect(Array(off.pixels[0..<3]) == [0, 0, 0])
+    #expect(Array(on.pixels[0..<3]) == [255, 255, 255])
   }
 
   @Test("Bayer two changes the gradient and keeps only black and white levels")
@@ -92,6 +115,18 @@ struct OrderedDitheringFilterTests {
       .apply(to: picture)
     #expect(Array(above.pixels[0..<3]) == [255, 255, 255])
     #expect(Array(below.pixels[0..<3]) == [0, 0, 0])
+  }
+
+  @Test("simple threshold in grey scale takes the red channel and truncates the threshold")
+  func simpleThresholdGreyScaleTakesRed() async throws {
+    // Red 200 with dark green and blue: luma is about 70, but Trickle compares red only.
+    let picture = FilterTestImages.solid(width: 2, height: 1, red: 200, green: 10, blue: 10)
+    let grey = try await SimpleThresholdDitheringFilter(threshold: 200.9, grayScale: true)
+      .apply(to: picture)
+    #expect(Array(grey.pixels[0..<4]) == [255, 255, 255, 255])
+    let colour = try await SimpleThresholdDitheringFilter(threshold: 200.9, grayScale: false)
+      .apply(to: picture)
+    #expect(Array(colour.pixels[0..<4]) == [255, 0, 0, 255])
   }
 
   @Test("simple threshold at 1 keeps black and at 255 keeps white")

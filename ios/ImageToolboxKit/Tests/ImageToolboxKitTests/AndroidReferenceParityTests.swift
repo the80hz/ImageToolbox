@@ -288,71 +288,71 @@ struct AndroidReferenceCase: Sendable, CustomTestStringConvertible {
     AndroidReferenceCase(
       name: "FloydSteinbergDitheringFilter",
       filter: FloydSteinbergDitheringFilter(threshold: 200, grayScale: false),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 73.11, наибольшее 255."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "FalseFloydSteinbergDitheringFilter",
       filter: FalseFloydSteinbergDitheringFilter(threshold: 200, grayScale: false),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 59.48, наибольшее 255."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "JarvisJudiceNinkeDitheringFilter",
       filter: JarvisJudiceNinkeDitheringFilter(threshold: 200, grayScale: false),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 100.29, наибольшее 255."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "SierraDitheringFilter",
       filter: SierraDitheringFilter(threshold: 200, grayScale: false),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 98.47, наибольшее 255."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "TwoRowSierraDitheringFilter",
       filter: TwoRowSierraDitheringFilter(threshold: 200, grayScale: false),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 78.19, наибольшее 255."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "SierraLiteDitheringFilter",
       filter: SierraLiteDitheringFilter(threshold: 200, grayScale: false),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 103.39, наибольшее 255."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "AtkinsonDitheringFilter",
       filter: AtkinsonDitheringFilter(threshold: 200, grayScale: false),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 83.51, наибольшее 255."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "StuckiDitheringFilter",
       filter: StuckiDitheringFilter(threshold: 200, grayScale: false),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 103.82, наибольшее 255."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "BurkesDitheringFilter",
       filter: BurkesDitheringFilter(threshold: 200, grayScale: false),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 93.70, наибольшее 255."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "LeftToRightDitheringFilter",
       filter: LeftToRightDitheringFilter(threshold: 200, grayScale: false),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 8.093, наибольшее 255."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "BayerTwoDitheringFilter",
       filter: BayerTwoDitheringFilter(threshold: 200, grayScale: false),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 118.20, наибольшее 255."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "BayerThreeDitheringFilter",
       filter: BayerThreeDitheringFilter(threshold: 200, grayScale: false),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 87.03, наибольшее 255."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "BayerFourDitheringFilter",
       filter: BayerFourDitheringFilter(threshold: 200, grayScale: false),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 110.57, наибольшее 255."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "BayerEightDitheringFilter",
       filter: BayerEightDitheringFilter(threshold: 200, grayScale: false),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 114.55, наибольшее 255."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "Clustered2x2DitheringFilter",
       filter: Clustered2x2DitheringFilter(grayScale: false),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 85.00, наибольшее 255."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "Clustered4x4DitheringFilter",
       filter: Clustered4x4DitheringFilter(grayScale: false),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 92.97, наибольшее 255."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "Clustered8x8DitheringFilter",
       filter: Clustered8x8DitheringFilter(grayScale: false),
-      knownIssue: "Приближение, расхождение с эталоном Android: среднее 101.77, наибольшее 255."),
+      knownIssue: nil),
     AndroidReferenceCase(
       name: "SimpleThresholdDitheringFilter",
       filter: SimpleThresholdDitheringFilter(threshold: 200, grayScale: false),
