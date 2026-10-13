@@ -31,6 +31,7 @@ import com.t8rin.imagetoolbox.core.domain.model.SystemBarsVisibility
 import com.t8rin.imagetoolbox.core.settings.domain.model.CacheAutoClearInterval
 import com.t8rin.imagetoolbox.core.settings.domain.model.ColorHarmonizer
 import com.t8rin.imagetoolbox.core.settings.domain.model.CopyToClipboardMode
+import com.t8rin.imagetoolbox.core.settings.domain.model.DialogPosition
 import com.t8rin.imagetoolbox.core.settings.domain.model.DomainFontFamily
 import com.t8rin.imagetoolbox.core.settings.domain.model.FastSettingsSide
 import com.t8rin.imagetoolbox.core.settings.domain.model.FilenameBehavior
@@ -182,6 +183,8 @@ internal fun Preferences.toSettingsState(
         ?: default.canEnterPresetsByTextField,
     donateDialogOpenCount = this[DONATE_DIALOG_OPEN_COUNT]
         ?: default.donateDialogOpenCount,
+    weblateInfoDialogOpenCount = this[WEBLATE_INFO_DIALOG_OPEN_COUNT]
+        ?: default.weblateInfoDialogOpenCount,
     colorBlindType = this[COLOR_BLIND_TYPE]?.let {
         if (it < 0) null
         else it
@@ -217,6 +220,7 @@ internal fun Preferences.toSettingsState(
     } ?: default.sliderType,
     isCenterAlignDialogButtons = this[CENTER_ALIGN_DIALOG_BUTTONS]
         ?: default.isCenterAlignDialogButtons,
+    dialogPosition = DialogPosition.fromOrdinal(this[DIALOG_POSITION]) ?: default.dialogPosition,
     fastSettingsSide = this[FAST_SETTINGS_SIDE]?.let {
         FastSettingsSide.fromOrdinal(it)
     } ?: default.fastSettingsSide,

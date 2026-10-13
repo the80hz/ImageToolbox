@@ -1,0 +1,16 @@
+# SwiftPM build output and caches
+.build/
+.swiftpm/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+
+# Xcode
+DerivedData/
+xcuserdata/
+*.xcuserstate
+
+# Local artifacts
+*.xcresult
+*.profraw
+*.dSYM/
+*.ipa

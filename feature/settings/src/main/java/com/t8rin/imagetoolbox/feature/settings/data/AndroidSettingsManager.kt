@@ -49,6 +49,7 @@ import com.t8rin.imagetoolbox.core.settings.domain.SettingsManager
 import com.t8rin.imagetoolbox.core.settings.domain.model.CacheAutoClearInterval
 import com.t8rin.imagetoolbox.core.settings.domain.model.ColorHarmonizer
 import com.t8rin.imagetoolbox.core.settings.domain.model.CopyToClipboardMode
+import com.t8rin.imagetoolbox.core.settings.domain.model.DialogPosition
 import com.t8rin.imagetoolbox.core.settings.domain.model.DomainFontFamily
 import com.t8rin.imagetoolbox.core.settings.domain.model.FastSettingsSide
 import com.t8rin.imagetoolbox.core.settings.domain.model.FilenameBehavior
@@ -113,6 +114,7 @@ import com.t8rin.imagetoolbox.feature.settings.data.keys.DEFAULT_IMAGE_FORMAT
 import com.t8rin.imagetoolbox.feature.settings.data.keys.DEFAULT_QUALITY
 import com.t8rin.imagetoolbox.feature.settings.data.keys.DEFAULT_RESIZE_TYPE
 import com.t8rin.imagetoolbox.feature.settings.data.keys.DELETE_ORIGINALS_AFTER_SAVE
+import com.t8rin.imagetoolbox.feature.settings.data.keys.DIALOG_POSITION
 import com.t8rin.imagetoolbox.feature.settings.data.keys.DONATE_DIALOG_OPEN_COUNT
 import com.t8rin.imagetoolbox.feature.settings.data.keys.DRAG_HANDLE_WIDTH
 import com.t8rin.imagetoolbox.feature.settings.data.keys.DRAW_APPBAR_SHADOWS
@@ -218,6 +220,7 @@ import com.t8rin.imagetoolbox.feature.settings.data.keys.USE_FORMATTED_TIMESTAMP
 import com.t8rin.imagetoolbox.feature.settings.data.keys.USE_FULLSCREEN_SETTINGS
 import com.t8rin.imagetoolbox.feature.settings.data.keys.USE_RANDOM_EMOJIS
 import com.t8rin.imagetoolbox.feature.settings.data.keys.VIBRATION_STRENGTH
+import com.t8rin.imagetoolbox.feature.settings.data.keys.WEBLATE_INFO_DIALOG_OPEN_COUNT
 import com.t8rin.imagetoolbox.feature.settings.data.keys.toGradientPalettes
 import com.t8rin.imagetoolbox.feature.settings.data.keys.toSettingsState
 import dagger.Lazy
@@ -913,6 +916,18 @@ internal class AndroidSettingsManager @Inject constructor(
         it[DONATE_DIALOG_OPEN_COUNT] = -1
     }
 
+    override suspend fun registerWeblateInfoDialogOpen() = edit {
+        val value = it[WEBLATE_INFO_DIALOG_OPEN_COUNT] ?: default.weblateInfoDialogOpenCount
+
+        if (value != -1) {
+            it[WEBLATE_INFO_DIALOG_OPEN_COUNT] = value + 1
+        }
+    }
+
+    override suspend fun setNotShowWeblateInfoDialogAgain() = edit {
+        it[WEBLATE_INFO_DIALOG_OPEN_COUNT] = -1
+    }
+
     override suspend fun setColorBlindType(value: Int?) = edit {
         it[COLOR_BLIND_TYPE] = value ?: -1
     }
@@ -1001,6 +1016,10 @@ internal class AndroidSettingsManager @Inject constructor(
         key = CENTER_ALIGN_DIALOG_BUTTONS,
         defaultValue = default.isCenterAlignDialogButtons
     )
+
+    override suspend fun setDialogPosition(position: DialogPosition) = edit {
+        it[DIALOG_POSITION] = position.ordinal
+    }
 
     override fun isInstalledFromPlayStore(): Boolean = context.isInstalledFromPlayStore()
 

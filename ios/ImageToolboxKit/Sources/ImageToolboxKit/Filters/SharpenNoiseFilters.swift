@@ -1,0 +1,416 @@
+import Foundation
+
+/// Резкость, зерно и пикселизация из групп резкости и шума.
+///
+/// Перенесено: SharpenFilter, UnsharpFilter, GrainFilter (приближение), PixelationFilter,
+/// CirclePixelationFilter, DiamondPixelationFilter (приближение: сглаживание края Skia не повторено).
+/// Не перенесено: ConstrainedSharpenFilter и AlphaSharpenFilter (G'MIC), NoiseFilter (Trickle),
+/// ReduceNoiseFilter и DespeckleFilter (Jh Labs). Их алгоритмы есть только в нативных или
+/// внешних библиотеках, которых нет в репозитории.
+enum SharpenNoiseFilters {
+  static let descriptors: [FilterDescriptor] = [
+    FilterDescriptor(
+      id: "SharpenFilter",
+      titleKey: "sharpen",
+      category: .sharpenAndNoise,
+      engine: .cpu,
+      parameters: [
+        FilterParameter(
+          key: "value", titleKey: "sharpen",
+          kind: .number(range: -1...1, step: 0.01, defaultValue: 1))
+      ],
+      make: { SharpenFilter(amount: $0.number("value")) }
+    ),
+    FilterDescriptor(
+      id: "UnsharpFilter",
+      titleKey: "unsharp",
+      category: .sharpenAndNoise,
+      engine: .cpu,
+      parameters: [
+        FilterParameter(
+          key: "value", titleKey: "unsharp",
+          kind: .number(range: 0...1, step: 0.01, defaultValue: 0.5))
+      ],
+      make: { UnsharpFilter(intensity: $0.number("value")) }
+    ),
+    FilterDescriptor(
+      id: "GrainFilter",
+      titleKey: "grain",
+      category: .sharpenAndNoise,
+      engine: .cpu,
+      parameters: [
+        FilterParameter(
+          key: "value", titleKey: "grain",
+          kind: .number(range: 0...2, step: 0.01, defaultValue: 0.75))
+      ],
+      make: { GrainFilter(intensity: $0.number("value")) }
+    ),
+    FilterDescriptor(
+      id: "PixelationFilter",
+      titleKey: "pixelation",
+      category: .sharpenAndNoise,
+      engine: .cpu,
+      parameters: [
+        FilterParameter(
+          key: "value", titleKey: "pixelation",
+          kind: .number(range: 5...200, step: 0.01, defaultValue: 25))
+      ],
+      make: { PixelationFilter(size: $0.number("value")) }
+    ),
+    FilterDescriptor(
+      id: "CirclePixelationFilter",
+      titleKey: "circle_pixelation",
+      category: .sharpenAndNoise,
+      engine: .cpu,
+      parameters: [
+        FilterParameter(
+          key: "value", titleKey: "circle_pixelation",
+          kind: .number(range: 5...200, step: 0.01, defaultValue: 24))
+      ],
+      make: { CirclePixelationFilter(size: $0.number("value")) }
+    ),
+    FilterDescriptor(
+      id: "DiamondPixelationFilter",
+      titleKey: "diamond_pixelation",
+      category: .sharpenAndNoise,
+      engine: .cpu,
+      parameters: [
+        FilterParameter(
+          key: "value", titleKey: "diamond_pixelation",
+          kind: .number(range: 10...200, step: 0.01, defaultValue: 24))
+      ],
+      make: { DiamondPixelationFilter(size: $0.number("value")) }
+    ),
+  ]
+}
+
+/// Android: `GPUImageSharpenFilter`, шейдер GPUImage 8.1.0 из AAR: центр `1 + 4s`, четыре соседа `-s`.
+/// Края берутся с повтором. Сверка с эталоном: точное совпадение.
+/// Значение 0 не меняет картинку. Для изображения 1x1 результат всегда совпадает со входом.
+struct SharpenFilter: Filter {
+  let amount: Double
+
+  func apply(to image: RasterImage) async throws -> RasterImage {
+    let width = image.width
+    let height = image.height
+    let source = image.pixels
+    var output = source
+    let weight = amount
+    for y in 0..<height {
+      let up = max(y - 1, 0)
+      let down = min(y + 1, height - 1)
+      for x in 0..<width {
+        let left = max(x - 1, 0)
+        let right = min(x + 1, width - 1)
+        let index = (y * width + x) * 4
+        let alpha = Double(source[index + 3])
+        let neighbours = [
+          (up * width + x) * 4,
+          (down * width + x) * 4,
+          (y * width + left) * 4,
+          (y * width + right) * 4,
+        ]
+        for channel in 0..<3 {
+          let centre = Double(source[index + channel])
+          let sum = neighbours.reduce(0.0) { $0 + Double(source[$1 + channel]) }
+          let value = centre * (1 + 4 * weight) - sum * weight
+          // Значения premultiplied, поэтому цвет не выше альфы.
+          output[index + channel] = UInt8(min(max(value.rounded(), 0), alpha))
+        }
+      }
+    }
+    return RasterImage(width: width, height: height, pixels: output)
+  }
+}
+
+/// Нерезкая маска как `Aire.unsharp` (Aire 0.18.1, `jni/Base.cpp` `unsharpImpl`, `base/Sharpness.cpp`
+/// `applyUnsharp`, `blur/GaussBlur.cpp` `gaussBlurU8`, `base/Convolve1D.cpp`).
+///
+/// Маска — гауссово размытие с ядром 5 и sigma 4 (`exp(-0.5 * ((x - 2) / 4)^2)`, нормированное):
+/// сначала по строкам, потом по столбцам, края повторяют крайний пиксель, после каждого прохода
+/// округление в байт. Результат: `c - (c - blur) * intensity` в долях 1, в байт с отбрасыванием
+/// дробной части (не округлением). Формула Aire именно такая, с минусом: фактически это
+/// смягчение, а не усиление резкости; она перенесена как есть.
+/// Альфа обрабатывается наравне с цветом, цвет берётся premultiplied; проверено на непрозрачной.
+///
+/// Статус: проверено по эталону.
+struct UnsharpFilter: Filter {
+  /// Ядро и sigma фиксированы в Aire.
+  private static let kernel: [Float] = {
+    let raw = (0..<5).map { index in
+      expf(-0.5 * powf((Float(index - 2)) / 4, 2))
+    }
+    let total = raw.reduce(0, +)
+    return raw.map { $0 / total }
+  }()
+
+  let intensity: Double
+
+  func apply(to image: RasterImage) async throws -> RasterImage {
+    let blurred = Self.blur(image)
+    let strength = Float(intensity)
+    var output = image.pixels
+    for index in output.indices {
+      let colour = Float(image.pixels[index]) / 255
+      let mask = Float(blurred[index]) / 255
+      let value = (colour - (colour - mask) * strength) * 255
+      output[index] = UInt8(min(max(value, 0), 255))
+    }
+    return RasterImage(width: image.width, height: image.height, pixels: output)
+  }
+
+  /// Горизонтальный и вертикальный проходы по байтам; сумма округляется до ближайшего чётного.
+  private static func blur(_ image: RasterImage) -> [UInt8] {
+    let width = image.width
+    let height = image.height
+    var horizontal = [UInt8](repeating: 0, count: image.pixels.count)
+    for y in 0..<height {
+      for x in 0..<width {
+        for channel in 0..<4 {
+          var sum: Float = 0
+          for (tap, weight) in kernel.enumerated() {
+            let source = min(max(x + tap - 2, 0), width - 1)
+            sum += Float(image.pixels[(y * width + source) * 4 + channel]) * weight
+          }
+          horizontal[(y * width + x) * 4 + channel] = byte(sum)
+        }
+      }
+    }
+    var output = [UInt8](repeating: 0, count: image.pixels.count)
+    for y in 0..<height {
+      for x in 0..<width {
+        for channel in 0..<4 {
+          var sum: Float = 0
+          for (tap, weight) in kernel.enumerated() {
+            let source = min(max(y + tap - 2, 0), height - 1)
+            sum += Float(horizontal[(source * width + x) * 4 + channel]) * weight
+          }
+          output[(y * width + x) * 4 + channel] = byte(sum)
+        }
+      }
+    }
+    return output
+  }
+
+  private static func byte(_ value: Float) -> UInt8 {
+    UInt8(min(max(value.rounded(.toNearestOrEven), 0), 255))
+  }
+}
+
+/// Монохромное зерно. Приближение: Aire недоступен, поэтому амплитуда выбрана условно.
+///
+/// Шум детерминированный: один и тот же пиксель всегда получает одно и то же значение.
+/// Значение 0 не меняет картинку.
+struct GrainFilter: Filter {
+  /// Наибольшее отклонение канала при интенсивности 1, в шкале 0...255. Задано условно.
+  static let assumedAmplitude = 64.0
+
+  let intensity: Double
+
+  func apply(to image: RasterImage) async throws -> RasterImage {
+    let width = image.width
+    var output = image.pixels
+    for y in 0..<image.height {
+      for x in 0..<width {
+        let index = (y * width + x) * 4
+        let alpha = Double(image.pixels[index + 3])
+        let delta = Self.noise(x: x, y: y) * intensity * Self.assumedAmplitude * alpha / 255
+        for channel in 0..<3 {
+          let value = Double(image.pixels[index + channel]) + delta
+          output[index + channel] = UInt8(min(max(value.rounded(), 0), alpha))
+        }
+      }
+    }
+    return RasterImage(width: width, height: image.height, pixels: output)
+  }
+
+  /// Хеш координат в диапазоне -1...1.
+  static func noise(x: Int, y: Int) -> Double {
+    var hash = UInt32(truncatingIfNeeded: x) &* 0x9E37_79B1
+    hash ^= UInt32(truncatingIfNeeded: y) &* 0x85EB_CA77
+    hash ^= hash >> 15
+    hash = hash &* 0x2C1B_3C6D
+    hash ^= hash >> 12
+    hash = hash &* 0x297A_2D39
+    hash ^= hash >> 15
+    return Double(hash) / Double(UInt32.max) * 2 - 1
+  }
+}
+
+/// Форма ячейки пикселизации, как в `PixelationLayer.Shape` на Android.
+private enum PixelShape {
+  case square
+  case circle
+  case diamond
+}
+
+/// Один слой пикселизации: сетка с шагом `resolution`, фигуры размером `size` (по умолчанию `resolution`).
+private struct PixelLayer {
+  let shape: PixelShape
+  let resolution: Double
+  var size: Double?
+  var alpha: Double = 1
+  var offset: Double = 0
+}
+
+/// Рисует слои по порядку, как `PixelationTool` на Android. Каждая ячейка берёт цвет пикселя в своём центре.
+///
+/// Приближение: Canvas на Android рисует круги и ромбы со сглаживанием Skia (аналитический AA,
+/// кривые круга заменены ломаной с привязкой по y к четверти пикселя). Здесь покрытие края считается
+/// выборкой 8 на 8 точек внутри пикселя; квадраты остаются с жёсткими краями. Полный разбор в
+/// FILTERS.md, решение 18.
+private enum Pixelation {
+  /// Число точек выборки покрытия по каждой оси внутри пикселя на краю фигуры.
+  private static let samples = 8
+
+  static func render(_ image: RasterImage, layers: [PixelLayer]) -> RasterImage {
+    let width = image.width
+    let height = image.height
+    // Начинаем с прозрачного холста, как createBitmap на Android.
+    var output = [UInt8](repeating: 0, count: width * height * 4)
+
+    for layer in layers {
+      let size = layer.size ?? layer.resolution
+      let half = size / 2
+      let columns = Int(Double(width) / layer.resolution + 1)
+      let rows = Int(Double(height) / layer.resolution + 1)
+
+      for row in 0...rows {
+        let y = (Double(row) - 0.5) * layer.resolution + layer.offset
+        let sampleY = Int(min(max(y, 0), Double(height - 1)))
+        for column in 0...columns {
+          let x = (Double(column) - 0.5) * layer.resolution + layer.offset
+          let sampleX = Int(min(max(x, 0), Double(width - 1)))
+          let source = image.pixel(x: sampleX, y: sampleY)
+          // Как Color.argb на Android: альфа обрезается до целого.
+          let alpha = (layer.alpha * Double(source.alpha)).rounded(.down)
+          guard alpha > 0 else { continue }
+          paint(
+            into: &output, width: width, height: height,
+            shape: layer.shape, centreX: x, centreY: y, half: half,
+            colour: source, alpha: alpha)
+        }
+      }
+    }
+    return RasterImage(width: width, height: height, pixels: output)
+  }
+
+  /// Накладывает фигуру цвета `colour` с альфой `alpha` (0...255) методом source-over; на краю круга и
+  /// ромба доля покрытия пикселя умножается на альфу.
+  private static func paint(
+    into output: inout [UInt8], width: Int, height: Int,
+    shape: PixelShape, centreX: Double, centreY: Double, half: Double,
+    colour: RGBA, alpha: Double
+  ) {
+    let minX = max(0, Int((centreX - half).rounded(.down)) - 1)
+    let maxX = min(width - 1, Int((centreX + half).rounded(.up)) + 1)
+    let minY = max(0, Int((centreY - half).rounded(.down)) - 1)
+    let maxY = min(height - 1, Int((centreY + half).rounded(.up)) + 1)
+    guard minX <= maxX, minY <= maxY else { return }
+
+    let opacity = alpha / 255
+    let red = Double(colour.red)
+    let green = Double(colour.green)
+    let blue = Double(colour.blue)
+    for y in minY...maxY {
+      for x in minX...maxX {
+        let dx = Double(x) + 0.5 - centreX
+        let dy = Double(y) + 0.5 - centreY
+        let share = coverage(shape: shape, dx: dx, dy: dy, half: half)
+        guard share > 0 else { continue }
+
+        let weight = share * opacity
+        let index = (y * width + x) * 4
+        output[index] = UInt8(
+          min((red * weight + Double(output[index]) * (1 - weight)).rounded(), 255))
+        output[index + 1] = UInt8(
+          min((green * weight + Double(output[index + 1]) * (1 - weight)).rounded(), 255))
+        output[index + 2] = UInt8(
+          min((blue * weight + Double(output[index + 2]) * (1 - weight)).rounded(), 255))
+        output[index + 3] = UInt8(
+          min((255 * weight + Double(output[index + 3]) * (1 - weight)).rounded(), 255))
+      }
+    }
+  }
+
+  /// Доля пикселя с центром на расстоянии `(dx, dy)` от центра фигуры, закрытая фигурой.
+  private static func coverage(shape: PixelShape, dx: Double, dy: Double, half: Double) -> Double {
+    switch shape {
+    case .square:
+      return abs(dx) <= half && abs(dy) <= half ? 1 : 0
+    case .circle:
+      // Диагональ пикселя 0.71 от центра до угла: дальше края фигура целиком внутри или снаружи.
+      let distance = (dx * dx + dy * dy).squareRoot()
+      if distance <= half - 0.7072 { return 1 }
+      if distance >= half + 0.7072 { return 0 }
+      return sampled(dx: dx, dy: dy) { u, v in u * u + v * v <= half * half }
+    case .diamond:
+      // Сумма модулей меняется внутри пикселя не больше чем на 1.
+      let norm = abs(dx) + abs(dy)
+      if norm <= half - 1 { return 1 }
+      if norm >= half + 1 { return 0 }
+      return sampled(dx: dx, dy: dy) { u, v in abs(u) + abs(v) <= half }
+    }
+  }
+
+  /// Равномерная выборка `samples` на `samples` точек в пикселе; `inside` получает смещение от центра фигуры.
+  private static func sampled(dx: Double, dy: Double, inside: (Double, Double) -> Bool) -> Double {
+    var count = 0
+    let step = 1 / Double(samples)
+    for row in 0..<samples {
+      let v = dy - 0.5 + (Double(row) + 0.5) * step
+      for column in 0..<samples {
+        let u = dx - 0.5 + (Double(column) + 0.5) * step
+        if inside(u, v) { count += 1 }
+      }
+    }
+    return Double(count) / Double(samples * samples)
+  }
+}
+
+/// Квадратная пикселизация. Слой: квадрат со стороной `size`, шаг сетки `size - 4`.
+///
+/// Сверка с эталоном: точное совпадение. Края квадратов целые, поэтому сглаживание Android
+/// `Canvas` на результат не влияет.
+struct PixelationFilter: Filter {
+  let size: Double
+
+  func apply(to image: RasterImage) async throws -> RasterImage {
+    Pixelation.render(
+      image,
+      layers: [PixelLayer(shape: .square, resolution: size - 4, size: size)])
+  }
+}
+
+/// Круглая пикселизация: два слоя кругов, второй смещён на половину шага.
+///
+/// Приближение: сглаживание края своё, не Skia, см. `Pixelation`.
+struct CirclePixelationFilter: Filter {
+  let size: Double
+
+  func apply(to image: RasterImage) async throws -> RasterImage {
+    Pixelation.render(
+      image,
+      layers: [
+        PixelLayer(shape: .circle, resolution: size),
+        PixelLayer(shape: .circle, resolution: size, size: size / 3, offset: size / 2),
+      ])
+  }
+}
+
+/// Ромбовидная пикселизация: два слоя ромбов и квадратный слой с альфой 0.6, как `PixelationCommands.diamond`.
+///
+/// Приближение: сглаживание края своё, не Skia, см. `Pixelation`.
+struct DiamondPixelationFilter: Filter {
+  let size: Double
+
+  func apply(to image: RasterImage) async throws -> RasterImage {
+    Pixelation.render(
+      image,
+      layers: [
+        PixelLayer(shape: .diamond, resolution: size, size: size + 1),
+        PixelLayer(shape: .diamond, resolution: size, offset: size / 2),
+        PixelLayer(shape: .square, resolution: size, alpha: 0.6),
+      ])
+  }
+}
